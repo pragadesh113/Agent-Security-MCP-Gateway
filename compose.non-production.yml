@@ -1,0 +1,12 @@
+# Disposable smoke-test composition. It has no host port and no network egress.
+services:
+  gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile.non-production
+    image: agent-security-gateway:non-production
+    network_mode: none
+    environment:
+      GATEWAY_HOST: 127.0.0.1
+      GATEWAY_PORT: 4174
+    restart: "no"

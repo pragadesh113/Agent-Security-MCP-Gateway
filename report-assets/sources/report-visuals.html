@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Agent Security MCP Gateway Report Visuals</title>
+  <style>
+    :root { --ink:#132238; --muted:#5b677a; --blue:#173f73; --cyan:#2a77a8; --pale:#eaf2f8; --green:#1f7a5a; --amber:#b36b00; --red:#a93d3d; --line:#b8c4d1; --paper:#ffffff; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #dfe6ed; font-family: "Segoe UI", Arial, sans-serif; color: var(--ink); }
+    .figure { width: 1400px; height: 860px; background: var(--paper); padding: 56px 64px; margin: 28px; position: relative; overflow: hidden; }
+    h1 { margin: 0 0 10px; font-size: 34px; font-weight: 700; letter-spacing: .2px; }
+    .subtitle { color: var(--muted); font-size: 19px; margin-bottom: 34px; }
+    .footer { position:absolute; left:64px; right:64px; bottom:28px; color:var(--muted); font-size:15px; display:flex; justify-content:space-between; border-top:1px solid #d8e0e8; padding-top:12px; }
+    .row { display:flex; align-items:stretch; gap:22px; }
+    .box { border:2px solid var(--blue); border-radius:12px; padding:18px 16px; background:#fff; min-height:105px; display:flex; flex-direction:column; justify-content:center; text-align:center; }
+    .box strong { font-size:20px; }
+    .box span { font-size:15px; color:var(--muted); margin-top:8px; line-height:1.35; }
+    .arrow { display:flex; align-items:center; justify-content:center; color:var(--blue); font-size:35px; min-width:34px; }
+    .core { background:var(--pale); }
+    .guard { border-color:var(--green); }
+    .warn { border-color:var(--amber); }
+    .danger { border-color:var(--red); }
+    .rail { margin-top:30px; padding:18px; border-radius:10px; background:#f5f7fa; border:1px solid var(--line); font-size:18px; display:flex; justify-content:space-around; }
+    .rail b { color:var(--blue); }
+    .badge { display:inline-block; border-radius:999px; padding:5px 12px; font-size:14px; font-weight:700; color:#fff; background:var(--blue); }
+    .badge.red { background:var(--red); }
+    .badge.amber { background:var(--amber); }
+    .badge.green { background:var(--green); }
+    .step { flex:1; position:relative; }
+    .step-num { width:38px; height:38px; border-radius:50%; background:var(--blue); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; margin:0 auto 12px; }
+    .step .box { min-height:145px; }
+    .branch { display:grid; grid-template-columns:1fr 1fr 1fr; gap:18px; margin-top:24px; }
+    .panel { border:1px solid var(--line); border-radius:12px; background:#f8fafc; padding:22px; }
+    .panel h2 { margin:0 0 12px; font-size:22px; }
+    .panel p, .panel li { color:var(--muted); font-size:17px; line-height:1.45; }
+    .wire { display:grid; grid-template-columns:1fr 1.3fr 1fr; gap:24px; align-items:stretch; }
+    .screen { border:3px solid #27364a; border-radius:18px; padding:18px; background:#fff; min-height:520px; box-shadow:0 8px 18px rgba(30,45,60,.09); }
+    .screen .top { background:#22354d; color:#fff; margin:-18px -18px 18px; padding:14px 18px; border-radius:14px 14px 0 0; font-weight:700; }
+    .line { height:15px; background:#dfe7ef; border-radius:8px; margin:13px 0; }
+    .line.short { width:55%; }
+    .field { border:1px solid var(--line); border-radius:8px; padding:12px; margin:12px 0; color:var(--muted); }
+    .button { display:inline-block; padding:11px 18px; border-radius:8px; background:var(--blue); color:#fff; font-weight:700; margin:10px 6px 0 0; }
+    .button.deny { background:var(--red); }
+    .bars { display:flex; align-items:flex-end; gap:75px; height:480px; padding:30px 80px 0; border-left:2px solid var(--ink); border-bottom:2px solid var(--ink); }
+    .bar-wrap { width:180px; text-align:center; }
+    .bar { width:100%; border-radius:10px 10px 0 0; display:flex; align-items:flex-start; justify-content:center; padding-top:14px; color:#fff; font-size:25px; font-weight:700; }
+    .bar-label { font-size:18px; font-weight:700; margin-top:14px; }
+    .bar-note { font-size:15px; color:var(--muted); margin-top:6px; }
+    .cost-grid { display:grid; grid-template-columns:1.2fr 1fr; gap:45px; }
+    .cost-row { display:grid; grid-template-columns:230px 1fr 100px; gap:14px; align-items:center; margin:22px 0; font-size:18px; }
+    .track { height:26px; border-radius:13px; background:#e5ebf1; overflow:hidden; }
+    .fill { height:100%; background:var(--cyan); border-radius:13px; }
+    .total { margin-top:26px; font-size:24px; font-weight:700; color:var(--blue); }
+    .gantt { display:grid; grid-template-columns:240px repeat(6,1fr); border-top:1px solid var(--line); border-left:1px solid var(--line); }
+    .gantt > div { min-height:62px; border-right:1px solid var(--line); border-bottom:1px solid var(--line); padding:14px 10px; font-size:16px; }
+    .gantt .head { background:#edf3f8; text-align:center; font-weight:700; }
+    .gantt .task { font-weight:650; }
+    .gantt .active { background:var(--cyan); color:#fff; text-align:center; font-weight:700; }
+    .gantt .review { background:var(--amber); color:#fff; text-align:center; font-weight:700; }
+    .stake { display:grid; grid-template-columns:1fr 1fr; gap:22px; }
+    .stake .panel { min-height:205px; }
+    .stake ul { margin:10px 0 0; padding-left:22px; }
+  </style>
+</head>
+<body>
+  <section class="figure" id="architecture">
+    <h1>System Architecture</h1>
+    <div class="subtitle">Effect-based, bidirectional reference monitor for MCP traffic</div>
+    <div class="row">
+      <div class="box" style="width:155px"><strong>MCP Host</strong><span>Agent client and user session</span></div><div class="arrow">→</div>
+      <div class="box core" style="width:180px"><strong>Identity and Session</strong><span>mTLS principal, opaque session, isolated state</span></div><div class="arrow">→</div>
+      <div class="box core" style="width:180px"><strong>Discovery and Route Registry</strong><span>Integrity, schema, audience, scope</span></div><div class="arrow">→</div>
+      <div class="box guard" style="width:190px"><strong>Canonical Action</strong><span>Resource, effect, environment, route, data flow</span></div><div class="arrow">→</div>
+      <div class="box guard" style="width:180px"><strong>Policy Engine</strong><span>Most-restrictive decision and risk tier</span></div>
+    </div>
+    <div class="row" style="margin-top:28px; justify-content:flex-end">
+      <div class="box warn" style="width:190px"><strong>Human Approval</strong><span>Exact, five-minute, single-use decision</span></div><div class="arrow">→</div>
+      <div class="box guard" style="width:190px"><strong>Forwarding Coordinator</strong><span>One revalidated request with route lease</span></div><div class="arrow">→</div>
+      <div class="box" style="width:175px"><strong>Downstream MCP Server</strong><span>Authenticated disposable or operational peer</span></div><div class="arrow">→</div>
+      <div class="box guard" style="width:205px"><strong>Result Guard</strong><span>Provenance, schema, redaction, egress, quarantine</span></div><div class="arrow">→</div>
+      <div class="box" style="width:145px"><strong>Client</strong><span>Governed data-only result</span></div>
+    </div>
+    <div class="rail"><span><b>PostgreSQL:</b> request-to-outcome trajectory and append-only audit</span><span><b>Coverage monitor:</b> gateway, native, and direct-path evidence</span><span><b>Advisory supervisor:</b> may only add restrictions</span></div>
+    <div class="footer"><span>Figure 1  System architecture</span><span>Current global coverage: UNPROTECTED</span></div>
+  </section>
+
+  <section class="figure" id="control-flow">
+    <h1>Request and Result Control Flow</h1>
+    <div class="subtitle">No protected effect occurs before canonical policy and required approval</div>
+    <div class="row">
+      <div class="step"><div class="step-num">1</div><div class="box"><strong>Authenticate</strong><span>Derive identity outside MCP arguments</span></div></div><div class="arrow">→</div>
+      <div class="step"><div class="step-num">2</div><div class="box"><strong>Admit</strong><span>Validate state, replay, quota, size, depth</span></div></div><div class="arrow">→</div>
+      <div class="step"><div class="step-num">3</div><div class="box"><strong>Resolve</strong><span>Pin route, schema and canonical resources</span></div></div><div class="arrow">→</div>
+      <div class="step"><div class="step-num">4</div><div class="box"><strong>Decide</strong><span>Persist most-restrictive policy outcome</span></div></div>
+    </div>
+    <div class="branch">
+      <div class="box danger"><strong>DENY</strong><span>Return factual awareness. No downstream invocation.</span></div>
+      <div class="box warn"><strong>REQUIRE APPROVAL</strong><span>Show canonical context. Revalidate and consume once.</span></div>
+      <div class="box guard"><strong>ALLOW OR CONSTRAIN</strong><span>Proceed only when exact controls and coverage permit.</span></div>
+    </div>
+    <div class="row" style="margin-top:28px">
+      <div class="box guard" style="flex:1"><strong>Forward exactly once</strong><span>Gateway-held credential lease; route and argument binding</span></div><div class="arrow">→</div>
+      <div class="box guard" style="flex:1"><strong>Govern response</strong><span>Authenticate provenance; validate, redact, classify or quarantine</span></div><div class="arrow">→</div>
+      <div class="box core" style="flex:1"><strong>Record outcome</strong><span>Complete, failed, cancelled, timed out or unknown partial effect</span></div>
+    </div>
+    <div class="footer"><span>Figure 2  Data and control flow</span><span>Fail-closed on unresolved state or dependency failure</span></div>
+  </section>
+
+  <section class="figure" id="ui-journey">
+    <h1>User Interface Plan and Approval Journey</h1>
+    <div class="subtitle">Planned P2-F020 wireframes; these controls are not yet connected to the runtime</div>
+    <div class="wire">
+      <div class="screen"><div class="top">Security Status</div><span class="badge red">UNPROTECTED</span><div class="line"></div><div class="field">Coverage gaps<br><b>Named-host review and isolation pending</b></div><div class="field">Validation<br><b>283 unit · 60 integration</b></div><div class="field">Blocked release gates<br><b>3</b></div><div class="button">Inspect request</div></div>
+      <div class="screen"><div class="top">Exact Approval Required</div><span class="badge amber">TIER 3</span><div class="field"><b>Requester</b><br>User · agent · client · session</div><div class="field"><b>Effect and target</b><br>Canonical resource, route, environment and data flow</div><div class="field"><b>Why approval</b><br>Risk, reversibility, blast radius and untrusted influence</div><div class="field"><b>Validity</b><br>One exact request · maximum five minutes</div><div class="button">Approve once</div><div class="button deny">Deny</div></div>
+      <div class="screen"><div class="top">Outcome and Audit</div><span class="badge green">RECORDED</span><div class="field"><b>Decision</b><br>Policy reasons and evaluated alternatives</div><div class="field"><b>Execution</b><br>Forwarded, result disposition and partial-effect state</div><div class="field"><b>Evidence</b><br>Request, route, schema, approval and outcome linkage</div><div class="field"><b>Recovery</b><br>Backup, compensating action, partial or unknown</div><div class="button">View trajectory</div></div>
+    </div>
+    <div class="footer"><span>Figure 3  Approval user journey</span><span>Bulk and always-allow controls are intentionally absent</span></div>
+  </section>
+
+  <section class="figure" id="validation-chart">
+    <h1>Fresh Prototype Validation</h1>
+    <div class="subtitle">Executed on 12 September 2026 using disposable local resources</div>
+    <div class="bars">
+      <div class="bar-wrap"><div class="bar" style="height:420px;background:#173f73">283</div><div class="bar-label">Unit tests</div><div class="bar-note">31 files · passed</div></div>
+      <div class="bar-wrap"><div class="bar" style="height:210px;background:#2a77a8">60</div><div class="bar-label">Integration tests</div><div class="bar-note">13 files · passed</div></div>
+      <div class="bar-wrap"><div class="bar" style="height:318px;background:#1f7a5a">18</div><div class="bar-label">Complete features</div><div class="bar-note">of 21 tracked</div></div>
+      <div class="bar-wrap"><div class="bar" style="height:92px;background:#b36b00">3</div><div class="bar-label">Open features</div><div class="bar-note">1 in progress · 2 planned</div></div>
+    </div>
+    <div class="footer"><span>Figure 4  Validation and implementation status</span><span>Build, lint, type-check and feature validation also passed</span></div>
+  </section>
+
+  <section class="figure" id="cost-chart">
+    <h1>Estimated Academic Prototype Cost</h1>
+    <div class="subtitle">Illustrative one-semester budget in INR; student-owned computer and open-source software assumed</div>
+    <div class="cost-grid">
+      <div>
+        <div class="cost-row"><span>Local development</span><div class="track"><div class="fill" style="width:0%"></div></div><b>₹0</b></div>
+        <div class="cost-row"><span>Cloud test allowance</span><div class="track"><div class="fill" style="width:100%"></div></div><b>₹6,000</b></div>
+        <div class="cost-row"><span>Domain or TLS lab</span><div class="track"><div class="fill" style="width:25%"></div></div><b>₹1,500</b></div>
+        <div class="cost-row"><span>Printing and binding</span><div class="track"><div class="fill" style="width:33%"></div></div><b>₹2,000</b></div>
+        <div class="cost-row"><span>Contingency</span><div class="track"><div class="fill" style="width:25%"></div></div><b>₹1,500</b></div>
+        <div class="total">Estimated cash outlay: ₹11,000</div>
+      </div>
+      <div class="panel"><h2>Cost assumptions</h2><ul><li>TypeScript, Node.js, PostgreSQL, Docker and project libraries are open source.</li><li>No production credentials or paid infrastructure are included.</li><li>Cloud allowance is reserved for short-lived named-host and deployment experiments.</li><li>Student effort is reported separately and is not priced as cash expenditure.</li><li>Costs must be revised before production deployment.</li></ul></div>
+    </div>
+    <div class="footer"><span>Figure 5  Cost distribution</span><span>Planning estimate, not a vendor quotation</span></div>
+  </section>
+
+  <section class="figure" id="timeline">
+    <h1>Semester VIII Finalization Plan</h1>
+    <div class="subtitle">Dependency-aware six-month schedule for completing production evidence and submission</div>
+    <div class="gantt">
+      <div class="head">Work package</div><div class="head">Month 1</div><div class="head">Month 2</div><div class="head">Month 3</div><div class="head">Month 4</div><div class="head">Month 5</div><div class="head">Month 6</div>
+      <div class="task">Secret-manager adapter</div><div class="active">Build</div><div class="active">Verify</div><div></div><div></div><div></div><div></div>
+      <div class="task">Functional approval UI</div><div></div><div class="active">Build</div><div class="active">Secure and test</div><div></div><div></div><div></div>
+      <div class="task">Named hosts and review</div><div></div><div></div><div class="review">Integrate</div><div class="active">Trials and review</div><div></div><div></div>
+      <div class="task">Exclusive mediation deployment</div><div></div><div></div><div></div><div class="active">Isolate</div><div class="active">Evidence</div><div></div>
+      <div class="task">Recovery and release evidence</div><div></div><div></div><div></div><div></div><div class="active">Exercise</div><div></div>
+      <div class="task">Report, paper and viva</div><div></div><div></div><div class="active">Draft</div><div class="active">Revise</div><div class="active">Finalize</div><div class="review">Submit</div>
+    </div>
+    <div class="footer"><span>Figure 6  Semester VIII Gantt chart</span><span>Production claim remains blocked until all evidence gates pass</span></div>
+  </section>
+
+  <section class="figure" id="stakeholders">
+    <h1>Stakeholder and Requirement Map</h1>
+    <div class="subtitle">Repository-derived analysis; external survey responses have not yet been collected</div>
+    <div class="stake">
+      <div class="panel"><h2>Agent user</h2><ul><li>Safe completion with understandable denials</li><li>Low approval burden and useful alternatives</li><li>No credential exposure in model context</li></ul></div>
+      <div class="panel"><h2>System operator</h2><ul><li>Authenticated identities and durable administration</li><li>Exact coverage gaps and health diagnostics</li><li>Recovery, rollback and audit evidence</li></ul></div>
+      <div class="panel"><h2>Security reviewer</h2><ul><li>Representation-invariant policy</li><li>Replay, concurrency and bypass resistance</li><li>Traceable claims linked to reproducible tests</li></ul></div>
+      <div class="panel"><h2>MCP server owner</h2><ul><li>Stable schema and route registration</li><li>Audience-bound credentials</li><li>Clear quarantine and re-review workflow</li></ul></div>
+    </div>
+    <div class="footer"><span>Figure 7  Stakeholder analysis</span><span>Appendix questionnaire is ready for primary data collection</span></div>
+  </section>
+</body>
+</html>

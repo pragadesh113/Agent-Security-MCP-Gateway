@@ -1,0 +1,53 @@
+{
+  "name": "@agent-security/mcp-gateway",
+  "version": "0.2.0",
+  "private": true,
+  "description": "Phase 2 production-oriented MCP security gateway",
+  "license": "Apache-2.0",
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "lint": "eslint src test",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run test/unit",
+    "test:integration": "vitest run test/integration",
+    "validate:features": "node scripts/validate-features.mjs",
+    "verify:package-boundary": "node scripts/verify-package-boundary.mjs",
+    "dashboard:build": "node scripts/generate-dashboard.mjs",
+    "dashboard:serve": "node scripts/serve-dashboard.mjs",
+    "gateway:serve": "npm run build && node scripts/serve-gateway.mjs",
+    "gateway:serve:protected": "npm run build && node scripts/serve-gateway-protected.mjs",
+    "docker:build:non-production": "docker build --file Dockerfile.non-production --tag agent-security-gateway:non-production .",
+    "sbom:generate": "node scripts/generate-sbom.mjs",
+    "release:manifest": "node scripts/generate-release-manifest.mjs",
+    "release:verify": "node scripts/verify-release-manifest.mjs",
+    "build:verify-reproducible": "node scripts/verify-reproducible-build.mjs",
+    "gateway:smoke": "node scripts/smoke-gateway.mjs",
+    "vault:verify:disposable": "npm run build && node scripts/verify-vault-provider.mjs",
+    "evidence:capture": "node scripts/capture-local-evidence.mjs",
+    "deploy:verify:non-production": "node scripts/verify-non-production-deployment.mjs",
+    "release:prepare:non-production": "node scripts/prepare-non-production-release.mjs"
+  },
+  "engines": {
+    "node": ">=24.0.0"
+  },
+  "dependencies": {
+    "express": "^5.1.0",
+    "pg": "^8.16.3",
+    "zod": "^4.1.13"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.0",
+    "@types/express": "^5.0.5",
+    "@types/node": "^24.10.0",
+    "@types/pg": "^8.15.6",
+    "embedded-postgres": "^18.4.0-beta.17",
+    "eslint": "^9.39.0",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.48.0",
+    "vitest": "^4.0.14"
+  },
+  "allowScripts": {
+    "@embedded-postgres/windows-x64@18.4.0-beta.17": true
+  }
+}

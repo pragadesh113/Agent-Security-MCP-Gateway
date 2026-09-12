@@ -1,0 +1,159 @@
+\documentclass[conference]{IEEEtran}
+
+\usepackage{booktabs}
+\usepackage{cite}
+\usepackage{amsmath}
+\usepackage{microtype}
+\usepackage{url}
+\usepackage{xcolor}
+
+\definecolor{warningred}{RGB}{150,20,20}
+
+\title{Representation-Invariant Bidirectional Mediation for Secure Model Context Protocol Tool Use}
+
+% Replace every placeholder below before submission. For double-blind venues, follow
+% the venue's anonymization policy instead of revealing author identities here.
+\author{\IEEEauthorblockN{Author Name(s)}
+\IEEEauthorblockA{Department and Institution\\
+City, Country\\
+email@example.org}}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Model Context Protocol (MCP) integrations expose language-model agents to effectful tools and untrusted results, but filtering tool names or model text does not provide complete mediation. We present the design and prototype verification of an effect-based, bidirectional MCP reference monitor. The monitor resolves each request to a canonical resource, effect, environment, route, and data-flow description; composes deterministic policies using most-restrictive-wins semantics; binds Tier-3 authorization to one exact, short-lived, transactionally consumed human approval; and validates downstream provenance and content before release. The same canonical decision is intended to hold across equivalent tools, servers, paths, encodings, retries, concurrency schedules, and transports. A bypass-aware coverage monitor reports protection only when gateway mediation and independent native/direct-path controls are evidenced. Repository verification comprises 210 unit tests and 40 integration tests, including a 30-class seeded harness, a 16-way approval race with exactly one winner, PostgreSQL replay checks, result mediation, and two disposable host adapters. These are engineering and disposable-fixture results, not a production security evaluation: the current client-facing runtime is non-forwarding and \texttt{UNPROTECTED}. We state the missing adaptive, human-subject, production-host, deployment-isolation, and repeated-trial experiments needed to evaluate the security hypothesis.
+\end{abstract}
+
+\begin{IEEEkeywords}
+Model Context Protocol, AI agent security, reference monitor, authorization, human approval, prompt injection, complete mediation
+\end{IEEEkeywords}
+
+\section{Introduction}
+Tool-using language-model agents turn model outputs into externally visible effects. MCP standardizes stateful JSON-RPC interactions among hosts, clients, and servers, including capability negotiation, tools, resources, cancellation, and errors~\cite{mcp2025}. This interoperability also creates a security boundary: descriptions, arguments, routes, results, and protocol state may all be influenced by an untrusted peer or by content processed by the model. Existing work demonstrates that tool-enabled agents can perform harmful actions~\cite{he2025security} and that indirect prompt injection can redirect realistic agent workflows~\cite{debenedetti2024agentdojo}.
+
+An outbound-only authorization proxy is insufficient. An attacker can encode the same effect through a different tool or path, exploit a time-of-check/time-of-use gap, or return content that induces a later action. Conversely, a gateway cannot truthfully claim protection when the agent retains a native shell, browser, network credential, or downstream route capable of reproducing the protected effect.
+
+This paper develops a narrower systems-security hypothesis: \emph{authorization should be invariant over representations of the same effect, and mediation should cover both request and result paths}. The prototype makes four contributions:
+
+\begin{itemize}
+  \item a canonical action representation that binds authenticated identity, resource, effect, environment, route, schema, and data flow before deterministic policy evaluation;
+  \item exact single-use human approval, consumed atomically with forwarding state and revalidated immediately before the credential-consuming operation;
+  \item authenticated downstream provenance plus schema, size, redaction, egress, and instruction/content mediation before a result reaches the agent; and
+  \item scoped, bypass-aware coverage that distinguishes gateway behavior from independent evidence that native and direct paths are blocked.
+\end{itemize}
+
+The implementation is deliberately conservative. Its live client-facing harness accepts disposable loopback lifecycle traffic, advertises no operational tool capability, forwards no protected call, and reports \texttt{UNPROTECTED}. The evaluation reported here therefore establishes executable invariants and reproducibility scaffolding, not deployment effectiveness or production readiness.
+
+\section{Threat Model and Security Objective}
+\subsection{Assets and adversaries}
+Protected assets include repositories, databases, cloud resources, credentials, MCP registrations, policy state, approvals, and audit evidence. We assume model-controlled input, client claims, server metadata, tool descriptions, arguments, results, errors, and summaries may be hostile. Attacks include prompt injection, server impersonation, route or schema drift, replay, approval reuse, concurrency races, resource exhaustion, cross-session confusion, and retries through equivalent representations.
+
+The trusted computing base contains the authenticated gateway, immutable policy, identity and route registries, approval channel, PostgreSQL state, redaction service, and deployment controls. Model or advisory-supervisor output cannot weaken an administrator denial, authorize an unknown action, or bypass Tier-3 approval.
+
+\subsection{Canonical security objective}
+Let $N(q)$ resolve request $q$ to a canonical action tuple
+\begin{equation}
+  a = \langle i,s,r,e,v,d,\rho,\sigma,p,c\rangle,
+\end{equation}
+where $i$ is authenticated identity, $s$ is session, $r$ is the resource set, $e$ is effect, $v$ is environment, $d$ is data flow, $\rho$ is route, $\sigma$ is schema digest, $p$ is policy version, and $c$ is call-chain context. For requests $q_1$ and $q_2$ that resolve to the same security-relevant tuple, representation invariance requires
+\begin{equation}
+  N(q_1) \equiv N(q_2) \Longrightarrow P(N(q_1)) = P(N(q_2)),
+\end{equation}
+independent of tool alias, server, path syntax, encoding, retry, or transport. Resolution failure is not interpreted as safety: unsupported, ambiguous, or partially parsed actions require approval or denial.
+
+Policy layers compose according to
+\begin{equation}
+\begin{aligned}
+\textsc{Deny} &\succ \textsc{RequireApproval} \succ \textsc{Sandbox} \\
+              &\succ \textsc{AllowConstrained} \succ \textsc{Allow}.
+\end{aligned}
+\end{equation}
+Approval can discharge \textsc{RequireApproval}; it cannot override \textsc{Deny}.
+
+\subsection{Coverage semantics}
+Coverage is scoped to identity, session, server, route, tool, resource class, and environment. \texttt{ENFORCED} requires authenticated, policy-controlled, audited, fail-safe, and exclusive mediation. \texttt{DEGRADED} denotes a missing guarantee, \texttt{OBSERVE\_ONLY} denotes visibility without reliable blocking, and \texttt{UNPROTECTED} denotes no verified enforcing path. Fixture evidence is barred from deployment assurance. A reachable bypass degrades coverage and blocks protected mutations.
+
+\section{Architecture}
+The gateway mediates the complete supported trajectory:
+\begin{center}
+\fbox{\parbox{0.93\columnwidth}{\centering
+Authenticated client $\rightarrow$ integrity-checked discovery $\rightarrow$ canonical action $\rightarrow$ deterministic policy $\rightarrow$ exact approval $\rightarrow$ one revalidated forwarding attempt $\rightarrow$ authenticated result guard $\rightarrow$ client\\[2pt]
+\emph{Cross-cutting: PostgreSQL trajectory/audit state and bypass-aware coverage.}}}
+\end{center}
+
+\subsection{Boundary integrity and canonicalization}
+Versioned strict schemas reject unknown fields and versions. Authentication occurs before MCP JSON parsing, and the resulting user, agent, client, host, credential identifier, and identity revision are bound to an opaque session. Downstream registrations pin protocol, capability, tool-set, route, credential-audience, and input/output-schema digests. Drift latches quarantine until authenticated administrative review.
+
+The normalizer recomputes argument digest and byte size, resolves resources through the route-pinned resolver, normalizes Windows and POSIX paths and URIs, records parser evidence, and hashes the canonical action. This separates semantic authorization from surface syntax. Call-time route and schema checks remain mandatory even when discovery previously filtered the visible tool set.
+
+\subsection{Exact transactional approval}
+Tier-3 actions---including production, privileged, destructive, credential-related, and difficult-to-reverse effects---may only be denied or require approval. An approval binds identity, session, canonical action hash, request, route, server, tool, schema, credential audience, policy scope, resources, environment, data flow, and policy version. The default lifetime is at most five minutes. Immediately before forwarding, the coordinator revalidates identity revision, route health and schema, current policy, action digest, and coverage. PostgreSQL row locking consumes one approval while creating unique forwarding state in the same transaction. Approval identifiers and credentials are not sent downstream.
+
+\subsection{Bidirectional result mediation}
+The downstream result is not trusted merely because the request was authorized. The result guard binds authenticated server identity, request, route, schema, session, action, and call chain; enforces result size and schema; scans and redacts known secrets; applies egress policy; suppresses unsafe errors; and preserves a data-only marker for untrusted instructions. A result may be released, redacted, quarantined, or denied. The full request-to-outcome trajectory links the policy decision, approval, forwarding attempt, provenance, governed result, outcome, and hash-chained audit events.
+
+\subsection{Protocol and bypass controls}
+Replay caches bind request identifiers and nonces to the authenticated session. Quotas span user, agent, client, session, server, tool, route, destination, and action family. Depth, delegation, fan-out, redirects, retries, payload/result size, concurrency, deadline, cancellation, recursion, and circuit-breaker state are bounded. Separately, coverage probes assess gateway control, credential custody, PostgreSQL, approval, result mediation, and independent network, IAM, sandbox, operating-system, and downstream-authorization controls. Evidence is authority-, scope-, revision-, freshness-, and TTL-bound; a pre-mutation check catches changed evidence.
+
+\section{Implementation}
+The prototype is written in strict TypeScript for Node.js, with Zod boundary contracts, Express-facing adapters, and PostgreSQL-only runtime trajectory persistence. In-memory components are explicitly named and constrained as disposable test infrastructure; PostgreSQL has no runtime in-memory fallback. The implementation pins MCP revision \texttt{2025-06-18} and exercises Streamable HTTP lifecycle behavior~\cite{mcptransport2025}.
+
+The client-facing executable remains a non-production harness. It binds loopback, uses a fixture authenticator, negotiates no operational tool capability, rejects \texttt{tools/call}, records sanitized telemetry, and exposes zero downstream calls. Internal component workflows do exercise exact approval, forwarding, result governance, and coverage changes against disposable HTTP peers and PostgreSQL, but those components are not yet connected into a production identity and isolation boundary.
+
+\section{Evaluation Method}
+We separate \emph{invariant verification} from \emph{security-effectiveness evaluation}. The former asks whether strict schemas, policy rules, transactions, and failure paths behave as specified in controlled tests. The latter would measure whether adaptive attacks succeed and whether legitimate tasks remain usable across real hosts and deployments. Only invariant verification is currently available.
+
+The repository's cumulative ladder builds, lints, type-checks, runs unit and integration suites, and validates all feature records. Disposable integration dependencies include ephemeral loopback MCP peers and PostgreSQL 18.4. The seeded harness defines 30 required classes in four suites: protocol, policy invariance, malicious content, and human/trust. Every scenario requires at least two repetitions and deterministic seeds, while observations retain an evidence-source label and digest. Importantly, the current 93-trial demonstration uses deterministic assertion evidence; it does not execute 93 independent adaptive attacks.
+
+The two-adapter workflow runs three concurrent repetitions per adapter against an ephemeral peer. These are distinct synthetic adapters, not named commercial MCP hosts. Native shell and direct-network abilities are inventoried separately and structurally prohibited from claiming gateway protection.
+
+\section{Results}
+Table~\ref{tab:results} reports only reproducible repository evidence current at manuscript preparation. All workflows use disposable resources.
+
+\begin{table}[t]
+\caption{Verified Prototype Evidence (Disposable Fixtures)}
+\label{tab:results}
+\centering
+\small
+\begin{tabular}{p{0.45\columnwidth}p{0.45\columnwidth}}
+\toprule
+Evidence & Observed result \\
+\midrule
+Cumulative automated suites & 210 unit tests in 21 files; 40 integration tests in 10 files \\
+Feature-state validator & 15 of 15 Phase-2 records structurally complete \\
+Seeded evaluation harness & 30 required classes; 93 evidence-bound deterministic trial records; repeated runs byte-equivalent \\
+Exact approval race & 16 parallel consumption attempts; exactly one forwarding-start winner \\
+PostgreSQL replay & Replay denied across connections and after store restart \\
+Equivalent path tests & Tools, servers, aliases, Windows/POSIX paths, percent encodings, syntax, and HTTP/SSE route forms retain canonical policy \\
+Two-adapter workflow & 2 disposable adapters $\times$ 3 repetitions = 6 real loopback \texttt{initialize} requests; equivalent decisions and isolated compartments \\
+Coverage outcome & 0\% \texttt{ENFORCED} in the two-adapter workflow; global runtime \texttt{UNPROTECTED} \\
+Live client-facing harness & Authenticated initialization succeeds; \texttt{tools/call} rejected; zero downstream tool calls \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+These results support three bounded claims. First, representation-equivalence cases currently tested reach the same canonical policy outcome. Second, approval consumption and durable forwarding state reject replay in the tested concurrency and restart conditions. Third, result and coverage schemas make unsafe release or an \texttt{ENFORCED} claim fail closed under the tested boundary conditions.
+
+The results do \emph{not} establish attack-prevention rates, false-allow or false-denial rates, production latency, approval fatigue, or real-host interoperability. The 93-trial harness demonstration has synthetic perfect labels by construction and therefore must not be reported as an empirical 100\% prevention rate. Likewise, feature-record completion denotes implementation acceptance criteria, not a passed production release gate.
+
+\section{Related Work}
+He \emph{et al.} frame agents as systems capable of real effects and show the value of external confinement~\cite{he2025security}. AgentDojo provides a dynamic environment for indirect prompt injection and separates utility from security outcomes~\cite{debenedetti2024agentdojo}. Recent surveys synthesize agentic threats, layered defenses, human oversight risks, and trajectory-level evaluation requirements~\cite{chhabra2026agentic}.
+
+MCP-specific work overlaps with identity, policy, and content defenses. SMCP proposes mutual authentication, security-context propagation, fine-grained policy, and audit~\cite{hou2026smcp}. MCPSec studies capability attestation and message authentication~\cite{maloyan2026breaking}. MCP-Guard focuses on layered malicious-content detection and introduces MCP-AttackBench~\cite{xing2026mcpguard}. MCP Pitfall Lab emphasizes trace-grounded evaluation of metadata poisoning, puppet servers, and cross-tool flows~\cite{hao2026pitfall}. Our prototype differs in treating canonical effect equivalence, exact transactional approval, governed results, and bypass-aware coverage as one reference-monitor trajectory. It is complementary to protocol authentication, content classifiers, sandboxing, and independent deployment controls rather than a replacement for them.
+
+\section{Limitations and Publication-Grade Evaluation Plan}
+The current evidence has five material limitations. First, the client-facing runtime is non-forwarding and has fixture authentication. Second, the two host adapters are synthetic; no named production MCP host has been certified. Third, the seeded catalog validates harness mechanics and component assertions rather than executing adaptive agents against all 30 classes. Fourth, no human-subject study measures approval comprehension, error, response time, or fatigue. Fifth, no deployment supplies independently verified credential custody and network/IAM/sandbox/OS isolation, so production coverage remains \texttt{UNPROTECTED}.
+
+A publication-grade evaluation should preregister attack and benign-task sets; compare native MCP, deterministic policy, policy plus structured awareness, and any bounded trust counterfactual; use at least two real MCP-compliant hosts; repeat trials across models, seeds, paraphrases, schemas, and transports; and publish complete trajectory evidence. Metrics should include attack success, dangerous-action prevention, completion under policy, false allow and denial, latency distributions, approval burden/error, cost and call amplification, safe replanning, repeated risky attempts, quarantine events, and verified coverage. Adaptive attackers should know the defense. Human evaluation requires the selected venue's ethics and institutional-review requirements.
+
+\section{Ethics and Responsible Use}
+No real credentials, production systems, private datasets, or human participants were used in the reported tests. Fixtures are disposable and seeded. The prototype is not presented as a production security product, and publication should retain the \texttt{UNPROTECTED} status until independent deployment evidence exists. Artifact release should exclude secrets and audit payloads, document test fidelity, and preserve the distinction between assertions, simulated workflows, and real-host experiments.
+
+\section{Conclusion}
+This work argues that MCP authorization should follow canonical effects rather than surface representations and that a security boundary must govern downstream results as well as requests. The prototype combines deterministic most-restrictive policy, exact transactional approval, result mediation, durable trajectory linkage, protocol guardrails, and bypass-aware coverage. Repository tests provide executable evidence for these mechanisms in disposable environments, while the live client-facing runtime correctly remains non-forwarding and \texttt{UNPROTECTED}. The next research step is not a stronger claim, but a higher-fidelity evaluation: adaptive repeated trials, real MCP hosts, human approval studies, and independently verified deployment isolation.
+
+\bibliographystyle{IEEEtran}
+\bibliography{references}
+
+\end{document}

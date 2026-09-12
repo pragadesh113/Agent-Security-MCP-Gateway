@@ -1,0 +1,25 @@
+# This image is a disposable local harness, not a production release artifact.
+FROM node:24-bookworm-slim AS build
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci
+COPY src ./src
+COPY tsconfig.json ./tsconfig.json
+RUN npm run build
+
+FROM node:24-bookworm-slim
+LABEL org.opencontainers.image.title="Agent Security MCP Gateway (non-production)"
+LABEL org.opencontainers.image.description="Loopback lifecycle-only fixture harness; protected forwarding disabled"
+LABEL org.opencontainers.image.revision="unreleased"
+ENV NODE_ENV=development
+ENV GATEWAY_PORT=4174
+ENV GATEWAY_HOST=127.0.0.1
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci --omit=dev
+COPY --from=build /app/dist ./dist
+COPY scripts/serve-gateway.mjs ./scripts/serve-gateway.mjs
+COPY scripts/smoke-gateway.mjs ./scripts/smoke-gateway.mjs
+USER node
+# The process binds to container loopback by design; no host port is published.
+CMD ["node", "scripts/serve-gateway.mjs"]

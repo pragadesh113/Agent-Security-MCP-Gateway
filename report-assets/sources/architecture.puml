@@ -1,0 +1,33 @@
+@startuml
+title Agent Security MCP Gateway Architecture
+actor User
+component "MCP Host" as Host
+component "Identity and Session" as Identity
+component "Discovery and Route Registry" as Registry
+component "Canonical Action Normalizer" as Normalizer
+component "Deterministic Policy Engine" as Policy
+component "Human Approval" as Approval
+component "Forwarding Coordinator" as Forwarder
+component "Result Guard" as Result
+database PostgreSQL
+component "Coverage Monitor" as Coverage
+component "Downstream MCP Server" as Server
+
+User --> Host
+Host --> Identity
+Identity --> Registry
+Registry --> Normalizer
+Normalizer --> Policy
+Policy --> Approval : Tier 3 or ambiguity
+Policy --> Forwarder : allowed or constrained
+Approval --> Forwarder : exact single-use authorization
+Forwarder --> Server : one revalidated call
+Server --> Result : untrusted response
+Result --> Host : governed data-only result
+Policy --> PostgreSQL
+Approval --> PostgreSQL
+Forwarder --> PostgreSQL
+Result --> PostgreSQL
+Coverage --> Policy
+Coverage --> PostgreSQL
+@enduml

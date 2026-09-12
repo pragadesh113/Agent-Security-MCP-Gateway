@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Agent Security Gateway — Status</title>
+  <style>
+    :root { color-scheme: dark; --bg:#0b1220; --panel:#131e31; --line:#263653; --text:#e7edf8; --muted:#9eacc4; --red:#ff7a86; --amber:#f4c76b; --green:#71d6a0; --blue:#79b8ff; }
+    * { box-sizing:border-box; } body { margin:0; background:linear-gradient(140deg,#0b1220,#101b2e 60%,#0b1220); color:var(--text); font:15px/1.5 system-ui,-apple-system,Segoe UI,sans-serif; }
+    main { max-width:1180px; margin:auto; padding:32px 20px 56px; } h1,h2,p { margin-top:0; } h1 { font-size:clamp(28px,4vw,44px); letter-spacing:-.03em; margin-bottom:8px; } h2 { font-size:18px; margin-bottom:16px; }
+    .sub { color:var(--muted); margin-bottom:24px; } .banner { border:1px solid #8b3345; background:#321a28; border-radius:14px; padding:18px 20px; margin-bottom:20px; } .banner strong { color:var(--red); letter-spacing:.08em; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px; margin-bottom:20px; } .panel { border:1px solid var(--line); background:rgba(19,30,49,.88); border-radius:14px; padding:18px; } .metric { font-size:32px; font-weight:750; } .label,.detail,.foot { color:var(--muted); } .label { font-size:12px; text-transform:uppercase; letter-spacing:.08em; }
+    .section { margin-top:26px; } .row { display:flex; gap:12px; align-items:flex-start; justify-content:space-between; padding:12px 0; border-top:1px solid var(--line); } .row:first-child { border-top:0; padding-top:0; } .row:last-child { padding-bottom:0; } .row h3 { font-size:15px; margin:0 0 3px; } .badge { border-radius:999px; padding:3px 9px; font-size:11px; font-weight:700; letter-spacing:.06em; white-space:nowrap; } .PASS,.VERIFIED,.ACCEPT { color:#082218; background:var(--green); } .PARTIAL,.TESTED { color:#291d05; background:var(--amber); } .BLOCKED,.MISSING,.REJECT { color:#2b080e; background:var(--red); } .OBSERVED,.NOT_REQUIRED { color:#10243e; background:var(--blue); } .foot { margin-top:28px; font-size:12px; } code { color:var(--blue); } .activity-time { color:var(--muted); font-size:12px; white-space:nowrap; }
+  </style>
+</head>
+<body><main>
+  <h1>Agent Security Gateway</h1><p class="sub" id="phase">Loading project status…</p>
+  <section class="banner"><strong id="coverage">COVERAGE: UNKNOWN</strong><p id="implementation">Loading…</p></section>
+  <section class="grid" id="metrics"></section>
+  <section class="section panel"><h2>How security is established</h2><div id="controls"></div></section>
+  <section class="section panel"><h2>Live security decision flow</h2><p class="detail">Current guard decisions for this non-forwarding dashboard path. No downstream tool call is simulated.</p><div id="pipeline"></div></section>
+  <section class="section panel"><h2>Background activity</h2><div id="activity"></div></section>
+  <section class="section panel"><h2>Release gates</h2><div id="gates"></div></section>
+  <p class="foot">Generated from <code>docs/featurelist.json</code> and <code>docs/progress.md</code>. This dashboard is informational and does not authorize forwarding or deployment.</p>
+  <script>
+    const esc = (value) => String(value).replace(/[&<>"']/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
+    const row = (item) => `<div class="row"><div><h3>${esc(item.name)}</h3><div class="detail">${esc(item.detail)}</div></div><span class="badge ${esc(item.state)}">${esc(item.state)}</span></div>`;
+    const render = (s) => {
+      document.querySelector("#phase").textContent = `${s.phase} · refreshed ${new Date(s.generatedAt).toLocaleString()}`;
+      document.querySelector("#coverage").textContent = `COVERAGE: ${s.coverage}`;
+      document.querySelector("#implementation").textContent = s.implementation + ". Protected forwarding is disabled.";
+      const pass = (s.features.statuses.complete ?? 0);
+      const gateway = s.gateway;
+      document.querySelector("#metrics").innerHTML = `<div class="panel"><div class="label">Features complete</div><div class="metric">${pass}/${s.features.total}</div></div><div class="panel"><div class="label">Unit tests</div><div class="metric">${s.validation.unit?.tests ?? "—"}</div></div><div class="panel"><div class="label">Integration tests</div><div class="metric">${s.validation.integration?.tests ?? "—"}</div></div><div class="panel"><div class="label">Gateway requests</div><div class="metric">${gateway?.requestsReceived ?? "—"}</div></div><div class="panel"><div class="label">Forwarded calls</div><div class="metric">${gateway?.downstreamToolsCalls ?? "—"}</div></div>`;
+      document.querySelector("#controls").innerHTML = s.securityControls.map(row).join("");
+      document.querySelector("#pipeline").innerHTML = s.securityPipeline.map((item) => row({ name: item.stage, state: item.outcome, detail: item.detail })).join("");
+      const activity = [...(gateway?.activity ?? []), ...s.activity].slice(0, 12);
+      document.querySelector("#activity").innerHTML = activity.map((item) => `<div class="row"><div><h3>${esc(item.kind)}</h3><div class="detail">${esc(item.detail)}</div></div><div><div class="activity-time">${esc(new Date(item.time).toLocaleTimeString())}</div><span class="badge ${esc(item.outcome)}">${esc(item.outcome)}</span></div></div>`).join("");
+      document.querySelector("#gates").innerHTML = s.releaseGates.map(row).join("") + `<div class="row"><div><h3>Next action</h3><div class="detail">${esc(s.next)}</div></div></div>`;
+    };
+    const refresh = () => fetch("/api/status", { cache: "no-store" }).then((r) => r.json()).then(render).catch(() => { document.querySelector("#implementation").textContent = "Status data unavailable; do not infer protection."; });
+    refresh();
+    setInterval(refresh, 5000);
+  </script>
+</main></body></html>

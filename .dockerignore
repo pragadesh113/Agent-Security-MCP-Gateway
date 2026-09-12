@@ -1,0 +1,8 @@
+phase-1
+node_modules
+dist
+test
+dashboard/status.json
+*.tgz
+.git
+.gitignore

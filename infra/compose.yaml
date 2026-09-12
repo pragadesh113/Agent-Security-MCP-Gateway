@@ -1,0 +1,46 @@
+name: agent-security-demo
+
+services:
+  harness-db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: agent_security
+      POSTGRES_PASSWORD: local_demo_only
+      POSTGRES_DB: agent_security
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - harness-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U agent_security -d agent_security"]
+      interval: 2s
+      timeout: 2s
+      retries: 20
+    restart: "no"
+    stop_grace_period: 1s
+
+  simulated-production-db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: simulated_app
+      POSTGRES_PASSWORD: simulated_only_not_a_secret
+      POSTGRES_DB: simulated_production
+    ports:
+      - "127.0.0.1:5433:5432"
+    volumes:
+      - simulated-production-data:/var/lib/postgresql/data
+      - ./simulation/init.sql:/docker-entrypoint-initdb.d/001-seed.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U simulated_app -d simulated_production"]
+      interval: 2s
+      timeout: 2s
+      retries: 20
+    labels:
+      agent-security.disposable: "true"
+      agent-security.environment: simulated-production
+    restart: "no"
+    stop_grace_period: 1s
+
+volumes:
+  harness-db-data:
+  simulated-production-data:

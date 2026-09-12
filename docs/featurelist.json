@@ -1,0 +1,687 @@
+{
+  "schemaVersion": "2.0.0",
+  "project": {
+    "name": "Agent Security MCP Gateway",
+    "phase": "phase-2-mcp-gateway",
+    "platform": "Windows 10/11 initially; portable protocol core",
+    "implementation": "TypeScript, Node.js, Express, PostgreSQL",
+    "statusValues": [
+      "planned",
+      "in_progress",
+      "blocked",
+      "complete"
+    ]
+  },
+  "currentPhase": "phase-2-mcp-gateway",
+  "productionResourcesAllowedInDevelopment": false,
+  "releasePreparation": {
+    "status": "in_progress",
+    "coverage": "UNPROTECTED",
+    "productionApproved": false,
+    "currentSlice": "P2-F018 is blocked pending authorized connections to two independently operated non-production MCP hosts and a genuinely independent reviewer",
+    "completedImplementation": false,
+    "latestValidation": "P2-F017 now includes an approved HashiCorp Vault KV v2 adapter and a successful real disposable Vault 1.21.1 exact-revision workflow. Build, lint, typecheck, 31 unit files/283 tests, 13 integration files/60 tests, and all 21 feature records passed on 2026-09-12.",
+    "blocker": "P2-F018 still requires real benign and adversarial workflows through two named independently operated MCP hosts plus a genuinely independent security review. The production-candidate gate additionally requires P2-F020's functional authenticated approval UI, production credential custody and isolation, exclusive-mediation deployment evidence, signed artifacts and SBOM, and exercised recovery and rollback evidence.",
+    "nextAction": "Provide connection and authentication details for two independently operated non-production MCP hosts, plus the identity and contact path of an independent reviewer; then run the prepared benign/adversarial paired-trial and review evidence workflows."
+  },
+  "features": [
+    {
+      "id": "P2-DOC-001",
+      "phase": "phase-2-mcp-gateway",
+      "priority": "critical",
+      "status": "complete",
+      "description": "Establish Phase 2-only governance, research synthesis, technical requirements, delivery planning, and feature tracking.",
+      "dependencies": [],
+      "acceptanceCriteria": [
+        "Active documentation describes only the Phase 2 MCP gateway.",
+        "Research findings cover MCP request, response, discovery, identity, protocol abuse, human approval, and evaluation risks.",
+        "The feature graph contains only Phase 2 work with valid stable dependencies.",
+        "docs/AGENTS.md defines a consistent security-engineering role, working approach, communication style, and session-independent operating discipline.",
+        "docs/AGENTS.md defines a mandatory fresh-session continuation loop with dependency-aware work selection, cumulative milestone testing, actual workflow validation when possible, documentation updates, and an exact next-action handoff.",
+        "docs/AGENTS.md defines durable project execution, collision-safe parallel roles, material-decision approval gates, interruption recovery, and a verifiable project-level stopping condition.",
+        "Authoritative Phase 2 governance and tracking are consolidated under docs with root discovery entrypoints.",
+        "The research thesis is scoped to representation-invariant bidirectional MCP mediation and explicitly excludes unmediated native local actions from protection claims."
+      ],
+      "progress": {
+        "completedCriteria": [
+          "Active documentation describes only the Phase 2 MCP gateway.",
+          "Research findings cover MCP request, response, discovery, identity, protocol abuse, human approval, and evaluation risks.",
+          "The feature graph contains only Phase 2 work with valid stable dependencies.",
+          "docs/AGENTS.md defines a consistent security-engineering role, working approach, communication style, and session-independent operating discipline.",
+          "docs/AGENTS.md defines a mandatory fresh-session continuation loop with dependency-aware work selection, cumulative milestone testing, actual workflow validation when possible, documentation updates, and an exact next-action handoff.",
+          "docs/AGENTS.md defines durable project execution, collision-safe parallel roles, material-decision approval gates, interruption recovery, and a verifiable project-level stopping condition.",
+          "Authoritative Phase 2 governance and tracking are consolidated under docs with root discovery entrypoints.",
+          "The research thesis is scoped to representation-invariant bidirectional MCP mediation and explicitly excludes unmediated native local actions from protection claims."
+        ],
+        "completionEvidence": "Repository instructions now define the main agent as accountable technical lead across architecture, implementation, testing, review, release preparation, integration, and handoff. They require proactive delegation only for independent bounded work, exclusive file or worktree ownership for parallel writers, concrete user approval packets for material or external actions, durable progress checkpoints, interruption recovery after usage or host failure, and completion only after all feature and release gates pass.",
+        "coverage": "UNPROTECTED",
+        "protectedForwardingEnabled": false
+      },
+      "specReferences": [
+        "Technical Specification sections 1 through 20"
+      ]
+    },
+    {
+      "id": "P2-F001",
+      "phase": "phase-2-mcp-gateway",
+      "priority": "critical",
+      "status": "complete",
+      "description": "Create the versioned MCP gateway protocol core and boundary contracts without enabling protected forwarding.",
+      "dependencies": [
+        "P2-DOC-001"
+      ],
+      "acceptanceCriteria": [
+        "Versioned schemas validate client, session, server, route, discovery, tool-call, tool-result, provenance, and error payloads.",
+        "Unknown or forward-incompatible schema versions fail safely.",
+        "Initialization and capability negotiation preserve MCP protocol correctness.",
+        "The scaffold remains UNPROTECTED and forwards no protected call until enforcement dependencies are complete."
+      ],
+      "progress": {
+        "completedCriteria": [
+          "Versioned schemas validate client, session, server, route, discovery, tool-call, tool-result, provenance, and error payloads.",
+          "Unknown or forward-incompatible schema versions fail safely.",
+          "Initialization and capability negotiation preserve MCP protocol correctness.",
+          "The scaffold remains UNPROTECTED and forwards no protected call until enforcement dependencies are complete."
+        ],
+        "completionEvidence": "The pinned MCP 2025-06-18 lifecycle reducer and disposable loopback Streamable HTTP workflow validate ordered initialization, alternate-version selection, bounded client capabilities, empty server capabilities, Origin and media-type requirements, opaque session binding, required subsequent protocol-version headers, ping, termination, isolated concurrent transport sessions, and fail-closed tools/list and tools/call behavior.",
+        "coverage": "UNPROTECTED",
+        "protectedForwardingEnabled": false
+      },
+      "specReferences": [
+        "Technical Specification sections 6 through 8"
+      ]
+    },
+    {
+      "id": "P2-F002",
+      "phase": "phase-2-mcp-gateway",
+      "priority": "critical",
+      "status": "complete",
+      "description": "Authenticate MCP clients and isolate user, agent, client, and downstream session state outside model-controlled arguments.",
+      "dependencies": [
+        "P2-F001"
+      ],
+      "acceptanceCriteria": [
+        "Untrusted arguments cannot select or override identity.",
+        "Credentials are audience-bound, route-scoped, short-lived where possible, and never returned to the agent.",
+        "Sessions cannot observe or mutate another session's routes, state, approvals, quotas, results, or audit context.",
+        "Identity rotation quarantines trust and invalidates incompatible active state."
+      ],
+      "progress": {
+        "completedCriteria": [
+          "Untrusted arguments cannot select or override identity.",
+          "Credentials are audience-bound, route-scoped, short-lived where possible, and never returned to the agent.",
+          "Sessions cannot observe or mutate another session's routes, state, approvals, quotas, results, or audit context.",
+          "Identity rotation quarantines trust and invalidates incompatible active state."
+        ],
+        "completionEvidence": "The authenticated HTTP boundary resolves identity before MCP parsing and binds it to an opaque session. A disposable gateway credential vault verifies credential digests and issues metadata-only leases capped at five minutes and bound to one profile revision, audience, route, session, and namespace. An authenticated compartment repository isolates routes, downstream state, approvals, quotas, results, and audit entries; cross-session access fails without revealing existence. Same-subject credential or identity-revision rotation quarantines the session, freezes shadow trust, clears active routes/state/approvals/quotas, retains results/audit for accountability, revokes session leases, and rejects both old and rotated identities. Evidence uses disposable in-memory repositories and TEST_FIXTURE authentication only.",
+        "coverage": "UNPROTECTED",
+        "protectedForwardingEnabled": false
+      },
+      "specReferences": [
+        "Technical Specification sections 4, 8, and 13"
+      ]
+    },
+    {
+      "id": "P2-F003",
+      "phase": "phase-2-mcp-gateway",
+      "priority": "critical",
+      "status": "complete",
+      "description": "Register downstream servers and enforce integrity-checked, collision-safe discovery and routing.",
+      "dependencies": [
+        "P2-F001",
+        "P2-F002"
+      ],
+      "acceptanceCriteria": [
+        "Every visible tool resolves deterministically to one authenticated server and route.",
+        "Server identity, protocol version, capabilities, tool schemas, and schema hashes are versioned and audited.",
+        "Unexpected schema or capability drift is quarantined until reviewed.",
+        "Duplicate, shadowed, ambiguous, unavailable, or unauthorized routes fail safely.",
+        "Discovery filtering never replaces call-time authorization."
+      ],
+      "progress": {
+        "completedCriteria": [
+          "Every visible tool resolves deterministically to one authenticated server and route.",
+          "Server identity, protocol version, capabilities, tool schemas, and schema hashes are versioned and audited.",
+          "Unexpected schema or capability drift is quarantined until reviewed.",
+          "Duplicate, shadowed, ambiguous, unavailable, or unauthorized routes fail safely.",
+          "Discovery filtering never replaces call-time authorization."
+        ],
+        "completionEvidence": "A disposable administrator-controlled registry validates versioned registrations, authenticates downstream observations through an injected boundary, computes canonical SHA-256 digests for registration evidence, protocol/capability/tool surfaces, and route schemas, and records versioned allowlisted audit events. It exposes only healthy active routes authorized for the authenticated session and deterministically resolves each scope/environment/exposed-name key to one server and route. Protocol, capability, tool-set, or schema drift latches quarantine until explicit authorized review. Duplicate IDs, duplicate server tool names, cross-server bindings, shadowed names, unavailable servers, authentication failure, authorization failure, and call-time authorization revocation fail closed. A disposable MCP HTTP peer supplied real initialize and tools/list responses for integration evidence; protected forwarding remains disabled.",
+        "coverage": "UNPROTECTED",
+        "protectedForwardingEnabled": false
+      },
+      "specReferences": [
+        "Technical Specification sections 5, 7, and 9"
+      ]
+    },
+    {
+      "id": "P2-F004",
+      "phase": "phase-2-mcp-gateway",
+      "priority": "critical",
+      "status": "complete",
+      "description": "Defend the MCP protocol against replay, flooding, recursion, oversized payloads, runaway concurrency, timeouts, and dependency failure.",
+      "dependencies": [
+        "P2-F001",
+        "P2-F002",
+        "P2-F003"
+      ],
+      "acceptanceCriteria": [
+        "Timestamps, nonces, request IDs, bounded clock skew, and replay caches reject replayed traffic.",
+        "Quotas cover user, agent, client, session, server, tool, route, destination, and action family.",
+        "Call depth, delegation depth, fan-out, payload size, result size, concurrency, redirects, retries, and execution time are bounded.",
+        "Recursive or cyclic calls are detected and stopped.",
+        "Cancellation, circuit breakers, and dependency failures leave protected mutations denied and audited."
+      ],
+      "progress": {
+        "completedCriteria": [
+          "Timestamps, nonces, request IDs, bounded clock skew, and replay caches reject replayed traffic.",
+          "Quotas cover user, agent, client, session, server, tool, route, destination, and action family.",
+          "Call depth, delegation depth, fan-out, payload size, result size, concurrency, redirects, retries, and execution time are bounded.",
+          "Recursive or cyclic calls are detected and stopped.",
+          "Cancellation, circuit breakers, and dependency failures leave protected mutations denied and audited."
+        ],
+        "completionEvidence": "A disposable host-neutral protocol guard validates versioned operation requests, enforces bounded timestamp skew, and keeps request-ID and nonce replay caches scoped by authenticated session. It atomically checks rate and concurrency quotas across session, user, agent, client, server, tool, route, destination, and action-family dimensions. Admission and runtime checkpoints enforce payload, expected/observed result, depth, delegation, fan-out, redirect, retry, and deadline limits; equivalent ancestor route/destination/action signatures detect recursion. Abort signals propagate cancellation and deadlines to work, dependency failures deny before invocation, circuits open at configured thresholds, trusted recovery closes them, and versioned allowlisted audit events record every outcome without payloads or credentials. A real disposable HTTP workflow verified success, concurrency denial, cancellation, timeout, and zero downstream requests after circuit denial. Protected forwarding remains disabled.",
+        "coverage": "UNPROTECTED",
+        "protectedForwardingEnabled": false
+      },
+      "specReferences": [
+        "Technical Specification sections 5, 9, and 12"
+      ]
+    },
+    {
+      "id": "P2-F005",
+      "phase": "phase-2-mcp-gateway",
+      "priority": "critical",
+      "status": "complete",
+      "description": "Canonicalize resources, effects, environments, routes, and data flows and apply deterministic most-restrictive policy.",
+      "dependencies": [
+        "P2-F001",
+        "P2-F002",
+        "P2-F003"
+      ],
+      "acceptanceCriteria": [
+        "There is no keyword-absence allow path.",
+        "Unknown, unparsed, unsupported, opaque, or dynamically constructed actions require approval or denial.",
+        "Production, privileged, destructive, credential, and difficult-to-reverse effects are Tier 3.",
+        "Equivalent effects receive equally restrictive decisions across tools, servers, aliases, paths, encodings, syntax, and transports.",
+        "Immutable denials and Tier 3 approval cannot be bypassed by trust or supervisor output."
+      ],
+      "progress": {
+        "completedCriteria": [
+          "There is no keyword-absence allow path.",
+          "Unknown, unparsed, unsupported, opaque, or dynamically constructed actions require approval or denial.",
+          "Production, privileged, destructive, credential, and difficult-to-reverse effects are Tier 3.",
+          "Equivalent effects receive equally restrictive decisions across tools, servers, aliases, paths, encodings, syntax, and transports.",
+          "Immutable denials and Tier 3 approval cannot be bypassed by trust or supervisor output."
+        ],
+        "completionEvidence": "A host-neutral canonicalizer binds authenticated session identity, current registered route/schema/audience/scope, recomputed argument digest and size, trusted resolver evidence, normalized resources/data flow, and ordered call ancestry into a hashed CanonicalActionV1. Missing, failing, partial, unsupported, or route-inconsistent analysis stays unresolved. A deterministic engine classifies risk, denies non-enforced mutations, enforces Tier 3 approval, composes built-in/administrator/advisory results by most-restrictive-wins, and denies conflicting enforcement. Unit tests cover boundary forgery, resolver failure, no-keyword fallback, Tier 3 classes, all five decision levels, immutable/advisory bypasses, and equivalent effects across tools, servers, aliases, Windows/POSIX paths, percent encodings, syntax, and HTTP/SSE routes. A real disposable HTTP MCP discovery workflow resolved and normalized a call, denied it under UNPROTECTED coverage, and issued zero downstream tool calls.",
+        "coverage": "UNPROTECTED",
+        "protectedForwardingEnabled": false
+      },
+      "specReferences": [
+        "Technical Specification sections 10 and 11"
+      ]
+    },
+    {
+      "id": "P2-F006",
+      "phase": "phase-2-mcp-gateway",
+      "priority": "critical",
+      "status": "complete",
+      "description": "Implement five-minute, single-use, action-bound human approval consumed immediately before one exact downstream call.",
+      "dependencies": [
+        "P2-F002",
+        "P2-F005"
+      ],
+      "acceptanceCriteria": [
+        "Tier 3 cannot execute without a current valid approval and cannot be always-allowed.",
+        "Approval binds identity, session, canonical action, route, schema, resources, environment, and policy version.",
+        "Modified, expired, replayed, parallel, reordered, or concurrently consumed approvals fail safely.",
+        "Policy and route state are revalidated immediately before atomic consumption.",
+        "Approval material is never exposed to the client, model, or downstream server."
+      ],
+      "progress": {
+        "completedCriteria": [
+          "Tier 3 cannot execute without a current valid approval and cannot be always-allowed.",
+          "Approval binds identity, session, canonical action, route, schema, resources, environment, and policy version.",
+          "Modified, expired, replayed, parallel, reordered, or concurrently consumed approvals fail safely.",
+          "Policy and route state are revalidated immediately before atomic consumption.",
+          "Approval material is never exposed to the client, model, or downstream server."
+        ],
+        "completionEvidence": "A disposable host-neutral approval service accepts only exact REQUIRE_APPROVAL action/decision/session bindings, validates canonical action/resource/data-flow hashes, records one authenticated human APPROVE or DENY choice, expires within five minutes, and synchronously revalidates identity revision, current route/schema/health, and fresh policy immediately before one process-atomic consumption and forwarding-start callback. Sixteen parallel attempts produced exactly one winner; modified, expired, replayed, reordered, denied, invalidated, and revalidation-failed attempts produced no forwarding start. An isolated disposable HTTP workflow consumed one synthetic enforced-fixture approval before exactly one tools/call request, rejected replay, and sent no approval identifier or approval metadata downstream. Approval and audit reads require an injected authenticated auditor. The service remains process-local test infrastructure and is not wired into the UNPROTECTED client-facing gateway.",
+        "coverage": "UNPROTECTED",
+        "protectedForwardingEnabled": false
+      },
+      "specReferences": [
+        "Technical Specification section 12"
+      ]
+    },
+    {
+      "id": "P2-F007",
+      "phase": "phase-2-mcp-gateway",
+      "priority": "critical",
+      "status": "complete",
+      "description": "Forward one authorized downstream call and mediate untrusted results, errors, metadata, and resource content before returning them to the agent.",
+      "dependencies": [
+        "P2-F003",
+        "P2-F004",
+        "P2-F005",
+        "P2-F006"
+      ],
+      "acceptanceCriteria": [
+        "The gateway forwards only the exact authorized route and arguments once.",
+        "Every result is bound to authenticated server, route, schema, request, session, and call-chain provenance.",
+        "Result schemas, size limits, secret redaction, data-egress policy, and instruction/content separation are enforced.",
+        "Malicious tool descriptions, results, errors, redirects, and resource content are treated as untrusted.",
+        "Invalid or unsafe results are denied, redacted, or quarantined and cannot silently alter trust."
+      ],
+      "progress": {
+        "completedCriteria": [
+          "The gateway forwards only the exact authorized route and arguments once.",
+          "Every result is bound to authenticated server, route, schema, request, session, and call-chain provenance.",
+          "Result schemas, size limits, secret redaction, data-egress policy, and instruction/content separation are enforced.",
+          "Malicious tool descriptions, results, errors, redirects, and resource content are treated as untrusted.",
+          "Invalid or unsafe results are denied, redacted, or quarantined and cannot silently alter trust."
+        ],
+        "completionEvidence": "The disposable forwarding coordinator accepts only one consumed exact authorization, revalidates the route/tool/argument digest and credential lease binding, and rejects replay or modified requests before downstream invocation. Authenticated result mediation binds server, request, action, session, route, schema, and call-chain provenance; enforces byte and output-schema limits, secret redaction, egress disposition, redirect refusal, and data-only untrusted-content marking; suppresses downstream errors; and makes denied or quarantined results ineligible for positive trust. A synthetic ENFORCED fixture completed one loopback HTTP tools/call after exact approval while replay produced no second request. The client-facing runtime remains UNPROTECTED and non-forwarding.",
+        "coverage": "UNPROTECTED",
+        "protectedForwardingEnabled": false
+      },
+      "specReferences": [
+        "Technical Specification sections 7, 9, and 14"
+      ]
+    },
+    {
+      "id": "P2-F008",
+      "phase": "phase-2-mcp-gateway",
+      "priority": "critical",
+      "status": "complete",
+      "description": "Persist identities, sessions, routes, schemas, requests, decisions, approvals, forwarding state, results, outcomes, audit events, and trust evidence in PostgreSQL.",
+      "dependencies": [
+        "P2-F002",
+        "P2-F005",
+        "P2-F006",
+        "P2-F007"
+      ],
+      "acceptanceCriteria": [
+        "Forward-only migrations create every required table, constraint, and index.",
+        "Runtime startup fails instead of falling back to in-memory persistence.",
+        "Decision persistence, approval consumption, forwarding state, result linkage, and outcome recording are transactional where required.",
+        "Append-only events are tamper-evident and correlate denied, modified, alternate-route, replayed, bypass, approved, and executed attempts.",
+        "Known secret values are never persisted."
+      ],
+      "progress": {
+        "completedCriteria": [
+          "Forward-only migrations create every required table, constraint, and index.",
+          "Runtime startup fails instead of falling back to in-memory persistence.",
+          "Decision persistence, approval consumption, forwarding state, result linkage, and outcome recording are transactional where required.",
+          "Append-only events are tamper-evident and correlate denied, modified, alternate-route, replayed, bypass, approved, and executed attempts.",
+          "Known secret values are never persisted."
+        ],
+        "completionEvidence": "A PostgreSQL-only trajectory store applies a checksummed forward-only migration for identities, clients, sessions, servers, schema versions, routes, policies, requests, canonical actions, decisions and reasons, approvals, forwarding attempts, provenance, governed results, outcomes, hash-chained security events, shadow trust evidence, coverage, protocol violations, supervisor assessments, and recovery records. Startup requires an explicit reachable PostgreSQL URL and never falls back to memory. Database transactions atomically persist decisions, consume an approval under a row lock, create unique forwarding state, link results/outcomes, and append audit/trust events. Real PostgreSQL 18.4 tests prove cross-connection and restart replay denial, rollback, append-only trigger enforcement, chain verification, exact disposable HTTP workflow linkage, and catalog-wide absence of configured known secrets.",
+        "coverage": "UNPROTECTED",
+        "protectedForwardingEnabled": false
+      },
+      "specReferences": [
+        "Technical Specification section 15"
+      ]
+    },
+    {
+      "id": "P2-F009",
+      "phase": "phase-2-mcp-gateway",
+      "priority": "critical",
+      "status": "complete",
+      "description": "Enforce and continuously verify exclusive mediation and truthful coverage for protected resources.",
+      "dependencies": [
+        "P2-F003",
+        "P2-F004",
+        "P2-F007",
+        "P2-F008"
+      ],
+      "acceptanceCriteria": [
+        "The gateway is the sole holder of protected downstream credentials.",
+        "Independent network, IAM, sandbox, operating-system, and downstream controls block direct agent access.",
+        "Coverage separately reports gateway-mediated, native, direct, degraded, observe-only, and unprotected paths.",
+        "A reachable bypass or broken mediation guarantee immediately degrades coverage and blocks protected mutations.",
+        "Automated diagnostics identify the exact missing guarantee."
+      ],
+      "progress": {
+        "completedCriteria": [
+          "The gateway is the sole holder of protected downstream credentials.",
+          "Independent network, IAM, sandbox, operating-system, and downstream controls block direct agent access.",
+          "Coverage separately reports gateway-mediated, native, direct, degraded, observe-only, and unprotected paths.",
+          "A reachable bypass or broken mediation guarantee immediately degrades coverage and blocks protected mutations.",
+          "Automated diagnostics identify the exact missing guarantee."
+        ],
+        "completionEvidence": "A host-neutral exclusive-mediation monitor derives coverage from strict, exact-scope evidence collected through configured trusted probes instead of accepting an agent-provided coverage label. It separately evaluates the gateway-mediated, native, and direct paths; requires gateway credential custody plus client, route, policy, PostgreSQL, approval, protocol, downstream-authentication, and result controls; and requires independent network, IAM, sandbox, operating-system, and downstream-authorization blocks. Evidence is bounded by authority, verifier class, assurance, scope, freshness, TTL, revision, and equivocation checks. Disposable test evidence is explicitly ineligible for DEPLOYMENT assurance. A coverage-bound policy wrapper denies non-enforced mutations, an immediate pre-mutation guard catches evidence changes, exact missing-guarantee diagnostics are persisted through a forward-only PostgreSQL migration with append-only evidence and hash-chained BYPASS events, and real loopback tests prove direct unauthenticated denial, one internally credentialed mediated request, then zero additional mutations after bypass reachability. The global runtime remains truthfully UNPROTECTED because no deployment probes or production isolation are configured.",
+        "coverage": "UNPROTECTED",
+        "protectedForwardingEnabled": false
+      },
+      "specReferences": [
+        "Technical Specification sections 3, 5, and 16"
+      ]
+    },
+    {
+      "id": "P2-F010",
+      "phase": "phase-2-mcp-gateway",
+      "priority": "high",
+      "status": "complete",
+      "description": "Define the host-neutral approval, awareness, audit, and recovery interface model without creating approval fatigue or false safety claims.",
+      "dependencies": [
+        "P2-F005",
+        "P2-F006",
+        "P2-F008",
+        "P2-F009"
+      ],
+      "acceptanceCriteria": [
+        "Approval context is generated from canonical validated data rather than model descriptions.",
+        "The host-neutral interface model contains requester, server, tool, route, target, data flow, provenance, risk, reversibility, blast radius, related attempts, coverage, and missing guarantees.",
+        "Every non-allow response provides factual structured awareness and evaluated alternatives.",
+        "Each mutation records recovery as verified compensating action, tested backup, partial, irreversible, or unknown.",
+        "Tier 3 has no bulk, persistent, or always-allow control and approval-fatigue metrics are recorded."
+      ],
+      "progress": {
+        "completedCriteria": [
+          "Approval context is generated from canonical validated data rather than model descriptions.",
+          "The host-neutral interface model contains requester, server, tool, route, target, data flow, provenance, risk, reversibility, blast radius, related attempts, coverage, and missing guarantees.",
+          "Every non-allow response provides factual structured awareness and evaluated alternatives.",
+          "Each mutation records recovery as verified compensating action, tested backup, partial, irreversible, or unknown.",
+          "Tier 3 has no bulk, persistent, or always-allow control and approval-fatigue metrics are recorded."
+        ],
+        "completionEvidence": "A strict host-neutral interface builder accepts only exact-bound canonical actions, deterministic decisions, current scoped coverage, optional correlated outcomes, and related attempt IDs. It emits a canonical human view containing requester, route/server/tool/schema/scope, targets, data flow, parser provenance and untrusted influences, risk, effect, reversibility, derived blast radius, recovery, related attempts, partial-effect state, coverage digest, and exact missing guarantees. Every non-ALLOW build also emits factual AwarenessV1 with an evaluated no-effect path and exact approval availability where applicable. Strict schemas reject action/coverage/outcome substitution and unknown bulk or persistent controls. Append-only PostgreSQL interface and fatigue-event tables survive restart; presentation, approval/denial/error/repetition counts and decision latency are aggregated by policy scope. Outcome persistence now automatically records recovery classification. A disposable approval/forwarding workflow exercised presentation, fatigue recording, approval, mediated execution, and subsequent coverage denial. The client-facing runtime remains UNPROTECTED and non-forwarding.",
+        "coverage": "UNPROTECTED",
+        "protectedForwardingEnabled": false
+      },
+      "specReferences": [
+        "Technical Specification sections 12, 16, and 17"
+      ]
+    },
+    {
+      "id": "P2-F011",
+      "phase": "phase-2-mcp-gateway",
+      "priority": "critical",
+      "status": "complete",
+      "description": "Create a versioned, seeded security-evaluation harness for protocol, policy-invariance, prompt/content, human-approval, and trust attacks.",
+      "dependencies": [
+        "P2-F004",
+        "P2-F005",
+        "P2-F007",
+        "P2-F008",
+        "P2-F009",
+        "P2-F010"
+      ],
+      "acceptanceCriteria": [
+        "Protocol tests cover replay, flooding, recursion, cancellation, schema drift, route collision, impersonation, and credential audience.",
+        "Policy tests cover alternate tools, servers, paths, encodings, transports, retries, split payloads, concurrency, and time-of-check/time-of-use.",
+        "Content tests cover direct, indirect, obfuscated, propagated, tool-description, and tool-result injection.",
+        "Human and trust tests cover approval fatigue, misleading context, re-planning, grinding, identity changes, audit gaps, and delayed harm.",
+        "Repeated-trial metrics report prevention, attack success, completion under policy, risk ratio, false allow/denial, latency, cost, approval error, re-planning, and coverage."
+      ],
+      "progress": {
+        "completedCriteria": [
+          "Protocol tests cover replay, flooding, recursion, cancellation, schema drift, route collision, impersonation, and credential audience.",
+          "Policy tests cover alternate tools, servers, paths, encodings, transports, retries, split payloads, concurrency, and time-of-check/time-of-use.",
+          "Content tests cover direct, indirect, obfuscated, propagated, tool-description, and tool-result injection.",
+          "Human and trust tests cover approval fatigue, misleading context, re-planning, grinding, identity changes, audit gaps, and delayed harm.",
+          "Repeated-trial metrics report prevention, attack success, completion under policy, risk ratio, false allow/denial, latency, cost, approval error, re-planning, and coverage."
+        ],
+        "completionEvidence": "A strict V1 seeded evaluation harness ships a complete 30-class catalog across protocol, policy-invariance, content, and human/trust suites. Catalog validation fails if any required class is absent, scenarios require at least two repetitions, deterministic per-trial seeds reproduce runs, contradictory classifications fail validation, and every observation carries a deterministic assertion, disposable workflow, or human-validated evidence source plus a trace digest. Reports retain bounded trial records and compute prevention, attack and baseline success, risk ratio, safe completion, false allow and denial, mean/p50/p95 latency, total cost, approval frequency/error, safe re-planning, and enforced-coverage rates. Cumulative component suites exercise the enumerated protocol, canonicalization, result-content, approval, identity, audit, coverage, and TOCTOU controls.",
+        "coverage": "UNPROTECTED",
+        "protectedForwardingEnabled": false
+      },
+      "specReferences": [
+        "Technical Specification section 19"
+      ]
+    },
+    {
+      "id": "P2-F012",
+      "phase": "phase-2-mcp-gateway",
+      "priority": "high",
+      "status": "complete",
+      "description": "Validate equivalent benign and risky workflows with at least two MCP-compliant agent hosts and isolated concurrent sessions.",
+      "dependencies": [
+        "P2-F011"
+      ],
+      "acceptanceCriteria": [
+        "Two different hosts complete equivalent policy-controlled workflows.",
+        "Concurrent sessions preserve identity, route, quota, approval, trust, result, and audit isolation.",
+        "Failure, latency, usability, approval, and security metrics are reported for both hosts.",
+        "Native or direct bypass capabilities are separately inventoried and never reported as gateway-protected."
+      ],
+      "progress": {
+        "completedCriteria": [
+          "Two different hosts complete equivalent policy-controlled workflows.",
+          "Concurrent sessions preserve identity, route, quota, approval, trust, result, and audit isolation.",
+          "Failure, latency, usability, approval, and security metrics are reported for both hosts.",
+          "Native or direct bypass capabilities are separately inventoried and never reported as gateway-protected."
+        ],
+        "completionEvidence": "A strict V1 multi-host validation harness requires at least two uniquely identified host adapters and runs every repetition concurrently. It accepts only evidence-digested observations, requires equivalent canonical effect digests and policy decisions, and rejects adapter identity substitution or any session, identity, route, quota, approval, trust, result, or audit digest reused across the complete run. Per-host reports expose task completion and failure, policy violations, approval frequency/error, mean latency, and enforced-coverage rates. Native and direct capabilities have a separate strict inventory whose schema fixes gatewayProtected to false and prohibits ENFORCED coverage. A disposable HTTP MCP initialization workflow exercised two distinct host adapters for three repetitions and six requests; deliberate compartment collision was rejected. These adapters validate the host-neutral boundary and do not claim interoperability with named production host products.",
+        "coverage": "UNPROTECTED",
+        "protectedForwardingEnabled": false
+      },
+      "specReferences": [
+        "Technical Specification sections 16, 19, and 20"
+      ]
+    },
+    {
+      "id": "P2-F013",
+      "phase": "phase-2-mcp-gateway",
+      "priority": "high",
+      "status": "complete",
+      "description": "Evaluate dynamic trust in shadow mode and permit bounded policy influence only after predefined promotion criteria pass.",
+      "dependencies": [
+        "P2-F008",
+        "P2-F011"
+      ],
+      "acceptanceCriteria": [
+        "Trust begins in shadow mode and cannot change authorization during baseline collection.",
+        "Static policy, policy plus awareness, and bounded trust are compared using repeated trials.",
+        "Trust cannot affect Tier 3, immutable denial, unknown actions, environment escalation, or degraded coverage.",
+        "Audit gaps, identity rotation, route/schema changes, anomalies, and missing outcomes freeze positive trust influence.",
+        "Promotion requires documented thresholds for attack success, false allows, task completion, approval load, and trust-grinding resistance."
+      ],
+      "progress": {
+        "completedCriteria": [
+          "Trust begins in shadow mode and cannot change authorization during baseline collection.",
+          "Static policy, policy plus awareness, and bounded trust are compared using repeated trials.",
+          "Trust cannot affect Tier 3, immutable denial, unknown actions, environment escalation, or degraded coverage.",
+          "Audit gaps, identity rotation, route/schema changes, anomalies, and missing outcomes freeze positive trust influence.",
+          "Promotion requires documented thresholds for attack success, false allows, task completion, approval load, and trust-grinding resistance."
+        ],
+        "completionEvidence": "A strict V1 dynamic-trust controller starts in SHADOW and keeps the effective and authoritative decision identical to deterministic policy. It compares 30 paired repeated trials per static-policy, policy-plus-awareness, and bounded-trust arm; validates evidence and report digests; and applies explicit attack-success, false-allow, completion, false-denial, approval, latency, enforced-coverage, immutable-exclusion, and trust-grinding promotion thresholds. Only a passing report enables a disposable counterfactual ALLOW_WITH_CONSTRAINTS recommendation for an exact Tier 1 trust-eligible action/decision binding backed by mature, independently verified, scope-bound positive evidence. Tier 2/3, denial, unresolved, production, non-enforced, mismatched, or invariant decisions remain unchanged. Audit gaps, identity rotation, route/schema changes, anomalies, and missing outcomes latch FROZEN. Runtime validation rejects non-disposable evaluation and trajectory substitution; no production authorization path is enabled.",
+        "coverage": "UNPROTECTED",
+        "protectedForwardingEnabled": false
+      },
+      "specReferences": [
+        "Technical Specification section 17"
+      ]
+    },
+    {
+      "id": "P2-F014",
+      "phase": "phase-2-mcp-gateway",
+      "priority": "medium",
+      "status": "complete",
+      "description": "Add a provider-neutral, redacted LLM supervisor that supplies advisory evidence for unresolved semantic ambiguity.",
+      "dependencies": [
+        "P2-F005",
+        "P2-F008"
+      ],
+      "acceptanceCriteria": [
+        "Supervisor inputs contain only minimal redacted context and delimit all untrusted content.",
+        "Supervisor output is schema-validated, versioned, audited, and never grants authorization.",
+        "Timeout, invalid output, low confidence, or provider failure falls back to deterministic approval or denial.",
+        "External submission can be disabled globally or by policy scope."
+      ],
+      "progress": {
+        "completedCriteria": [
+          "Supervisor inputs contain only minimal redacted context and delimit all untrusted content.",
+          "Supervisor output is schema-validated, versioned, audited, and never grants authorization.",
+          "Timeout, invalid output, low confidence, or provider failure falls back to deterministic approval or denial.",
+          "External submission can be disabled globally or by policy scope."
+        ],
+        "completionEvidence": "A provider-neutral V1 supervisor builds a strict allowlisted request from effect, environment, risk, resource classes, data-flow shape, parser status, reversibility, coverage, and policy version. Raw arguments, results, canonical references, identity values, and credentials are omitted; bounded untrusted fragments are secret/pattern/delimiter redacted, length limited, and marked data-only inside fixed delimiters. Strict provider output binds assessmentId and inputDigest, accepts only DENY or REQUIRE_APPROVAL, validates evidence references and response digests, and emits advisoryOnly=true audit records bound to the exact request, action, decision, session, route, schema, policy scope, and policy version. Invalid, low-confidence, timeout, and provider failures use deterministic fallback; audit failure is fail-closed. Global disable defaults to off and exact policy-scope disablement makes zero provider calls. A disposable loopback HTTP provider and PostgreSQL append-only audit migration were exercised; no production provider or authorization path was enabled.",
+        "coverage": "UNPROTECTED",
+        "protectedForwardingEnabled": false
+      },
+      "specReferences": [
+        "Technical Specification section 18"
+      ]
+    },
+    {
+      "id": "P2-F015",
+      "phase": "phase-2-mcp-gateway",
+      "priority": "critical",
+      "status": "complete",
+      "description": "Wire authenticated, registry-backed tool discovery into the client-facing MCP runtime without enabling protected forwarding.",
+      "dependencies": [
+        "P2-F002",
+        "P2-F003"
+      ],
+      "acceptanceCriteria": [
+        "The gateway advertises the tools capability only when a trusted discovery provider is configured.",
+        "Client-facing tools/list uses the authenticated session and server-configured policy scope rather than client-supplied authority.",
+        "Discovery is re-evaluated on every request and exposes only authorized active routes with gateway-owned untrusted-content and call-time-authorization markers.",
+        "Malformed discovery, provider failure, cross-session access, and oversized output fail safely without leaking credential or internal route material.",
+        "tools/call remains denied, protected forwarding remains disabled, and coverage remains UNPROTECTED."
+      ],
+      "progress": {
+        "completedCriteria": [
+          "The gateway advertises the tools capability only when a trusted discovery provider is configured.",
+          "Client-facing tools/list uses the authenticated session and server-configured policy scope rather than client-supplied authority.",
+          "Discovery is re-evaluated on every request and exposes only authorized active routes with gateway-owned untrusted-content and call-time-authorization markers.",
+          "Malformed discovery, provider failure, cross-session access, and oversized output fail safely without leaking credential or internal route material.",
+          "tools/call remains denied, protected forwarding remains disabled, and coverage remains UNPROTECTED."
+        ],
+        "completionEvidence": "The Streamable HTTP adapter conditionally advertises tools/list, reuses the freshly reauthenticated session binding, invokes an injected provider with a gateway-generated request identifier, validates the returned DiscoveryResultV1 and exact session/UNPROTECTED binding, caps serialized output at one MiB, and maps only MCP tool fields plus gateway-owned trust markers. The live non-production process uses the existing registry and exposes an empty configured scope; focused and real HTTP tests cover an authorized observed route, per-request authorization revocation, client-supplied scope and cursor rejection, no internal credential/route disclosure, and continued tools/call denial.",
+        "coverage": "UNPROTECTED",
+        "protectedForwardingEnabled": false
+      },
+      "specReferences": [
+        "Technical Specification sections 7 through 9"
+      ]
+    },
+    {
+      "id": "P2-F016",
+      "phase": "phase-2-mcp-gateway",
+      "priority": "critical",
+      "status": "complete",
+      "description": "Compose the client-facing tools/call runtime through authorization, durable trajectory state, exact approval, forwarding, and governed results.",
+      "dependencies": [
+        "P2-F004",
+        "P2-F005",
+        "P2-F006",
+        "P2-F007",
+        "P2-F008",
+        "P2-F009",
+        "P2-F010",
+        "P2-F015"
+      ],
+      "acceptanceCriteria": [
+        "Every client-facing tools/call traverses authenticated route resolution, protocol admission, canonicalization, deterministic policy, and PostgreSQL decision persistence.",
+        "Denied and approval-required calls return factual awareness without invoking a downstream tool.",
+        "One exact approved request can be consumed and forwarded once through gateway-held credentials, with replay and concurrent use denied durably.",
+        "Every downstream result or error is provenance-bound, governed, persisted, and safely returned or withheld.",
+        "Dependency failure, cancellation, timeout, restart, route/schema drift, and non-ENFORCED coverage fail safely in an actual client-facing workflow."
+      ],
+      "progress": {
+        "completedCriteria": [
+          "Every client-facing tools/call traverses authenticated route resolution, protocol admission, canonicalization, deterministic policy, and PostgreSQL decision persistence.",
+          "Denied and approval-required calls return factual awareness without invoking a downstream tool.",
+          "One exact approved request can be consumed and forwarded once through gateway-held credentials, with replay and concurrent use denied durably.",
+          "Every downstream result or error is provenance-bound, governed, persisted, and safely returned or withheld.",
+          "Dependency failure, cancellation, timeout, restart, route/schema drift, and non-ENFORCED coverage fail safely in an actual client-facing workflow."
+        ],
+        "completionEvidence": "ClientToolCallCoordinatorV1 durably admits and explains non-allow calls from exact canonical state. ClientApprovedCallExecutorV1 accepts only an approval ID plus authenticated session, reloads trusted state, awaits PostgreSQL row-locked consumption, then obtains a non-exporting route lease and invokes the exact forwarder. It persists governed results or terminal outcomes before return. Actual disposable evidence covers MCP dependency denial and disconnect propagation, real credentialed HTTP execution, PostgreSQL restart/replay and concurrency denial, registry drift quarantine, timeout/cancellation without late persistence, post-consumption failure outcomes, and newest-assessment-wins non-ENFORCED coverage blocking. Global coverage remains UNPROTECTED.",
+        "coverage": "UNPROTECTED",
+        "protectedForwardingEnabled": false
+      },
+      "specReferences": [
+        "Technical Specification sections 9 through 16"
+      ]
+    },
+    {
+      "id": "P2-F017",
+      "phase": "phase-2-mcp-gateway",
+      "priority": "critical",
+      "status": "complete",
+      "description": "Replace disposable runtime providers with production-shaped identity, credential, route administration, and category-resolver adapters.",
+      "dependencies": ["P2-F016"],
+      "acceptanceCriteria": [
+        "Runtime identity uses an approved protected provider and durable rotation/revocation state rather than TEST_FIXTURE authentication.",
+        "Downstream credentials are obtained from an approved secret manager and remain audience-bound, route-scoped, and non-exportable.",
+        "Server, route, schema, and policy administration is authenticated, durable, versioned, and audited.",
+        "Required filesystem, shell, Git, package, network, database, cloud, browser, process, deployment, and schema analyzers fail unknown syntax safely."
+      ],
+      "progress": {
+        "completedCriteria": [
+          "Runtime identity uses an approved protected provider and durable rotation/revocation state rather than TEST_FIXTURE authentication.",
+          "Downstream credentials are obtained from an approved secret manager and remain audience-bound, route-scoped, and non-exportable.",
+          "Server, route, schema, and policy administration is authenticated, durable, versioned, and audited.",
+          "Required filesystem, shell, Git, package, network, database, cloud, browser, process, deployment, and schema analyzers fail unknown syntax safely."
+        ],
+        "completionEvidence": "Mutual-TLS peer identity is derived only from the trusted TLS socket and resolved on every request through an append-only PostgreSQL credential registry with atomic registration, rotation, revocation, and audit; the protected HTTPS runtime has no TEST_FIXTURE fallback and fails startup without TLS, CA, and database configuration. PostgreSQL administration requires an authenticated principal plus explicit authorization and appends immutable versioned SERVER, ROUTE, SCHEMA, and POLICY documents and audit events. All eleven required analyzer categories fail unknown or substituted analysis safely. The approved HashiCorp Vault KV v2 adapter permits HTTPS except for an explicit disposable-loopback mode, retrieves one exact version at use time, rejects revision/reference/origin/redirect substitution, bounds responses, and zeroizes its token buffers. A real checksum-verified Vault 1.21.1 dev server was exercised on loopback: revision 1 was retrieved through the non-exporting broker and supplied only to one exact session/audience/route/origin-bound disposable downstream request. Dev-mode evidence completes the provider implementation criterion but does not establish production credential custody or production coverage.",
+        "coverage": "UNPROTECTED",
+        "protectedForwardingEnabled": false
+      },
+      "specReferences": ["Technical Specification sections 8 through 12"]
+    },
+    {
+      "id": "P2-F018",
+      "phase": "phase-2-mcp-gateway",
+      "priority": "high",
+      "status": "blocked",
+      "description": "Validate the operational runtime with named MCP hosts, adaptive repeated trials, and independently reviewed evidence.",
+      "dependencies": ["P2-F016", "P2-F011", "P2-F012", "P2-F013", "P2-F014"],
+      "acceptanceCriteria": [
+        "At least two named independently operated MCP hosts complete benign and adversarial workflows through the runtime.",
+        "Adaptive repeated trials retain complete trajectory metrics, baselines, configuration digests, and reproducible evidence.",
+        "An independent security review records findings, remediation, and authorized residual-risk disposition."
+      ],
+      "progress": {
+        "completedCriteria": [],
+        "completionEvidence": "Safe preparation now includes strict named-host, paired operational-trial, and independent-security-review evidence contracts. The review contract binds reviewer independence declarations, exact source/runtime/configuration digests, findings, remediation, and separately authorized residual risk; it rejects reviewer self-authorization, inconsistent dispositions, missing remediation evidence, and digest substitution. These contracts remain EVIDENCE_CONTRACT_ONLY and do not satisfy any acceptance criterion without two real independently operated hosts, actual repeated operational trajectories, and a genuinely independent review.",
+        "coverage": "UNPROTECTED",
+        "protectedForwardingEnabled": false
+      },
+      "specReferences": ["Technical Specification sections 19 and 20"]
+    },
+    {
+      "id": "P2-F019",
+      "phase": "phase-2-mcp-gateway",
+      "priority": "critical",
+      "status": "planned",
+      "description": "Produce a production-candidate deployment with exclusive-mediation evidence, signed artifacts, and exercised recovery.",
+      "dependencies": ["P2-F017", "P2-F018", "P2-F020"],
+      "acceptanceCriteria": [
+        "Independent network, IAM, sandbox, operating-system, and downstream controls prove direct and alternate protected paths blocked.",
+        "Production-scoped coverage probes establish fresh exact-scope evidence before protected mutations are enabled.",
+        "Artifacts and SBOM are reproducible, signed, verified, dependency-audited, and tied to an exact source revision.",
+        "Upgrade, incident response, recovery, and rollback procedures have named owners, objectives, and retained exercise evidence."
+      ],
+      "progress": {"completedCriteria": [], "completionEvidence": "", "coverage": "UNPROTECTED", "protectedForwardingEnabled": false},
+      "specReferences": ["Technical Specification sections 3, 15, 16, and 20"]
+    },
+    {
+      "id": "P2-F020",
+      "phase": "phase-2-mcp-gateway",
+      "priority": "critical",
+      "status": "planned",
+      "description": "Implement a functional authenticated human approval and audit web interface connected to the protected runtime.",
+      "dependencies": ["P2-F010", "P2-F016", "P2-F017"],
+      "acceptanceCriteria": [
+        "A runnable browser UI loads live pending approvals and canonical context from the protected gateway; no approval, outcome, or coverage field is supplied by static mock data or model-authored summaries.",
+        "The approval transport authenticates the human independently, authorizes the exact policy scope, protects session and request integrity, rejects cross-user access, CSRF, origin confusion, stale state, and client-supplied decision authority, and exposes no credential or approval secret.",
+        "The interface offers only exact Approve once and Deny actions, displays expiry and current status, and contains no bulk, persistent, wildcard, or always-allow control.",
+        "Approval, denial, expiry, revocation, reload, duplicate click, multi-tab race, reconnect, and concurrent consumption produce one durable PostgreSQL state transition and at most one exact downstream forwarding attempt.",
+        "The browser displays the governed outcome, recovery class, related attempts, truthful coverage, and exact missing guarantees from correlated durable records, with accessible keyboard operation and unambiguous confirmation/error states.",
+        "Automated browser and integration tests exercise a real pending request through authenticated human decision, PostgreSQL consumption, exact forwarding, governed result, audit display, and all fail-closed negative paths before the feature is complete."
+      ],
+      "progress": {
+        "completedCriteria": [],
+        "completionEvidence": "",
+        "coverage": "UNPROTECTED",
+        "protectedForwardingEnabled": false
+      },
+      "specReferences": ["Technical Specification sections 6, 12, 15, 16, and 20"]
+    }
+  ]
+}

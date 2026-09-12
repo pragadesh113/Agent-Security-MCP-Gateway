@@ -1,0 +1,28 @@
+@startuml
+title Exact Approval and Forwarding Sequence
+actor User
+participant "MCP Host" as Host
+participant Gateway
+database PostgreSQL
+participant "Approval UI" as UI
+participant "Credential Broker" as Broker
+participant "Downstream Server" as Server
+
+Host -> Gateway : tools/call
+Gateway -> Gateway : authenticate, admit, canonicalize, decide
+Gateway -> PostgreSQL : persist request, action and decision
+alt DENY
+  Gateway --> Host : factual awareness
+else REQUIRE_APPROVAL
+  Gateway -> UI : canonical approval context
+  User -> UI : approve once or deny
+  UI -> PostgreSQL : store exact human decision
+  Gateway -> PostgreSQL : revalidate and atomically consume
+  Gateway -> Broker : request route-bound lease
+  Broker -> Server : one credentialed request
+  Server --> Gateway : untrusted result or error
+  Gateway -> Gateway : validate, redact, egress-check
+  Gateway -> PostgreSQL : persist provenance, result and outcome
+  Gateway --> Host : release, redact, quarantine or deny
+end
+@enduml

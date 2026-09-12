@@ -1,0 +1,18 @@
+# The archived Phase 1 tree is outside the active release scope.
+phase-1/
+
+# Tests and generated build output are not runtime package contents.
+test/
+dist/
+
+# Research source PDFs are maintained in the repository, not shipped as runtime files.
+docs/*.pdf
+
+# The IEEE manuscript is a research artifact, not runtime package content.
+paper/
+
+# Release evidence is generated locally and is not runtime package content.
+artifacts/
+
+# Local render and verification scratch files are never runtime package content.
+tmp/
