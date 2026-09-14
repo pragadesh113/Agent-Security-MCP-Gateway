@@ -382,7 +382,8 @@ describe("PostgreSQL trajectory persistence", () => {
         { version: "0003", filename: "0003_trustworthy_interfaces.sql" },
         { version: "0004", filename: "0004_advisory_supervisor.sql" },
         { version: "0005", filename: "0005_protected_identity.sql" },
-        { version: "0006", filename: "0006_protected_administration.sql" }
+        { version: "0006", filename: "0006_protected_administration.sql" },
+        { version: "0007", filename: "0007_approval_web_ui.sql" }
       ]);
       const tables = await client.query<{ table_name: string }>(
         `SELECT table_name FROM information_schema.tables
@@ -397,7 +398,9 @@ describe("PostgreSQL trajectory persistence", () => {
         "supervisor_assessments", "recovery_records", "trustworthy_interface_views",
         "approval_fatigue_events", "protected_admin_resources", "protected_admin_versions",
         "protected_admin_audit_events", "protected_client_identity_revisions",
-        "protected_client_identity_audit_events", "schema_migrations"
+        "protected_client_identity_audit_events", "approval_ui_humans",
+        "approval_ui_scope_grants", "approval_ui_sessions", "approval_ui_security_events",
+        "schema_migrations"
       ]));
       const indexes = await client.query<{ indexname: string }>(
         "SELECT indexname FROM pg_indexes WHERE schemaname = 'public'"
@@ -406,7 +409,8 @@ describe("PostgreSQL trajectory persistence", () => {
         "requests_session_time_idx", "approvals_state_expiry_idx",
         "security_events_request_idx", "trust_evidence_scope_idx", "coverage_events_scope_time_idx",
         "trustworthy_interface_scope_time_idx", "approval_fatigue_scope_time_idx",
-        "supervisor_assessments_scope_time_idx"
+        "supervisor_assessments_scope_time_idx", "approvals_scope_state_time_idx",
+        "approval_ui_sessions_human_expiry_idx", "approval_ui_security_events_approval_idx"
       ]));
       const trigger = await client.query(
         "SELECT 1 FROM pg_trigger WHERE tgname = 'security_events_append_only' AND NOT tgisinternal"

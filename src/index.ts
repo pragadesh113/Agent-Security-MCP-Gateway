@@ -497,6 +497,35 @@ export {
   ClientApprovedCallExecutorV1,
   ClientToolCallCoordinatorV1
 } from "./runtime/client-tool-call-v1.js";
+
+export {
+  ApprovalWebStaleDecisionV1,
+  createApprovalWebAppV1,
+  approvalWebDecisionRequestV1Schema,
+  approvalWebHumanPrincipalV1Schema,
+  approvalWebRecordV1Schema,
+  approvalWebSessionV1Schema
+} from "./interfaces/approval-web-v1.js";
+export type {
+  ApprovalWebAppV1Options,
+  ApprovalWebHumanPrincipalV1,
+  ApprovalWebRecordV1,
+  ApprovalWebSessionV1,
+  ApprovalWebStoreV1,
+  ApprovalWebStaticAssetV1
+} from "./interfaces/approval-web-v1.js";
+export {
+  ApprovalUiPersistenceDeniedV1,
+  ApprovalUiPersistenceUnavailableV1,
+  PostgresApprovalUiStoreV1,
+  authenticatedApprovalHumanV1Schema,
+  approvalUiAdministratorV1Schema,
+  approvalUiBrowserSessionV1Schema,
+  approvalUiDecisionInputV1Schema,
+  approvalUiDetailV1Schema,
+  approvalUiPendingItemV1Schema,
+  approvalUiAuditEventV1Schema
+} from "./persistence/postgres-approval-ui-store-v1.js";
 export type {
   ApprovedClientToolCallV1,
   ClientApprovedCallExecutorV1Options,

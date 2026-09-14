@@ -16,7 +16,8 @@ The runtime must not be treated as a production security boundary yet:
 
 - independent deployment controls have not established exclusive mediation;
 - named-host operational trials and independent security review are still required;
-- the authenticated human approval and audit web application is not implemented;
+- the authenticated human approval and audit web boundary and UI assets are present,
+  but protected runtime wiring and end-to-end browser evidence are still required;
 - protected forwarding remains disabled unless exact disposable test evidence is used.
 
 The authoritative status and evidence are maintained in

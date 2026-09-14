@@ -2,10 +2,27 @@
 
 **Current phase:** Phase 2 - Production-Oriented MCP Gateway  
 **Overall status:** Milestone 6 operational integration in progress; release gates pending  
-**Current feature:** `P2-F018` blocked; authorized external hosts and reviewer required  
-**Last updated:** 2026-09-12
+**Current feature:** `P2-F020` in progress; live PostgreSQL web-store/runtime composition remains
+**Last updated:** 2026-09-14
 
-Latest validated baseline: 31 unit files/283 tests and 13 integration files/60 tests.
+`P2-F020` is now in progress. This slice adds `src/interfaces/approval-web-v1.ts`,
+the PostgreSQL approval-UI migration/store, and `approval-ui/` HTML/CSS/JavaScript
+assets. The boundary enforces independently authenticated human principals, exact
+scope-bound sessions, opaque host cookies, CSRF and same-origin fetch checks,
+ETag-based stale-decision protection, bounded JSON/static responses, and fail-closed
+decision handling. The UI has only one-shot Approve and Deny actions and renders live
+records; it contains no approval mock data or bulk controls. The browser/server contract
+now uses POST for session creation, permits normal same-origin GETs without an Origin
+header while rejecting supplied origin confusion, and agrees on API paths, CSRF header,
+session token, and error shape. Approval-time identity rotation is rechecked correctly,
+expiry is attributed to the system rather than the viewer, and the migration protects
+all immutable approval JSON bindings during state transitions. Build, lint, typecheck,
+32 unit files/288 tests, 14 integration files/61 tests, and all 21 feature records pass.
+The PostgreSQL store and web-app store interfaces still require one digest-based
+composition before the UI can load live protected state; protected browser workflow
+evidence remains pending and coverage remains `UNPROTECTED`.
+
+Latest validated baseline: 32 unit files/288 tests and 14 integration files/61 tests.
 
 The feature graph now contains 21 records. `P2-F020` explicitly tracks the functional
 authenticated human approval and audit web application. The completed `P2-F010`

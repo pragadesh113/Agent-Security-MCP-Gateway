@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark light">
+  <title>Agent Security Gateway — Approvals</title>
+  <link rel="stylesheet" href="/approval/assets/app.css">
+  <script src="/approval/assets/app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#approval-detail">Skip to approval details</a>
+  <header class="site-header">
+    <div>
+      <p class="eyebrow">Agent Security Gateway</p>
+      <h1>Human approvals</h1>
+      <p class="subtitle">Review one canonical action at a time. Approval authorizes this action once.</p>
+    </div>
+    <div class="session-card" aria-label="Authenticated operator">
+      <span class="session-label">Signed in as</span>
+      <strong id="operator-name">Authenticating…</strong>
+      <span id="session-state" class="session-state">Protected session pending</span>
+    </div>
+  </header>
+
+  <div id="global-alert" class="alert" role="alert" hidden></div>
+  <p id="live-status" class="sr-only" aria-live="polite" aria-atomic="true"></p>
+
+  <main class="workspace">
+    <nav class="queue panel" aria-labelledby="queue-heading">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">Decision queue</p>
+          <h2 id="queue-heading">Pending approvals</h2>
+        </div>
+        <button id="refresh-button" class="button button-secondary" type="button">Refresh</button>
+      </div>
+      <p id="queue-summary" class="muted">Loading live approvals…</p>
+      <ul id="approval-list" class="approval-list" aria-label="Pending approval requests"></ul>
+      <div id="empty-state" class="empty-state" hidden>
+        <strong>No pending approvals</strong>
+        <span>The queue will update automatically.</span>
+      </div>
+    </nav>
+
+    <article id="approval-detail" class="detail panel" tabindex="-1" aria-labelledby="detail-heading">
+      <div id="detail-placeholder" class="placeholder">
+        <p class="eyebrow">Canonical review</p>
+        <h2 id="detail-heading">Select a pending approval</h2>
+        <p>Choose an item from the queue to load its current, scope-authorized record.</p>
+      </div>
+
+      <div id="detail-content" hidden>
+        <div class="section-heading detail-title">
+          <div>
+            <p class="eyebrow">Canonical review</p>
+            <h2 id="action-title">Approval request</h2>
+            <p id="action-identifier" class="mono muted"></p>
+          </div>
+          <span id="approval-state" class="state-badge"></span>
+        </div>
+
+        <section class="expiry-card" aria-labelledby="expiry-heading">
+          <div>
+            <h3 id="expiry-heading">Decision window</h3>
+            <p id="expiry-time" class="muted"></p>
+          </div>
+          <strong id="expiry-countdown">—</strong>
+        </section>
+
+        <section aria-labelledby="requester-heading">
+          <h3 id="requester-heading">Authenticated requester</h3>
+          <dl id="requester-fields" class="fact-grid"></dl>
+        </section>
+
+        <section aria-labelledby="route-heading">
+          <h3 id="route-heading">Route and effect</h3>
+          <dl id="route-fields" class="fact-grid"></dl>
+        </section>
+
+        <section aria-labelledby="targets-heading">
+          <h3 id="targets-heading">Canonical targets</h3>
+          <div id="target-list" class="stack"></div>
+        </section>
+
+        <section aria-labelledby="flow-heading">
+          <h3 id="flow-heading">Data flow and provenance</h3>
+          <dl id="flow-fields" class="fact-grid"></dl>
+        </section>
+
+        <section aria-labelledby="coverage-heading">
+          <h3 id="coverage-heading">Coverage and missing guarantees</h3>
+          <p id="coverage-summary"></p>
+          <ul id="missing-guarantees" class="warning-list"></ul>
+        </section>
+
+        <section aria-labelledby="attempts-heading">
+          <h3 id="attempts-heading">Related attempts</h3>
+          <ul id="related-attempts" class="compact-list"></ul>
+        </section>
+
+        <section aria-labelledby="outcome-heading">
+          <h3 id="outcome-heading">Governed outcome and recovery</h3>
+          <dl id="outcome-fields" class="fact-grid"></dl>
+        </section>
+
+        <section aria-labelledby="audit-heading">
+          <h3 id="audit-heading">Correlated audit activity</h3>
+          <ol id="audit-list" class="timeline"></ol>
+        </section>
+
+        <div id="decision-alert" class="alert" role="alert" hidden></div>
+        <div id="decision-actions" class="decision-actions">
+          <button id="deny-button" class="button button-danger" type="button">Deny</button>
+          <button id="approve-button" class="button button-primary" type="button">Approve once</button>
+        </div>
+      </div>
+    </article>
+  </main>
+
+  <dialog id="confirmation-dialog" aria-labelledby="confirmation-title" aria-describedby="confirmation-description">
+    <form method="dialog" class="dialog-card">
+      <p class="eyebrow">Confirm exact decision</p>
+      <h2 id="confirmation-title">Confirm decision</h2>
+      <p id="confirmation-description"></p>
+      <dl id="confirmation-facts" class="fact-grid"></dl>
+      <div class="dialog-actions">
+        <button class="button button-secondary" value="cancel" type="submit">Cancel</button>
+        <button id="confirm-decision-button" class="button" value="confirm" type="submit">Confirm</button>
+      </div>
+    </form>
+  </dialog>
+</body>
+</html>

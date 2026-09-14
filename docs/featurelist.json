@@ -664,7 +664,7 @@
       "id": "P2-F020",
       "phase": "phase-2-mcp-gateway",
       "priority": "critical",
-      "status": "planned",
+      "status": "in_progress",
       "description": "Implement a functional authenticated human approval and audit web interface connected to the protected runtime.",
       "dependencies": ["P2-F010", "P2-F016", "P2-F017"],
       "acceptanceCriteria": [
@@ -677,7 +677,7 @@
       ],
       "progress": {
         "completedCriteria": [],
-        "completionEvidence": "",
+        "completionEvidence": "Added the authenticated approval web boundary, strict digest-only session/CSRF/origin/ETag contracts, PostgreSQL persistence migration/store, and dependency-free accessible UI assets. Browser/server routes, session creation, CSRF header, and error contracts now agree; browser-style same-origin reads, origin confusion, identity rotation, system-attributed expiry, immutable approval binding, denial concurrency, and migration inventory are tested. Build, lint, typecheck, 32 unit files/288 tests, 14 integration files/61 tests, and all 21 feature records pass. The PostgreSQL store and web app still expose incompatible store interfaces, so protected runtime composition and end-to-end browser evidence remain outstanding.",
         "coverage": "UNPROTECTED",
         "protectedForwardingEnabled": false
       },
