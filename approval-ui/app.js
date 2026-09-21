@@ -2,6 +2,7 @@
 
 const apiRoot = "/approval/api";
 const refreshIntervalMs = 5000;
+const csrfStorageKey = "agent-security.approval.csrf.v1";
 const state = {
   approvals: [],
   selectedId: null,
@@ -94,8 +95,24 @@ function currentView(detail) {
 }
 
 async function loadSession() {
-  const { payload } = await requestJson("/session", { method: "POST" });
-  state.csrfToken = typeof payload?.csrfToken === "string" ? payload.csrfToken : null;
+  const storedCsrfToken = window.localStorage.getItem(csrfStorageKey);
+  let payload;
+  if (storedCsrfToken) {
+    try {
+      ({ payload } = await requestJson("/session", {
+        headers: { "X-CSRF-Token": storedCsrfToken }
+      }));
+      state.csrfToken = storedCsrfToken;
+    } catch (error) {
+      if (error.status !== 401 && error.status !== 403) throw error;
+      window.localStorage.removeItem(csrfStorageKey);
+    }
+  }
+  if (!state.csrfToken) {
+    ({ payload } = await requestJson("/session", { method: "POST" }));
+    state.csrfToken = typeof payload?.csrfToken === "string" ? payload.csrfToken : null;
+    if (state.csrfToken) window.localStorage.setItem(csrfStorageKey, state.csrfToken);
+  }
   const human = payload?.human || payload?.operator || {};
   byId("operator-name").textContent = text(human.displayName || human.humanId || payload?.humanId, "Authenticated operator");
   byId("session-state").textContent = "Protected session active";
@@ -246,6 +263,7 @@ function renderDetail() {
   const flow = view.dataFlow || {};
   const provenance = view.provenance || {};
   const outcome = detail?.outcome || null;
+  const result = detail?.result || null;
   const recovery = detail?.recovery || null;
 
   byId("detail-placeholder").hidden = true;
@@ -284,6 +302,8 @@ function renderDetail() {
     ["Status", outcome ? humanize(outcome.status) : "Pending"],
     ["Possible partial effects", outcome?.possiblePartialEffects === true || view.possiblePartialEffects === true ? "Yes" : "No"],
     ["Recovery class", humanize(outcome?.recoveryClass || recovery?.recoveryClass || view.recoveryClass)],
+    ["Result disposition", result ? humanize(result.disposition) : "No governed result"],
+    ["Result schema", result ? humanize(result.schemaValidation) : "Not applicable"],
     ["Observed", outcome?.observedAt ? formatTime(outcome.observedAt) : "Not yet observed"]
   ]);
   renderAudit(detail);
@@ -292,8 +312,13 @@ function renderDetail() {
 }
 
 async function selectApproval(approvalId, moveFocus) {
-  clearAlert("decision-alert");
+  if (moveFocus) clearAlert("decision-alert");
   state.selectedId = approvalId;
+  if (moveFocus) {
+    const location = new URL(window.location.href);
+    location.searchParams.set("approval", approvalId);
+    window.history.replaceState(null, "", location);
+  }
   renderQueue();
   try {
     const { payload, response } = await requestJson(`/approvals/${encodeURIComponent(approvalId)}`);
@@ -393,10 +418,20 @@ byId("confirmation-dialog").addEventListener("submit", (event) => {
   }
 });
 
+window.addEventListener("storage", (event) => {
+  if (event.key === csrfStorageKey && typeof event.newValue === "string" && event.newValue) {
+    state.csrfToken = event.newValue;
+  }
+});
+
 (async function start() {
   try {
     await loadSession();
     await loadQueue();
+    const requestedApprovalId = new URL(window.location.href).searchParams.get("approval");
+    if (requestedApprovalId && requestedApprovalId.length <= 128) {
+      await selectApproval(requestedApprovalId, false);
+    }
     clearAlert("global-alert");
     scheduleRefresh();
   } catch (error) {

@@ -7,7 +7,7 @@ results, and retain a linked PostgreSQL audit trajectory.
 
 ## Current status
 
-Phase 2 is under active development. The implemented protocol, policy, persistence,
+Phase 2 is complete for the approved local non-production scope. The implemented protocol, policy, persistence,
 approval, forwarding, result-governance, identity, administration, Vault, evaluation,
 and coverage boundaries have automated evidence, but production coverage remains
 `UNPROTECTED`.
@@ -15,9 +15,12 @@ and coverage boundaries have automated evidence, but production coverage remains
 The runtime must not be treated as a production security boundary yet:
 
 - independent deployment controls have not established exclusive mediation;
-- named-host operational trials and independent security review are still required;
-- the authenticated human approval and audit web boundary and UI assets are present,
-  but protected runtime wiring and end-to-end browser evidence are still required;
+- two pinned open-source MCP implementations pass local interoperability checks;
+- independently operated hosts and external security review are deferred production
+  assurance and are not claimed by this local deliverable;
+- the authenticated human approval and audit web boundary and its disposable browser
+  race/reconnect/expiry/revocation/failure matrix are complete, but deployment evidence
+  remains;
 - protected forwarding remains disabled unless exact disposable test evidence is used.
 
 The authoritative status and evidence are maintained in
@@ -52,6 +55,7 @@ scripts/      Validation, gateway, dashboard, Vault, and release-evidence toolin
 docs/         Authoritative specification, plan, research, progress, and operations
 infra/        Disposable local PostgreSQL simulation
 dashboard/    Informational local project-status dashboard
+approval-ui/  Authenticated exact approval and audit browser interface
 paper/        Research manuscript source
 ```
 
@@ -75,10 +79,12 @@ npm run lint
 npm run typecheck
 npm test
 npm run test:integration
+npm run test:browser
 npm run validate:features
 ```
 
-These six commands form the mandatory repository validation baseline.
+These seven commands form the validation baseline for browser UI changes; the six
+non-browser root commands remain mandatory for every task.
 
 ## Local non-production workflows
 
@@ -89,12 +95,49 @@ npm run gateway:serve
 npm run gateway:smoke
 ```
 
+Run two pinned open-source MCP servers with sanitized environments and disposable
+harmless/unknown-tool workflows:
+
+```powershell
+npm run mcp-servers:verify:disposable
+```
+
+This verifies local interoperability with the MCP Everything reference server and
+Microsoft Playwright MCP. The generated artifact is explicitly
+`LOCAL_INTEROPERABILITY_ONLY`; locally launching open-source software does not make
+the servers independently operated evidence for `P2-F018`.
+
 Run the informational status dashboard:
 
 ```powershell
 npm run dashboard:build
 npm run dashboard:serve
 ```
+
+The protected approval UI has a separate mutual-TLS entrypoint and no fixture
+authentication fallback. Startup fails unless a trusted protected-runtime dependency
+module is supplied; that module provides the approved credential lease and exact
+downstream forwarder while PostgreSQL reloads session and call authority:
+
+```powershell
+npm run approval:serve:protected
+```
+
+It requires `DATABASE_URL`, `APPROVAL_UI_ORIGIN`, the TLS certificate/key and client
+CA file variables, a configured `APPROVAL_UI_HUMAN_ID` and positive identity revision,
+`APPROVAL_UI_RUNTIME_KEY_ID`, a base64-encoded 32-byte
+`APPROVAL_UI_RUNTIME_KEY_BASE64`, and an absolute trusted local
+`APPROVAL_UI_RUNTIME_MODULE`. The module must export
+`createProtectedApprovalRuntimeDependenciesV1`, returning `issueCredentialLease` and
+an exact `forwarder`. The client-certificate credential ID and authorized policy
+scopes must be registered in PostgreSQL before a browser session can be created.
+The entrypoint uses a finite two-minute execution timeout by default and durably
+recovers stale dispatches. Operators may set
+`APPROVAL_UI_DISPATCH_RECOVERY_INTERVAL_MS` (at most 60000) and
+`APPROVAL_UI_DISPATCH_CLAIM_TIMEOUT_MS` (at most 360000); the claim timeout must exceed
+the configured execution timeout. Recovery revokes an approved call that never reached
+atomic consumption and records an already-consumed call without an outcome as
+`UNKNOWN`; it never retries an ambiguous downstream effect.
 
 Prepare and verify the disposable non-production artifact set:
 
@@ -108,6 +151,8 @@ Nothing in these workflows authorizes production deployment or changes coverage 
 
 ## Documentation
 
+- [Startup and operation guide](startup.md)
+- [Beginner-friendly project handbook](handbook.md)
 - [Technical specification](docs/technical-specification.md)
 - [Feature tracker](docs/featurelist.json)
 - [Progress and handoff](docs/progress.md)

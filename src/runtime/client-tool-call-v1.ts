@@ -157,7 +157,10 @@ export interface ClientApprovedCallExecutorV1Options {
   }) => ApprovedClientToolCallV1 | Promise<ApprovedClientToolCallV1>;
   readonly store: ClientApprovedCallStoreV1;
   readonly forwarder: ClientApprovedCallForwarderV1;
-  readonly issueCredentialLease: (input: ApprovedClientToolCallV1) => string | Promise<string>;
+  readonly issueCredentialLease: (input: {
+    readonly call: ApprovedClientToolCallV1;
+    readonly authorization: ApprovedForwardingAuthorizationV1;
+  }) => string | Promise<string>;
   readonly clock?: () => Date;
   readonly forwardingAttemptIdFactory?: () => string;
   readonly outcomeIdFactory?: () => string;
@@ -251,7 +254,8 @@ export class ClientApprovedCallExecutorV1 {
     let credentialLeaseId: string;
     try {
       credentialLeaseId = await this.#options.issueCredentialLease({
-        session, request, action, decision, approval
+        call: { session, request, action, decision, approval },
+        authorization
       });
     } catch (error) {
       await persistFailure("FAILED", false);

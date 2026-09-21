@@ -6,6 +6,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 import EmbeddedPostgres from "embedded-postgres";
+import { Pool } from "pg";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import {
@@ -200,7 +201,11 @@ beforeAll(async () => {
   await postgres.start();
   config = {
     connectionString: `postgresql://postgres:disposable-postgres-password@127.0.0.1:${String(port)}/postgres`,
-    knownSecretValues: [knownSecret]
+    knownSecretValues: [knownSecret],
+    approvalRuntimePayloadEncryption: {
+      keyId: "postgres-test-runtime-key",
+      key: Buffer.alloc(32, 7)
+    }
   };
   store = await PostgresTrajectoryStoreV1.connect(config);
 }, 30_000);
@@ -383,7 +388,10 @@ describe("PostgreSQL trajectory persistence", () => {
         { version: "0004", filename: "0004_advisory_supervisor.sql" },
         { version: "0005", filename: "0005_protected_identity.sql" },
         { version: "0006", filename: "0006_protected_administration.sql" },
-        { version: "0007", filename: "0007_approval_web_ui.sql" }
+        { version: "0007", filename: "0007_approval_web_ui.sql" },
+        { version: "0008", filename: "0008_approval_web_identity.sql" },
+        { version: "0009", filename: "0009_approval_runtime_authority.sql" },
+        { version: "0010", filename: "0010_approval_runtime_dispatch.sql" }
       ]);
       const tables = await client.query<{ table_name: string }>(
         `SELECT table_name FROM information_schema.tables
@@ -400,6 +408,7 @@ describe("PostgreSQL trajectory persistence", () => {
         "protected_admin_audit_events", "protected_client_identity_revisions",
         "protected_client_identity_audit_events", "approval_ui_humans",
         "approval_ui_scope_grants", "approval_ui_sessions", "approval_ui_security_events",
+        "approval_runtime_payloads", "approval_runtime_dispatches",
         "schema_migrations"
       ]));
       const indexes = await client.query<{ indexname: string }>(
@@ -410,7 +419,8 @@ describe("PostgreSQL trajectory persistence", () => {
         "security_events_request_idx", "trust_evidence_scope_idx", "coverage_events_scope_time_idx",
         "trustworthy_interface_scope_time_idx", "approval_fatigue_scope_time_idx",
         "supervisor_assessments_scope_time_idx", "approvals_scope_state_time_idx",
-        "approval_ui_sessions_human_expiry_idx", "approval_ui_security_events_approval_idx"
+        "approval_ui_sessions_human_expiry_idx", "approval_ui_security_events_approval_idx",
+        "approval_runtime_dispatches_recovery_idx"
       ]));
       const trigger = await client.query(
         "SELECT 1 FROM pg_trigger WHERE tgname = 'security_events_append_only' AND NOT tgisinternal"
@@ -426,6 +436,17 @@ describe("PostgreSQL trajectory persistence", () => {
         "SELECT 1 FROM pg_trigger WHERE tgname = 'supervisor_assessments_append_only' AND NOT tgisinternal"
       );
       expect(supervisorTrigger.rowCount).toBe(1);
+      const approvalRuntimeTrigger = await client.query(
+        "SELECT 1 FROM pg_trigger WHERE tgname = 'approval_runtime_payloads_append_only' AND NOT tgisinternal"
+      );
+      expect(approvalRuntimeTrigger.rowCount).toBe(1);
+      const dispatchTriggers = await client.query(
+        `SELECT tgname FROM pg_trigger
+         WHERE tgname IN ('approval_runtime_dispatches_state_machine',
+           'approval_runtime_dispatches_insert_guard','approval_runtime_dispatches_no_delete')
+           AND NOT tgisinternal`
+      );
+      expect(dispatchTriggers.rowCount).toBe(3);
     } finally {
       await client.end();
     }
@@ -936,6 +957,29 @@ describe("PostgreSQL trajectory persistence", () => {
       await store.persistDecisionTrajectory({ ...candidate, binding });
       await store.persistApproval(candidate.approval);
       await persistEnforcedCoverage(store, { ...candidate, binding });
+      const authorityPool = new Pool({ connectionString: config.connectionString });
+      try {
+        const configuredAt = new Date().toISOString();
+        await authorityPool.query(
+          `INSERT INTO approval_ui_humans(human_id,subject_digest,authentication_method,
+            authentication_revision,active,record_digest,configured_at)
+           VALUES ($1,$2,'OIDC',1,true,$3,$4)`,
+          [candidate.approval.decidedByHumanId, "7".repeat(64), "8".repeat(64), configuredAt]
+        );
+        await authorityPool.query(
+          `INSERT INTO approval_ui_scope_grants(human_id,policy_scope_id,active,
+            grant_revision,grant_digest,configured_at) VALUES ($1,$2,true,1,$3,$4)`,
+          [candidate.approval.decidedByHumanId, candidate.action.route.policyScopeId,
+            "9".repeat(64), configuredAt]
+        );
+      } finally {
+        await authorityPool.end();
+      }
+      const resolvedSession = await store.resolve({
+        approvalId: candidate.approval.approvalId,
+        humanId: candidate.approval.decidedByHumanId ?? ""
+      });
+      expect(resolvedSession).toEqual(candidate.session);
 
       const credentialMaterial = Buffer.from("workflow-route-credential", "utf8");
       const vault = new DisposableCredentialVaultV1({
@@ -974,16 +1018,9 @@ describe("PostgreSQL trajectory persistence", () => {
         errorIdFactory: () => "workflow-result-error"
       });
       const executor = new ClientApprovedCallExecutorV1({
-        loadApprovedCall: ({ approvalId, session }) => {
-          expect(approvalId).toBe(candidate.approval.approvalId);
-          expect(session.stateNamespace).toBe(candidate.session.stateNamespace);
-          return {
-            session: candidate.session, request: candidate.request, action: candidate.action,
-            decision: candidate.decision, approval: candidate.approval
-          };
-        },
+        loadApprovedCall: (input) => store.loadApprovedCall(input),
         store,
-        issueCredentialLease: ({ session }) => vault.issueLease(session, {
+        issueCredentialLease: ({ call }) => vault.issueLease(call.session, {
           credentialProfileId: binding.server.credentialAudience.credentialProfileId,
           audienceId: binding.route.credentialAudienceId,
           routeId: binding.route.routeId

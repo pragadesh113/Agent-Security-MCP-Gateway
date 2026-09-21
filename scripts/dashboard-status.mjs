@@ -31,7 +31,7 @@ const dashboardActivitySchema = z.object({
   detail: z.enum([
     "Live status recomputed from docs/featurelist.json and docs/progress.md.",
     "UNPROTECTED posture retained; no protected call forwarded.",
-    "Production-candidate evidence is incomplete."
+    "Local Phase 2 release evidence is complete; production assurance is deferred."
   ])
 }).strict();
 const exactNamedState = (name, state, detail) => z.object({
@@ -69,16 +69,16 @@ export const dashboardStatusSchema = z.object({
     exactNamedState("Boundary validation", "VERIFIED", "Versioned schemas reject malformed and forward-incompatible protocol data."),
     exactNamedState("Canonical policy", "VERIFIED", "Most-restrictive policy wins; unresolved and non-enforced mutations fail closed."),
     exactNamedState("Single-use approval", "VERIFIED", "Disposable approval tests bind identity, action, route, policy, expiry, and replay state."),
-    exactNamedState("Human approval web UI", "MISSING", "P2-F020 is planned; no authenticated browser can load or decide a live pending approval."),
+    exactNamedState("Human approval web UI", "TESTED", "P2-F020 passed disposable authenticated browser, PostgreSQL, exact-decision, race, expiry, revocation, and governed-result workflows."),
     exactNamedState("Result mediation", "VERIFIED", "Disposable forwarding flow checks provenance, schema, size, redaction, and egress."),
     exactNamedState("Durable audit", "TESTED", "PostgreSQL migration and transaction tests cover trajectory linkage and append-only events."),
     exactNamedState("Independent bypass controls", "MISSING", "No production network, IAM, sandbox, OS, or downstream isolation is configured."),
-    exactNamedState("Independent security review", "MISSING", "Review packet is prepared, but no independent reviewer has completed or signed off the assessment.")
+    exactNamedState("Independent security review", "DEFERRED", "External review is deferred production assurance and is not claimed by the local deliverable.")
   ]),
   releaseGates: z.tuple([
     exactNamedState("Development", "PASS", "Disposable-only; no protected forwarding; validation passes."),
-    exactNamedState("Enforced test", "PARTIAL", "Component evidence exists, but the functional human approval UI and production client-facing wiring are incomplete."),
-    exactNamedState("Production candidate", "BLOCKED", "Approval UI, review, two-host evidence, signed artifacts, SBOM, isolation, and recovery evidence remain.")
+    exactNamedState("Enforced test", "PARTIAL", "The functional approval UI and protected runtime pass disposable tests, but deployment isolation and production coverage evidence are incomplete."),
+    exactNamedState("Production candidate", "BLOCKED", "Production isolation, independent review, independently operated hosts, and signed publication remain deferred.")
   ]),
   securityPipeline: z.tuple([
     exactPipeline("Request received", "OBSERVED", "Dashboard status request received over loopback."),
@@ -89,7 +89,7 @@ export const dashboardStatusSchema = z.object({
     exactPipeline("Downstream forwarding", "REJECT", "Zero downstream tools/call requests are permitted on this path.")
   ]),
   activity: z.array(dashboardActivitySchema).max(12),
-  next: z.literal("Complete P2-F018 named-host trials and independent review, then implement P2-F020's authenticated approval UI; keep coverage UNPROTECTED and protected forwarding disabled until every gate passes.")
+  next: z.literal("Local Phase 2 is complete; keep coverage UNPROTECTED and protected forwarding disabled unless a separately approved production-assurance phase completes.")
 }).strict();
 
 export function parseGatewayStatus(value) {
@@ -180,16 +180,16 @@ export async function buildDashboardStatus(root, options = {}) {
       { name: "Boundary validation", state: "VERIFIED", detail: "Versioned schemas reject malformed and forward-incompatible protocol data." },
       { name: "Canonical policy", state: "VERIFIED", detail: "Most-restrictive policy wins; unresolved and non-enforced mutations fail closed." },
       { name: "Single-use approval", state: "VERIFIED", detail: "Disposable approval tests bind identity, action, route, policy, expiry, and replay state." },
-      { name: "Human approval web UI", state: "MISSING", detail: "P2-F020 is planned; no authenticated browser can load or decide a live pending approval." },
+      { name: "Human approval web UI", state: "TESTED", detail: "P2-F020 passed disposable authenticated browser, PostgreSQL, exact-decision, race, expiry, revocation, and governed-result workflows." },
       { name: "Result mediation", state: "VERIFIED", detail: "Disposable forwarding flow checks provenance, schema, size, redaction, and egress." },
       { name: "Durable audit", state: "TESTED", detail: "PostgreSQL migration and transaction tests cover trajectory linkage and append-only events." },
       { name: "Independent bypass controls", state: "MISSING", detail: "No production network, IAM, sandbox, OS, or downstream isolation is configured." },
-      { name: "Independent security review", state: "MISSING", detail: "Review packet is prepared, but no independent reviewer has completed or signed off the assessment." }
+      { name: "Independent security review", state: "DEFERRED", detail: "External review is deferred production assurance and is not claimed by the local deliverable." }
     ],
     releaseGates: [
       { name: "Development", state: "PASS", detail: "Disposable-only; no protected forwarding; validation passes." },
-      { name: "Enforced test", state: "PARTIAL", detail: "Component evidence exists, but the functional human approval UI and production client-facing wiring are incomplete." },
-      { name: "Production candidate", state: "BLOCKED", detail: "Approval UI, review, two-host evidence, signed artifacts, SBOM, isolation, and recovery evidence remain." }
+      { name: "Enforced test", state: "PARTIAL", detail: "The functional approval UI and protected runtime pass disposable tests, but deployment isolation and production coverage evidence are incomplete." },
+      { name: "Production candidate", state: "BLOCKED", detail: "Production isolation, independent review, independently operated hosts, and signed publication remain deferred." }
     ],
     securityPipeline: [
       { stage: "Request received", outcome: "OBSERVED", detail: "Dashboard status request received over loopback." },
@@ -202,8 +202,8 @@ export async function buildDashboardStatus(root, options = {}) {
     activity: [
       { time: generatedAt, kind: "STATUS_REFRESH", outcome: "ACCEPT", detail: "Live status recomputed from docs/featurelist.json and docs/progress.md." },
       { time: generatedAt, kind: "COVERAGE_GUARD", outcome: "REJECT", detail: "UNPROTECTED posture retained; no protected call forwarded." },
-      { time: generatedAt, kind: "RELEASE_GATE", outcome: "BLOCKED", detail: "Production-candidate evidence is incomplete." }
+      { time: generatedAt, kind: "RELEASE_GATE", outcome: "ACCEPT", detail: "Local Phase 2 release evidence is complete; production assurance is deferred." }
     ],
-    next: "Complete P2-F018 named-host trials and independent review, then implement P2-F020's authenticated approval UI; keep coverage UNPROTECTED and protected forwarding disabled until every gate passes."
+    next: "Local Phase 2 is complete; keep coverage UNPROTECTED and protected forwarding disabled unless a separately approved production-assurance phase completes."
   });
 }

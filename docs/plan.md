@@ -2,8 +2,32 @@
 
 ## Phase 2 Project Plan
 
-**Status:** Active - operational integration and release gates pending  
-**Current feature:** `P2-F018` blocked pending named-host and independent-review evidence
+**Status:** Complete for the approved local non-production scope; production assurance deferred
+**Current feature:** none; all 21 tracked Phase 2 features are complete
+
+### Active code-review follow-up
+
+The protected approval entrypoint, PostgreSQL authority resolver/approved-call loader,
+and real `ClientApprovedCallExecutorV1` bridge are now composed. Startup fails unless a
+trusted runtime module supplies a credential lease and exact forwarder. Integration
+evidence covers approval, resolution, atomic consumption, one forwarding attempt, and
+terminal failure/audit; Chromium covers the live keyboard denial path.
+
+Approval decisions now enqueue a database-constrained dispatch in the same transaction.
+The runtime claims it before session resolution, and concurrent restart recovery either
+revokes an unconsumed approval with zero forwarding or records an already-consumed
+ambiguous attempt as `UNKNOWN` without retrying it.
+
+The protected runtime composes the approved HashiCorp Vault provider, non-exporting
+credential broker, exact forwarding-attempt authorization, downstream authentication,
+result mediation, and durable outcome persistence. Four Chromium workflows now cover
+keyboard denial, governed `Approve once`, reload/reconnect, duplicate and two-tab
+concurrency, expiry, coverage-driven revocation, provider failure, and invalid-result
+quarantine. The UI shows the bound result disposition and schema verdict without raw
+downstream content. `P2-F020` is complete with disposable evidence. Keep coverage
+`UNPROTECTED` and protected forwarding remain disabled after local completion.
+Independent hosts and external review are deferred production-assurance work and are
+not claimed by local completion.
 
 ## 1. Product thesis
 
@@ -127,7 +151,7 @@ Milestone 5 feature implementation is complete. The production-candidate release
 remains open while client-facing mediation, independent deployment controls, signed
 artifacts, SBOM, and operational recovery evidence are unavailable.
 
-### Milestone 6 - Operational integration and production evidence
+### Milestone 6 - Operational integration and local release evidence
 
 Features: `P2-F015` through `P2-F020`.
 
@@ -139,13 +163,14 @@ Features: `P2-F015` through `P2-F020`.
 - Implement a runnable authenticated browser approval and audit interface connected to
   live protected-runtime and PostgreSQL state. The completed `P2-F010` interface model
   and report wireframes are not substitutes for this application.
-- Validate the operational runtime with named hosts, adaptive repeated trials, and an
-  independent security review.
-- Produce signed artifacts and exclusive-mediation, recovery, upgrade, and rollback
-  evidence for a production candidate.
+- Validate two pinned open-source MCP implementations with reproducible local-only
+  interoperability evidence.
+- Produce non-production artifact, SBOM, deployment-isolation, recovery, upgrade, and
+  rollback evidence without signing, publishing, or enabling protected forwarding.
 
-Exit condition: a client-facing request/result path is operational and fail-safe, all
-protected effects are exclusively mediated, and the production-candidate gate passes.
+Exit condition: the client-facing request/result path is exercised fail-safely, local
+release evidence passes, all features are complete, coverage remains `UNPROTECTED`, and
+protected forwarding remains disabled. Production approval is a separate deferred gate.
 
 ## 4. Implementation order
 
@@ -212,7 +237,16 @@ through an unsafe intermediate call is a security failure.
   expiry, reload, duplicate-click, multi-tab, CSRF/origin, and cross-user tests;
 - verified isolation and no direct credential access.
 
-### Production-candidate gate
+### Local non-production completion gate — PASS
+
+- all 21 tracked features complete under the approved local scope;
+- two pinned open-source MCP implementations pass local-only interoperability checks;
+- hardened disposable container verification passes without network or published ports;
+- SBOM, manifest, image identity, reproducible build, and dependency audit verify;
+- artifacts remain unsigned and unpublished, coverage remains `UNPROTECTED`, and
+  protected forwarding remains disabled.
+
+### Production-candidate gate — DEFERRED / BLOCKED
 
 - independent security review;
 - two-host validation;

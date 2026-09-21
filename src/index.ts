@@ -332,12 +332,14 @@ export type {
 
 export {
   DisposableExactForwarderV1,
+  ExactMcpHttpForwarderV1,
   ForwardingDeniedV1,
   mediatedForwardingResultV1Schema
 } from "./forwarding/disposable-forwarding-v1.js";
 
 export type {
   DisposableExactForwarderV1Options,
+  ExactMcpCredentialTransportV1,
   MediatedForwardingResultV1,
   ResultClassificationV1,
   ResultDispositionV1
@@ -497,10 +499,21 @@ export {
   ClientApprovedCallExecutorV1,
   ClientToolCallCoordinatorV1
 } from "./runtime/client-tool-call-v1.js";
+export {
+  ApprovalWebRuntimeBridgeV1,
+  type ApprovalWebRuntimeDispatchCoordinatorV1,
+  type ApprovalWebRuntimeSessionResolverV1
+} from "./runtime/approval-web-runtime-v1.js";
+export {
+  createHashiCorpVaultApprovalRuntimeV1,
+  type HashiCorpVaultApprovalRuntimeV1Options,
+  type ProtectedApprovalRuntimeDependenciesV1
+} from "./runtime/protected-approval-runtime-v1.js";
 
 export {
   ApprovalWebStaleDecisionV1,
   createApprovalWebAppV1,
+  approvalWebAuditEventV1Schema,
   approvalWebDecisionRequestV1Schema,
   approvalWebHumanPrincipalV1Schema,
   approvalWebRecordV1Schema,
@@ -508,6 +521,7 @@ export {
 } from "./interfaces/approval-web-v1.js";
 export type {
   ApprovalWebAppV1Options,
+  ApprovalWebAuditEventV1,
   ApprovalWebHumanPrincipalV1,
   ApprovalWebRecordV1,
   ApprovalWebSessionV1,

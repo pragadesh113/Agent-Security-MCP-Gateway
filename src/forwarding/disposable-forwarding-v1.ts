@@ -35,7 +35,7 @@ import {
   authenticatedSessionIdentityBindingV1Schema,
   type AuthenticatedSessionIdentityBindingV1
 } from "../identity/client-authentication-v1.js";
-import type { DisposableCredentialVaultV1 } from "../identity/credential-vault-v1.js";
+import type { CredentialedMcpHttpResponseV1 } from "../identity/credential-vault-v1.js";
 import {
   authenticatedDownstreamPrincipalV1Schema,
   type AuthenticatedDownstreamPrincipalV1
@@ -83,8 +83,27 @@ export type ResultClassificationV1 = z.infer<typeof classificationV1Schema>;
 export type ResultDispositionV1 = z.infer<typeof dispositionV1Schema>;
 export type MediatedForwardingResultV1 = z.infer<typeof mediatedForwardingResultV1Schema>;
 
+export interface ExactMcpCredentialTransportV1 {
+  sendMcpJsonWithLease(
+    session: AuthenticatedSessionIdentityBindingV1,
+    request: {
+      readonly leaseId: string;
+      readonly credentialProfileId: string;
+      readonly audienceId: string;
+      readonly routeId: string;
+      readonly approvalId: string;
+      readonly actionHash: string;
+      readonly forwardingAttemptId: string;
+      readonly endpoint: string;
+      readonly body: Uint8Array;
+      readonly maxResponseBytes: number;
+      readonly signal?: AbortSignal;
+    }
+  ): Promise<CredentialedMcpHttpResponseV1>;
+}
+
 export interface DisposableExactForwarderV1Options {
-  readonly credentialVault: DisposableCredentialVaultV1;
+  readonly credentialVault: ExactMcpCredentialTransportV1;
   readonly resolveCurrentRoute: (
     authorization: ApprovedForwardingAuthorizationV1
   ) => unknown;
@@ -287,8 +306,11 @@ function redactResult(
   };
 }
 
-/** Process-local test component. It is deliberately not wired to the MCP lifecycle app. */
-export class DisposableExactForwarderV1 {
+/**
+ * Exact HTTP forwarding and result-mediation boundary. Durable attempt uniqueness is
+ * owned by the transactional coordinator; this instance also rejects local replay.
+ */
+export class ExactMcpHttpForwarderV1 {
   readonly #options: DisposableExactForwarderV1Options;
   readonly #attempts = new Set<string>();
   readonly #maxResultBytes: number;
@@ -349,6 +371,9 @@ export class DisposableExactForwarderV1 {
         credentialProfileId: binding.server.credentialAudience.credentialProfileId,
         audienceId: binding.route.credentialAudienceId,
         routeId: binding.route.routeId,
+        approvalId: authorization.approvalId,
+        actionHash: authorization.actionHash,
+        forwardingAttemptId: authorization.forwardingAttemptId,
         endpoint: binding.server.transport.endpoint,
         body,
         maxResponseBytes: this.#maxResultBytes,
@@ -588,3 +613,6 @@ export class DisposableExactForwarderV1 {
     });
   }
 }
+
+/** Backward-compatible name for disposable fixtures that use the exact forwarder. */
+export class DisposableExactForwarderV1 extends ExactMcpHttpForwarderV1 {}

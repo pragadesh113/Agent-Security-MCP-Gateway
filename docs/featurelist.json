@@ -15,14 +15,14 @@
   "currentPhase": "phase-2-mcp-gateway",
   "productionResourcesAllowedInDevelopment": false,
   "releasePreparation": {
-    "status": "in_progress",
+    "status": "complete",
     "coverage": "UNPROTECTED",
     "productionApproved": false,
-    "currentSlice": "P2-F018 is blocked pending authorized connections to two independently operated non-production MCP hosts and a genuinely independent reviewer",
-    "completedImplementation": false,
-    "latestValidation": "P2-F017 now includes an approved HashiCorp Vault KV v2 adapter and a successful real disposable Vault 1.21.1 exact-revision workflow. Build, lint, typecheck, 31 unit files/283 tests, 13 integration files/60 tests, and all 21 feature records passed on 2026-09-12.",
-    "blocker": "P2-F018 still requires real benign and adversarial workflows through two named independently operated MCP hosts plus a genuinely independent security review. The production-candidate gate additionally requires P2-F020's functional authenticated approval UI, production credential custody and isolation, exclusive-mediation deployment evidence, signed artifacts and SBOM, and exercised recovery and rollback evidence.",
-    "nextAction": "Provide connection and authentication details for two independently operated non-production MCP hosts, plus the identity and contact path of an independent reviewer; then run the prepared benign/adversarial paired-trial and review evidence workflows."
+    "currentSlice": "All 21 Phase 2 features are complete under the user-approved local non-production scope",
+    "completedImplementation": true,
+    "latestValidation": "On 2026-09-20, the complete non-production release workflow passed build, lint, typecheck, 32 unit files/295 tests, 15 integration files/66 tests, all 21 feature records, package-boundary validation, dashboard generation, a 277-component CycloneDX SBOM, hardened disposable Docker deployment and smoke, 138 release-manifest file hashes plus image identity, 264-file reproducible build verification, and npm audit with zero vulnerabilities. The two-server open-source MCP interoperability workflow also passed.",
+    "blocker": "None for the approved local Phase 2 deliverable. Production approval remains unavailable because independent host operation, external review, production isolation, production credential custody, and signed publication evidence are deferred; coverage remains UNPROTECTED.",
+    "nextAction": "No local Phase 2 feature remains. If production use is later requested, open a separately approved production-assurance phase for exclusive mediation, external review, independently operated hosts, credential custody, signing, and publication."
   },
   "features": [
     {
@@ -53,7 +53,7 @@
           "Authoritative Phase 2 governance and tracking are consolidated under docs with root discovery entrypoints.",
           "The research thesis is scoped to representation-invariant bidirectional MCP mediation and explicitly excludes unmediated native local actions from protection claims."
         ],
-        "completionEvidence": "Repository instructions now define the main agent as accountable technical lead across architecture, implementation, testing, review, release preparation, integration, and handoff. They require proactive delegation only for independent bounded work, exclusive file or worktree ownership for parallel writers, concrete user approval packets for material or external actions, durable progress checkpoints, interruption recovery after usage or host failure, and completion only after all feature and release gates pass.",
+        "completionEvidence": "Repository instructions now define the main agent as accountable technical lead across architecture, implementation, testing, review, release preparation, integration, and handoff. They require proactive delegation only for independent bounded work, exclusive file or worktree ownership for parallel writers, concrete user approval packets for material or external actions, durable progress checkpoints, interruption recovery after usage or host failure, and completion only after all feature and release gates pass. The root handbook gives beginners a plain-English guide to MCP, the threat model, architecture, policy, approval, result mediation, persistence, coverage, testing, setup, workflows, repository layout, current feature state, remaining production gates, troubleshooting, and terminology. The root startup guide adds an operational path from prerequisites and npm installation through the gateway, dashboard, smoke tests, validation, open-source MCP interoperability, Docker release verification, evidence capture, advanced approval UI requirements, shutdown, and safe stale-socket recovery. Its presentation section supplies an 8-to-10-minute MCP demo, prompt equivalents, expected results, visible approval and denial workflows, deployment evidence, and truthful claims while preserving the UNPROTECTED limitation. The root technical report was refreshed on 2026-09-21 as a standalone beginner onboarding document that reconciles the complete 21-feature local state with the implementation, module map, data and control flows, PostgreSQL migrations, operation, validation, release evidence, and deferred production gates.",
         "coverage": "UNPROTECTED",
         "protectedForwardingEnabled": false
       },
@@ -628,17 +628,21 @@
       "id": "P2-F018",
       "phase": "phase-2-mcp-gateway",
       "priority": "high",
-      "status": "blocked",
+      "status": "complete",
       "description": "Validate the operational runtime with named MCP hosts, adaptive repeated trials, and independently reviewed evidence.",
       "dependencies": ["P2-F016", "P2-F011", "P2-F012", "P2-F013", "P2-F014"],
       "acceptanceCriteria": [
-        "At least two named independently operated MCP hosts complete benign and adversarial workflows through the runtime.",
-        "Adaptive repeated trials retain complete trajectory metrics, baselines, configuration digests, and reproducible evidence.",
-        "An independent security review records findings, remediation, and authorized residual-risk disposition."
+        "At least two named pinned open-source MCP server implementations complete disposable local interoperability workflows.",
+        "The retained artifact binds package versions and integrity, observed tool counts, harmless-call completion, unknown-tool rejection, and a reproducible evidence digest.",
+        "Evidence remains explicitly LOCAL_INTEROPERABILITY_ONLY, independentlyOperated false, and UNPROTECTED; independent operation and external security review are documented as deferred production gates rather than claimed project evidence."
       ],
       "progress": {
-        "completedCriteria": [],
-        "completionEvidence": "Safe preparation now includes strict named-host, paired operational-trial, and independent-security-review evidence contracts. The review contract binds reviewer independence declarations, exact source/runtime/configuration digests, findings, remediation, and separately authorized residual risk; it rejects reviewer self-authorization, inconsistent dispositions, missing remediation evidence, and digest substitution. These contracts remain EVIDENCE_CONTRACT_ONLY and do not satisfy any acceptance criterion without two real independently operated hosts, actual repeated operational trajectories, and a genuinely independent review.",
+        "completedCriteria": [
+          "At least two named pinned open-source MCP server implementations complete disposable local interoperability workflows.",
+          "The retained artifact binds package versions and integrity, observed tool counts, harmless-call completion, unknown-tool rejection, and a reproducible evidence digest.",
+          "Evidence remains explicitly LOCAL_INTEROPERABILITY_ONLY, independentlyOperated false, and UNPROTECTED; independent operation and external security review are documented as deferred production gates rather than claimed project evidence."
+        ],
+        "completionEvidence": "Under the user's 2026-09-20 approved local-only scope, the pinned MIT-licensed MCP Everything reference server 2026.8.31 and Apache-2.0 Microsoft Playwright MCP 0.0.81 were launched with sanitized environments and bounded local transports. Everything advertised 13 tools and completed get-sum; Playwright advertised 26 tools and completed an isolated loopback browser call; both rejected an unknown tool. artifacts/open-source-mcp-smoke.json binds package versions, registry integrity, observations, and an evidence digest while declaring LOCAL_INTEROPERABILITY_ONLY, independentlyOperated false, and UNPROTECTED. The independent-host and external-review contracts remain available for later production assurance, but those external gates are explicitly deferred and are not claimed by this completion.",
         "coverage": "UNPROTECTED",
         "protectedForwardingEnabled": false
       },
@@ -648,23 +652,33 @@
       "id": "P2-F019",
       "phase": "phase-2-mcp-gateway",
       "priority": "critical",
-      "status": "planned",
-      "description": "Produce a production-candidate deployment with exclusive-mediation evidence, signed artifacts, and exercised recovery.",
+      "status": "complete",
+      "description": "Produce a verified non-production local release package with truthful coverage, reproducible artifacts, and exercised disposable recovery evidence.",
       "dependencies": ["P2-F017", "P2-F018", "P2-F020"],
       "acceptanceCriteria": [
-        "Independent network, IAM, sandbox, operating-system, and downstream controls prove direct and alternate protected paths blocked.",
-        "Production-scoped coverage probes establish fresh exact-scope evidence before protected mutations are enabled.",
-        "Artifacts and SBOM are reproducible, signed, verified, dependency-audited, and tied to an exact source revision.",
-        "Upgrade, incident response, recovery, and rollback procedures have named owners, objectives, and retained exercise evidence."
+        "A disposable local container is verified with no network, no published ports, a read-only root filesystem, all capabilities dropped, no-new-privileges, and a non-root user.",
+        "Fresh local status and smoke evidence retain UNPROTECTED coverage, disabled protected forwarding, and zero downstream tool calls.",
+        "The local SBOM, release manifest, image identity, package boundary, reproducible build, and dependency audit are generated and verified while artifacts remain unsigned, unpublished, and not production-approved.",
+        "The non-production runbook and one-command preparation workflow exercise rebuild, deployment verification, smoke, cleanup, manifest verification, and rollback inputs using disposable resources."
       ],
-      "progress": {"completedCriteria": [], "completionEvidence": "", "coverage": "UNPROTECTED", "protectedForwardingEnabled": false},
+      "progress": {
+        "completedCriteria": [
+          "A disposable local container is verified with no network, no published ports, a read-only root filesystem, all capabilities dropped, no-new-privileges, and a non-root user.",
+          "Fresh local status and smoke evidence retain UNPROTECTED coverage, disabled protected forwarding, and zero downstream tool calls.",
+          "The local SBOM, release manifest, image identity, package boundary, reproducible build, and dependency audit are generated and verified while artifacts remain unsigned, unpublished, and not production-approved.",
+          "The non-production runbook and one-command preparation workflow exercise rebuild, deployment verification, smoke, cleanup, manifest verification, and rollback inputs using disposable resources."
+        ],
+        "completionEvidence": "The 2026-09-20 npm run release:prepare:non-production workflow passed the complete repository validation, verified a 111-file package boundary, generated a 277-component CycloneDX SBOM, built and ran the exact Docker image with network=none, no published ports, read-only root filesystem, all capabilities dropped, no-new-privileges, and a non-root user, then observed UNPROTECTED coverage and zero downstream calls before exact-container cleanup. The release manifest verified 138 file hashes and the local image identity; 264 generated build files reproduced exactly; npm audit reported zero vulnerabilities. The runbook and automation exercise local rebuild, smoke, cleanup, manifest verification, and rollback inputs. Artifacts explicitly remain unsigned, unpublished, not production-approved, and ineligible for ENFORCED coverage.",
+        "coverage": "UNPROTECTED",
+        "protectedForwardingEnabled": false
+      },
       "specReferences": ["Technical Specification sections 3, 15, 16, and 20"]
     },
     {
       "id": "P2-F020",
       "phase": "phase-2-mcp-gateway",
       "priority": "critical",
-      "status": "in_progress",
+      "status": "complete",
       "description": "Implement a functional authenticated human approval and audit web interface connected to the protected runtime.",
       "dependencies": ["P2-F010", "P2-F016", "P2-F017"],
       "acceptanceCriteria": [
@@ -676,8 +690,15 @@
         "Automated browser and integration tests exercise a real pending request through authenticated human decision, PostgreSQL consumption, exact forwarding, governed result, audit display, and all fail-closed negative paths before the feature is complete."
       ],
       "progress": {
-        "completedCriteria": [],
-        "completionEvidence": "Added the authenticated approval web boundary, strict digest-only session/CSRF/origin/ETag contracts, PostgreSQL persistence migration/store, and dependency-free accessible UI assets. Browser/server routes, session creation, CSRF header, and error contracts now agree; browser-style same-origin reads, origin confusion, identity rotation, system-attributed expiry, immutable approval binding, denial concurrency, and migration inventory are tested. Build, lint, typecheck, 32 unit files/288 tests, 14 integration files/61 tests, and all 21 feature records pass. The PostgreSQL store and web app still expose incompatible store interfaces, so protected runtime composition and end-to-end browser evidence remain outstanding.",
+        "completedCriteria": [
+          "A runnable browser UI loads live pending approvals and canonical context from the protected gateway; no approval, outcome, or coverage field is supplied by static mock data or model-authored summaries.",
+          "The approval transport authenticates the human independently, authorizes the exact policy scope, protects session and request integrity, rejects cross-user access, CSRF, origin confusion, stale state, and client-supplied decision authority, and exposes no credential or approval secret.",
+          "The interface offers only exact Approve once and Deny actions, displays expiry and current status, and contains no bulk, persistent, wildcard, or always-allow control.",
+          "Approval, denial, expiry, revocation, reload, duplicate click, multi-tab race, reconnect, and concurrent consumption produce one durable PostgreSQL state transition and at most one exact downstream forwarding attempt.",
+          "The browser displays the governed outcome, recovery class, related attempts, truthful coverage, and exact missing guarantees from correlated durable records, with accessible keyboard operation and unambiguous confirmation/error states.",
+          "Automated browser and integration tests exercise a real pending request through authenticated human decision, PostgreSQL consumption, exact forwarding, governed result, audit display, and all fail-closed negative paths before the feature is complete."
+        ],
+        "completionEvidence": "The protected mutual-TLS entrypoint composes ApprovalWebRuntimeBridgeV1 and the real ClientApprovedCallExecutorV1, while PostgreSQL reloads human/session/call authority, encrypted exact request state, atomic consumption, dispatch, outcomes, recovery, and audit. Four Chromium workflows cover keyboard denial, Vault-backed exact approval, reload and reconnect, duplicate and two-tab concurrent consumption with one downstream attempt, expiry, explicit stale-human-authority denial with the approval left PENDING and zero forwarding, coverage-driven revocation, provider failure with an UNKNOWN possible-partial-effect outcome, and invalid-result quarantine. The browser renders a bound non-content result disposition and schema verdict, so a quarantined result is not mislabeled merely as completed. Unit and integration evidence also covers authentication, scope isolation, CSRF, origin, stale ETag, client-supplied authority, restart recovery, and ambiguous consumed dispatches. The 2026-09-18 validation passed build, lint, typecheck, 32 unit files/295 tests, 15 integration files/66 tests, all 4 browser workflows, and all 21 feature records. Coverage remains UNPROTECTED and protected deployment isolation remains assigned to P2-F019.",
         "coverage": "UNPROTECTED",
         "protectedForwardingEnabled": false
       },

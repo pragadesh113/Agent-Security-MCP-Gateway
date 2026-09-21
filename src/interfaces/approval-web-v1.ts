@@ -25,6 +25,18 @@ const opaqueTokenSchema = z.string().regex(/^[A-Za-z0-9_-]{43}$/u);
 const revisionSchema = z.number().int().positive().max(Number.MAX_SAFE_INTEGER);
 const authenticationMethodSchema = z.enum(["MUTUAL_TLS", "OIDC", "WEBAUTHN"]);
 
+export const approvalWebAuditEventV1Schema = z.object({
+  schemaVersion: z.literal("1.0.0"),
+  eventId: identifierV1Schema,
+  eventType: z.enum(["DECISION_RECORDED", "DECISION_REJECTED"]),
+  humanId: identifierV1Schema,
+  approvalId: identifierV1Schema,
+  policyScopeId: identifierV1Schema,
+  reasonCodes: z.array(z.string().min(1).max(128)).max(32),
+  evidenceDigest: digestSchema,
+  occurredAt: utcTimestampV1Schema
+}).strict();
+
 export const approvalWebHumanPrincipalV1Schema = z.object({
   schemaVersion: z.literal("1.0.0"),
   humanId: identifierV1Schema,
@@ -60,9 +72,16 @@ export const approvalWebRecordV1Schema = z.object({
   revision: revisionSchema,
   approval: approvalV1Schema,
   view: trustworthyActionInterfaceV1Schema,
-  outcome: executionOutcomeV1Schema.nullable()
+  outcome: executionOutcomeV1Schema.nullable(),
+  result: z.object({
+    resultId: identifierV1Schema,
+    disposition: z.enum(["ALLOW", "REDACT", "DENY", "QUARANTINE"]),
+    schemaValidation: z.enum(["VALID", "INVALID", "UNVERIFIED"]),
+    processedAt: utcTimestampV1Schema
+  }).strict().nullable().default(null),
+  audit: z.array(approvalWebAuditEventV1Schema).max(256).default([])
 }).strict().superRefine((record, context) => {
-  const { approval, view, outcome } = record;
+  const { approval, view, outcome, result } = record;
   if (view.decision !== "REQUIRE_APPROVAL" ||
     approval.requestId !== view.requestId || approval.actionId !== view.actionId ||
     approval.decisionId !== view.decisionId || approval.sessionId !== view.requester.sessionId ||
@@ -77,6 +96,21 @@ export const approvalWebRecordV1Schema = z.object({
     outcome.approvalId !== approval.approvalId || outcome.sessionId !== approval.sessionId)) {
     context.addIssue({ code: "custom", path: ["outcome"], message: "Outcome must match the approval" });
   }
+  if (result !== null && (outcome === null || outcome.resultId !== result.resultId)) {
+    context.addIssue({
+      code: "custom",
+      path: ["result"],
+      message: "Governed result summary must match the approval outcome"
+    });
+  }
+  if (record.audit.some((event) => event.approvalId !== approval.approvalId ||
+    event.policyScopeId !== approval.route.policyScopeId)) {
+    context.addIssue({
+      code: "custom",
+      path: ["audit"],
+      message: "Audit events must match the approval and policy scope"
+    });
+  }
 });
 
 export const approvalWebDecisionRequestV1Schema = z.object({
@@ -88,6 +122,7 @@ export type ApprovalWebHumanPrincipalV1 = z.infer<typeof approvalWebHumanPrincip
 export type ApprovalWebSessionV1 = z.infer<typeof approvalWebSessionV1Schema>;
 export type ApprovalWebRecordV1 = z.infer<typeof approvalWebRecordV1Schema>;
 export type ApprovalWebDecisionRequestV1 = z.infer<typeof approvalWebDecisionRequestV1Schema>;
+export type ApprovalWebAuditEventV1 = z.infer<typeof approvalWebAuditEventV1Schema>;
 
 export interface ApprovalWebStaticAssetV1 {
   readonly contentType: "text/html; charset=utf-8" | "text/css; charset=utf-8" |
@@ -117,6 +152,11 @@ export interface ApprovalWebStoreV1 {
     readonly expectedRevision: number;
     readonly decidedAt: string;
   }): Promise<ApprovalWebRecordV1>;
+  reconcileExecutionFailure(input: {
+    readonly approvalId: string;
+    readonly humanId: string;
+    readonly occurredAt: string;
+  }): Promise<void>;
 }
 
 export interface ApprovalWebAppV1Options {
@@ -125,6 +165,11 @@ export interface ApprovalWebAppV1Options {
     request: Request
   ) => ApprovalWebHumanPrincipalV1 | null | Promise<ApprovalWebHumanPrincipalV1 | null>;
   readonly store: ApprovalWebStoreV1;
+  /** Trusted continuation; the runtime reloads exact authority from PostgreSQL. */
+  readonly executeApprovedCall?: (input: {
+    readonly approvalId: string;
+    readonly humanId: string;
+  }) => Promise<void>;
   readonly readStaticAsset: (
     path: "/index.html" | `/assets/${string}`
   ) => ApprovalWebStaticAssetV1 | null | Promise<ApprovalWebStaticAssetV1 | null>;
@@ -379,6 +424,26 @@ export function createApprovalWebAppV1(options: ApprovalWebAppV1Options): expres
     }
   });
 
+  app.get("/approval/api/session", authorizeSession, (request, response) => {
+    const session = sessions.get(request);
+    const csrfToken = typeof request.headers["x-csrf-token"] === "string"
+      ? opaqueTokenSchema.safeParse(request.headers["x-csrf-token"])
+      : null;
+    if (session === undefined || csrfToken === null || !csrfToken.success ||
+      !equalDigest(session.csrfTokenDigest, digest(csrfToken.data))) {
+      safeError(response, 403, "approval.request_integrity_denied", "Approval request integrity check failed");
+      return;
+    }
+    response.status(200).type("application/json").json({
+      schemaVersion: "1.0.0",
+      expiresAt: session.expiresAt,
+      human: {
+        humanId: session.humanId,
+        authenticationMethod: session.authenticationMethod
+      }
+    });
+  });
+
   app.get("/approval/api/pending", authorizeSession, async (request, response) => {
     const session = sessions.get(request);
     if (session === undefined) throw new Error("Authorized approval session is unavailable");
@@ -443,7 +508,11 @@ export function createApprovalWebAppV1(options: ApprovalWebAppV1Options): expres
         return;
       }
       try {
-        const record = recordForScope(await options.store.decide({
+        if (decision.data.decision === "APPROVE" && options.executeApprovedCall === undefined) {
+          safeError(response, 503, "approval.runtime_unavailable", "Protected execution is unavailable");
+          return;
+        }
+        let record = recordForScope(await options.store.decide({
           session,
           approvalId: approvalId.data,
           decision: decision.data.decision,
@@ -454,6 +523,21 @@ export function createApprovalWebAppV1(options: ApprovalWebAppV1Options): expres
         if (record.approval.state !== expectedState || record.approval.decidedByHumanId !== session.humanId ||
           record.revision <= expectedRevision) {
           throw new Error("Decision store returned an invalid transition");
+        }
+        if (decision.data.decision === "APPROVE") {
+          try {
+            await options.executeApprovedCall?.({ approvalId: approvalId.data, humanId: session.humanId });
+          } catch (error) {
+            await options.store.reconcileExecutionFailure({
+              approvalId: approvalId.data,
+              humanId: session.humanId,
+              occurredAt: clock().toISOString()
+            });
+            throw error;
+          }
+          const refreshed = await options.store.readApproval(session, approvalId.data);
+          if (refreshed === null) throw new Error("Approved runtime outcome is unavailable");
+          record = recordForScope(refreshed, session);
         }
         response.setHeader("ETag", `"${String(record.revision)}"`);
         response.status(200).type("application/json").json(record);

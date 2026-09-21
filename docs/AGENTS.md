@@ -149,10 +149,13 @@ repository, and resume the first unfinished dependency-ready item. A scheduled h
 may initiate this recovery, but it must stay quiet when the goal is complete, when no
 meaningful state changed, or while the same explicit human approval is still pending.
 
-The durable Phase 2 project goal is complete only when every Phase 2 feature record in
-`docs/featurelist.json` is `complete`, the release gates in `docs/plan.md` are satisfied,
-all required validation passes, coverage claims match evidence, and the final handoff
-records remaining operational risk. A component described as optional, such as the LLM
+The durable Phase 2 local non-production goal is complete only when every Phase 2
+feature record in `docs/featurelist.json` is `complete`, the local release gates in
+`docs/plan.md` are satisfied, all required validation passes, coverage claims match
+evidence, and the final handoff records remaining operational risk. Production
+assurance is a separate approval-gated phase and its absence must keep coverage
+`UNPROTECTED`, protected forwarding disabled, and production approval false without
+blocking truthful completion of the local deliverable. A component described as optional, such as the LLM
 supervisor, must still satisfy its feature criteria; optional means it can be disabled
 at runtime, not that its tracked feature can remain unfinished. Changing the tracked
 feature set requires an approved scope decision. Do not treat exhaustion of a context

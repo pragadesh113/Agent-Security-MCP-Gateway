@@ -16,6 +16,15 @@ import { identifierV1Schema, utcTimestampV1Schema } from "../contracts/v1.js";
 import {
   trustworthyActionInterfaceV1Schema
 } from "../interfaces/trustworthy-interface-v1.js";
+import {
+  ApprovalWebStaleDecisionV1,
+  approvalWebHumanPrincipalV1Schema,
+  approvalWebRecordV1Schema,
+  approvalWebSessionV1Schema,
+  type ApprovalWebRecordV1,
+  type ApprovalWebSessionV1,
+  type ApprovalWebStoreV1
+} from "../interfaces/approval-web-v1.js";
 import { runForwardMigrationsV1 } from "./migrations-v1.js";
 
 const digestSchema = z.string().regex(/^[a-f0-9]{64}$/u);
@@ -24,8 +33,8 @@ const opaqueTokenSchema = z.string().min(32).max(256).regex(/^[A-Za-z0-9_-]+$/u)
 export const authenticatedApprovalHumanV1Schema = z.object({
   schemaVersion: z.literal("1.0.0"),
   humanId: identifierV1Schema,
-  subjectId: z.string().trim().min(1).max(512),
-  authenticationMethod: z.enum(["MUTUAL_TLS", "OIDC", "HARDWARE_ASSERTION"]),
+  credentialId: identifierV1Schema,
+  authenticationMethod: z.enum(["MUTUAL_TLS", "OIDC", "WEBAUTHN"]),
   authenticationRevision: z.number().int().positive(),
   authenticatedAt: utcTimestampV1Schema
 }).strict();
@@ -78,6 +87,12 @@ export const approvalUiDetailV1Schema = z.object({
   approval: approvalV1Schema,
   view: trustworthyActionInterfaceV1Schema,
   outcome: executionOutcomeV1Schema.nullable(),
+  result: z.object({
+    resultId: identifierV1Schema,
+    disposition: z.enum(["ALLOW", "REDACT", "DENY", "QUARANTINE"]),
+    schemaValidation: z.enum(["VALID", "INVALID", "UNVERIFIED"]),
+    processedAt: utcTimestampV1Schema
+  }).strict().nullable().default(null),
   audit: z.array(approvalUiAuditEventV1Schema).max(256)
 }).strict();
 
@@ -132,6 +147,7 @@ interface SessionAuthorityRow {
 }
 
 interface ApprovalDetailRow {
+  readonly state_revision: string;
   readonly redacted_document: unknown;
   readonly view_document: unknown;
   readonly outcome_id: string | null;
@@ -149,6 +165,18 @@ interface ApprovalDetailRow {
   readonly forwarded_at: Date | null;
   readonly finished_at: Date | null;
   readonly observed_at: Date | null;
+  readonly governed_result_id: string | null;
+  readonly result_disposition: "ALLOW" | "REDACT" | "DENY" | "QUARANTINE" | null;
+  readonly result_schema_validation: "VALID" | "INVALID" | "UNVERIFIED" | null;
+  readonly result_processed_at: Date | null;
+}
+
+interface WebSessionRow extends SessionAuthorityRow {
+  readonly authentication_method: "MUTUAL_TLS" | "OIDC" | "WEBAUTHN";
+  readonly subject_digest: string;
+  readonly created_at: Date;
+  readonly expires_at: Date;
+  readonly policy_scope_ids: string[];
 }
 
 function sha256(value: string): string {
@@ -210,6 +238,57 @@ export class PostgresApprovalUiStoreV1 {
     await this.#pool.end();
   }
 
+  public asApprovalWebStore(): ApprovalWebStoreV1 {
+    return {
+      createSession: (input) => this.#createWebSession(input),
+      readAuthorizedSession: (input) => this.#readAuthorizedWebSession(input),
+      listPending: (session) => this.#listWebPending(session),
+      readApproval: (session, approvalId) => this.#readWebApproval(session, approvalId),
+      decide: (input) => this.#decideWeb(input),
+      reconcileExecutionFailure: (input) => this.#reconcileExecutionFailure(input)
+    };
+  }
+
+  async #reconcileExecutionFailure(input: {
+    readonly approvalId: string;
+    readonly humanId: string;
+    readonly occurredAt: string;
+  }): Promise<void> {
+    const approvalId = identifierV1Schema.parse(input.approvalId);
+    const humanId = identifierV1Schema.parse(input.humanId);
+    const occurredAt = utcTimestampV1Schema.parse(input.occurredAt);
+    await this.#transaction(async (client) => {
+      const selected = await client.query<{ redacted_document: unknown; policy_scope_id: string }>(
+        `SELECT a.redacted_document,a.policy_scope_id
+           FROM approvals a
+          WHERE a.approval_id=$1 AND a.decided_by_human_id=$2
+          FOR UPDATE OF a`,
+        [approvalId, humanId]
+      );
+      const row = selected.rows[0];
+      if (row === undefined) throw new ApprovalUiPersistenceDeniedV1();
+      const approval = approvalV1Schema.parse(row.redacted_document);
+      if (approval.state === "APPROVED") {
+        const revoked = approvalV1Schema.parse({
+          ...approval,
+          state: "REVOKED",
+          consumption: null
+        });
+        await client.query(
+          `UPDATE approvals SET state='REVOKED',state_revision=state_revision+1,
+             updated_at=$2,redacted_document=$3::jsonb
+             WHERE approval_id=$1 AND state='APPROVED'`,
+          [approvalId, occurredAt, JSON.stringify(revoked)]
+        );
+        await this.#appendUiEvent(client, {
+          eventType: "DECISION_REJECTED", humanId, approvalId,
+          policyScopeId: row.policy_scope_id, reasonCodes: ["approval.execution_failed"],
+          evidenceDigest: computeCanonicalDigestV1({ approvalId, occurredAt }), occurredAt
+        });
+      }
+    });
+  }
+
   public async configureHuman(input: {
     readonly authority: ApprovalUiAdministratorV1;
     readonly human: AuthenticatedApprovalHumanV1;
@@ -222,7 +301,7 @@ export class PostgresApprovalUiStoreV1 {
       throw new ApprovalUiPersistenceDeniedV1();
     }
     const now = this.#now();
-    const subjectDigest = sha256(human.subjectId);
+    const subjectDigest = sha256(human.credentialId);
     const recordDigest = computeCanonicalDigestV1({
       humanId: human.humanId, subjectDigest, authenticationMethod: human.authenticationMethod,
       authenticationRevision: human.authenticationRevision, active: true
@@ -272,7 +351,7 @@ export class PostgresApprovalUiStoreV1 {
       const matched = await client.query(
         `SELECT 1 FROM approval_ui_humans WHERE human_id=$1 AND subject_digest=$2
            AND authentication_method=$3 AND authentication_revision=$4 AND active=true`,
-        [human.humanId, sha256(human.subjectId), human.authenticationMethod, human.authenticationRevision]
+        [human.humanId, sha256(human.credentialId), human.authenticationMethod, human.authenticationRevision]
       );
       if (matched.rowCount !== 1) throw new ApprovalUiPersistenceDeniedV1();
       await client.query(
@@ -398,6 +477,13 @@ export class PostgresApprovalUiStoreV1 {
           JSON.stringify(decided), input.expectedActionHash]
       );
       if (updated.rowCount !== 1) throw new ApprovalUiPersistenceDeniedV1();
+      if (input.decision === "APPROVE") {
+        await client.query(
+          `INSERT INTO approval_runtime_dispatches(approval_id,request_id,human_id,state,created_at)
+           VALUES ($1,$2,$3,'PENDING',$4)`,
+          [approval.approvalId, approval.requestId, session.human_id, decidedAt]
+        );
+      }
       await client.query(
         "UPDATE approval_ui_sessions SET csrf_digest=$2,last_seen_at=$3 WHERE session_digest=$1",
         [sha256(input.sessionToken), sha256(nextCsrfToken), decidedAt]
@@ -428,18 +514,308 @@ export class PostgresApprovalUiStoreV1 {
     }
   }
 
+  async #createWebSession(
+    input: Parameters<ApprovalWebStoreV1["createSession"]>[0]
+  ): Promise<ApprovalWebSessionV1> {
+    const principal = approvalWebHumanPrincipalV1Schema.parse(input.principal);
+    const sessionIdDigest = digestSchema.parse(input.sessionIdDigest);
+    const csrfTokenDigest = digestSchema.parse(input.csrfTokenDigest);
+    const createdAt = utcTimestampV1Schema.parse(input.createdAt);
+    const expiresAt = utcTimestampV1Schema.parse(input.expiresAt);
+    if (Date.parse(expiresAt) <= Date.parse(createdAt) ||
+      Date.parse(principal.authenticatedAt) > Date.parse(createdAt) ||
+      Date.parse(expiresAt) - Date.parse(createdAt) > this.#sessionLifetimeMs) {
+      throw new ApprovalUiPersistenceDeniedV1();
+    }
+    return this.#transaction(async (client) => {
+      const matched = await client.query<{ policy_scope_ids: string[] }>(
+        `SELECT array_agg(g.policy_scope_id ORDER BY g.policy_scope_id) AS policy_scope_ids
+         FROM approval_ui_humans h JOIN approval_ui_scope_grants g ON g.human_id=h.human_id AND g.active=true
+         WHERE h.human_id=$1 AND h.subject_digest=$2 AND h.authentication_method=$3
+           AND h.authentication_revision=$4 AND h.active=true GROUP BY h.human_id`,
+        [principal.humanId, sha256(principal.credentialId), principal.authenticationMethod,
+          principal.identityRevision]
+      );
+      const scopes = matched.rows[0]?.policy_scope_ids;
+      if (scopes === undefined || scopes.length === 0) throw new ApprovalUiPersistenceDeniedV1();
+      await client.query(
+        `INSERT INTO approval_ui_sessions(session_digest,human_id,authentication_revision,
+          csrf_digest,created_at,last_seen_at,expires_at) VALUES ($1,$2,$3,$4,$5,$5,$6)`,
+        [sessionIdDigest, principal.humanId, principal.identityRevision, csrfTokenDigest,
+          createdAt, expiresAt]
+      );
+      await this.#appendUiEvent(client, {
+        eventType: "SESSION_CREATED", humanId: principal.humanId, approvalId: null,
+        policyScopeId: null, reasonCodes: ["approval_ui.session_created"],
+        evidenceDigest: computeCanonicalDigestV1({ humanId: principal.humanId,
+          expiresAt }), occurredAt: createdAt
+      });
+      return approvalWebSessionV1Schema.parse({
+        schemaVersion: "1.0.0", sessionIdDigest, csrfTokenDigest,
+        humanId: principal.humanId, authenticationMethod: principal.authenticationMethod,
+        credentialId: principal.credentialId, identityRevision: principal.identityRevision,
+        policyScopeIds: scopes, createdAt, expiresAt
+      });
+    });
+  }
+
+  async #readAuthorizedWebSession(
+    input: Parameters<ApprovalWebStoreV1["readAuthorizedSession"]>[0]
+  ): Promise<ApprovalWebSessionV1 | null> {
+    const principal = approvalWebHumanPrincipalV1Schema.parse(input.principal);
+    const sessionIdDigest = digestSchema.parse(input.sessionIdDigest);
+    utcTimestampV1Schema.parse(input.now);
+    const client = await this.#pool.connect();
+    try {
+      await client.query("BEGIN");
+        const row = await this.#selectWebSession(client, sessionIdDigest, principal.credentialId, false);
+        if (row === null || row.human_id !== principal.humanId || row.authentication_method !== principal.authenticationMethod ||
+          Number(row.authentication_revision) !== principal.identityRevision) {
+          await client.query("COMMIT");
+          return null;
+        }
+        const session = approvalWebSessionV1Schema.parse({
+          schemaVersion: "1.0.0", sessionIdDigest, csrfTokenDigest: row.csrf_digest,
+          humanId: row.human_id, authenticationMethod: row.authentication_method,
+          credentialId: principal.credentialId, identityRevision: Number(row.authentication_revision),
+          policyScopeIds: row.policy_scope_ids, createdAt: row.created_at.toISOString(),
+          expiresAt: row.expires_at.toISOString()
+        });
+        await client.query("COMMIT");
+        return session;
+    } catch {
+      await client.query("ROLLBACK").catch(() => undefined);
+      throw new ApprovalUiPersistenceUnavailableV1();
+    } finally {
+      client.release();
+    }
+  }
+
+  async #listWebPending(sessionInput: ApprovalWebSessionV1): Promise<readonly ApprovalWebRecordV1[]> {
+    const session = approvalWebSessionV1Schema.parse(sessionInput);
+    return this.#transaction(async (client) => {
+      await this.#requireWebSessionSnapshot(client, session, false);
+      await this.#expireDue(client, session.humanId);
+      const selected = await client.query<{ approval_id: string }>(
+        `SELECT a.approval_id FROM approvals a JOIN approval_ui_scope_grants g
+           ON g.human_id=$1 AND g.policy_scope_id=a.policy_scope_id AND g.active=true
+         WHERE a.state='PENDING' AND a.expires_at>clock_timestamp()
+         ORDER BY a.requested_at,a.approval_id LIMIT 50`,
+        [session.humanId]
+      );
+      const records: ApprovalWebRecordV1[] = [];
+      for (const row of selected.rows) {
+        const record = await this.#readWebRecord(client, session.humanId, row.approval_id);
+        if (record !== null) records.push(record);
+      }
+      return records;
+    });
+  }
+
+  async #readWebApproval(
+    sessionInput: ApprovalWebSessionV1,
+    approvalIdInput: string
+  ): Promise<ApprovalWebRecordV1 | null> {
+    const session = approvalWebSessionV1Schema.parse(sessionInput);
+    const approvalId = identifierV1Schema.parse(approvalIdInput);
+    return this.#transaction(async (client) => {
+      await this.#requireWebSessionSnapshot(client, session, false);
+      await this.#expireDue(client, session.humanId, approvalId);
+      return this.#readWebRecord(client, session.humanId, approvalId);
+    });
+  }
+
+  async #decideWeb(inputValue: Parameters<ApprovalWebStoreV1["decide"]>[0]): Promise<ApprovalWebRecordV1> {
+    const session = approvalWebSessionV1Schema.parse(inputValue.session);
+    const approvalId = identifierV1Schema.parse(inputValue.approvalId);
+    const decision = z.enum(["APPROVE", "DENY"]).parse(inputValue.decision);
+    const expectedRevision = z.number().int().positive().parse(inputValue.expectedRevision);
+    utcTimestampV1Schema.parse(inputValue.decidedAt);
+    const client = await this.#pool.connect();
+    try {
+      await client.query("BEGIN");
+      await this.#requireWebSessionSnapshot(client, session, true);
+      await this.#expireDue(client, session.humanId, approvalId);
+      const selected = await client.query<{
+        redacted_document: unknown; policy_scope_id: string; interface_id: string;
+        state_revision: string; current_state_valid: boolean; action_document: unknown;
+      }>(
+        `SELECT a.redacted_document,a.policy_scope_id,a.state_revision,v.interface_id,
+          ca.redacted_document AS action_document,
+          (s.status='ACTIVE' AND d.decision='REQUIRE_APPROVAL' AND d.coverage='ENFORCED'
+            AND d.policy_version=a.policy_version AND rt.document->>'status'='ACTIVE'
+            AND rt.document->'schemaIntegrity'->>'state'='VERIFIED'
+            AND sv.document->'health'->>'state'='HEALTHY'
+            AND sv.document->'capabilityIntegrity'->>'state'='VERIFIED'
+            AND NOT EXISTS (SELECT 1 FROM policies newer WHERE newer.activated_at>d.decided_at)
+            AND NOT EXISTS (SELECT 1 FROM identities newer
+              WHERE newer.user_id=i.user_id AND newer.agent_id=i.agent_id AND newer.host_id=i.host_id
+                AND (newer.identity_revision>i.identity_revision OR newer.credential_id<>i.credential_id)))
+            AS current_state_valid
+         FROM approvals a JOIN decisions d ON d.decision_id=a.decision_id
+         JOIN canonical_actions ca ON ca.action_id=a.action_id
+         JOIN requests r ON r.request_id=a.request_id JOIN sessions s ON s.state_namespace=r.state_namespace
+         JOIN identities i ON i.identity_key=s.identity_key JOIN routes rt ON rt.route_id=r.route_id
+         JOIN servers sv ON sv.server_id=rt.server_id
+         JOIN trustworthy_interface_views v ON v.request_id=a.request_id AND v.decision_id=a.decision_id
+         JOIN approval_ui_scope_grants g ON g.human_id=$2 AND g.policy_scope_id=a.policy_scope_id AND g.active=true
+         WHERE a.approval_id=$1 FOR UPDATE OF a`,
+        [approvalId, session.humanId]
+      );
+      const row = selected.rows[0];
+      if (row === undefined) throw new ApprovalUiPersistenceDeniedV1();
+      const approval = approvalV1Schema.parse(row.redacted_document);
+      const action = canonicalActionV1Schema.parse(row.action_document);
+      if (approval.state !== "PENDING" || Number(row.state_revision) !== expectedRevision) {
+        await client.query("COMMIT");
+        throw new ApprovalWebStaleDecisionV1();
+      }
+      const coverageValid = decision === "DENY" || await this.#hasCurrentEnforcedCoverage(
+          client, approval, action.resources.map((item) => item.resourceId)
+        );
+      if (decision === "APPROVE" && (!row.current_state_valid || !coverageValid)) {
+        const revoked = approvalV1Schema.parse({ ...approval, state: "REVOKED", consumption: null });
+        const revokedAt = this.#now();
+        await client.query(
+          `UPDATE approvals SET state='REVOKED',redacted_document=$2::jsonb WHERE approval_id=$1`,
+          [approval.approvalId, JSON.stringify(revoked)]
+        );
+        await this.#appendUiEvent(client, {
+          eventType: "DECISION_REJECTED", humanId: session.humanId, approvalId,
+          policyScopeId: row.policy_scope_id, reasonCodes: ["approval_ui.revalidation_failed"],
+          evidenceDigest: computeCanonicalDigestV1({ approvalId, expectedRevision }), occurredAt: revokedAt
+        });
+        await client.query("COMMIT");
+        throw new ApprovalWebStaleDecisionV1();
+      }
+      const decidedAt = this.#now();
+      const decided = approvalV1Schema.parse({
+        ...approval, state: decision === "APPROVE" ? "APPROVED" : "DENIED",
+        decidedAt, decidedByHumanId: session.humanId
+      });
+      const updated = await client.query(
+        `UPDATE approvals SET state=$2,decided_at=$3,decided_by_human_id=$4,
+          redacted_document=$5::jsonb WHERE approval_id=$1 AND state='PENDING' AND state_revision=$6`,
+        [approvalId, decided.state, decidedAt, session.humanId, JSON.stringify(decided), expectedRevision]
+      );
+      if (updated.rowCount !== 1) {
+        await client.query("ROLLBACK");
+        throw new ApprovalWebStaleDecisionV1();
+      }
+      if (decision === "APPROVE") {
+        await client.query(
+          `INSERT INTO approval_runtime_dispatches(approval_id,request_id,human_id,state,created_at)
+           VALUES ($1,$2,$3,'PENDING',$4)`,
+          [approvalId, approval.requestId, session.humanId, decidedAt]
+        );
+      }
+      await client.query(
+        `INSERT INTO approval_fatigue_events(event_id,interface_id,policy_scope_id,event_type,
+          decision_latency_ms,related_attempt_count,occurred_at) VALUES ($1,$2,$3,$4,$5,0,$6)`,
+        [this.#eventId(), row.interface_id, row.policy_scope_id,
+          decision === "APPROVE" ? "APPROVED" : "DENIED",
+          Math.max(0, Date.parse(decidedAt) - Date.parse(approval.requestedAt)), decidedAt]
+      );
+      await this.#appendUiEvent(client, {
+        eventType: "DECISION_RECORDED", humanId: session.humanId, approvalId,
+        policyScopeId: row.policy_scope_id,
+        reasonCodes: [decision === "APPROVE" ? "approval_ui.approved_once" : "approval_ui.denied"],
+        evidenceDigest: computeCanonicalDigestV1({ approvalId, actionHash: approval.actionHash,
+          decision, decidedAt }), occurredAt: decidedAt
+      });
+      const record = await this.#readWebRecord(client, session.humanId, approvalId);
+      if (record === null) throw new ApprovalUiPersistenceDeniedV1();
+      await client.query("COMMIT");
+      return record;
+    } catch (error) {
+      await client.query("ROLLBACK").catch(() => undefined);
+      if (error instanceof ApprovalWebStaleDecisionV1 || error instanceof ApprovalUiPersistenceDeniedV1) throw error;
+      throw new ApprovalUiPersistenceUnavailableV1();
+    } finally {
+      client.release();
+    }
+  }
+
+  async #selectWebSession(
+    client: PoolClient,
+    sessionIdDigest: string,
+    credentialId: string,
+    lock: boolean
+  ): Promise<WebSessionRow | null> {
+    if (lock) {
+      await client.query(
+        "SELECT 1 FROM approval_ui_sessions WHERE session_digest=$1 FOR UPDATE",
+        [sessionIdDigest]
+      );
+    }
+    const selected = await client.query<WebSessionRow>(
+      `SELECT s.human_id,s.csrf_digest,s.authentication_revision,h.authentication_method,
+        h.subject_digest,s.created_at,s.expires_at,
+        array_agg(g.policy_scope_id ORDER BY g.policy_scope_id) AS policy_scope_ids
+       FROM approval_ui_sessions s JOIN approval_ui_humans h ON h.human_id=s.human_id
+       JOIN approval_ui_scope_grants g ON g.human_id=s.human_id AND g.active=true
+       WHERE s.session_digest=$1 AND s.revoked_at IS NULL AND s.expires_at>clock_timestamp()
+         AND h.active=true AND h.authentication_revision=s.authentication_revision
+         AND h.subject_digest=$2
+       GROUP BY s.session_digest,s.human_id,s.csrf_digest,s.authentication_revision,
+         h.authentication_method,h.subject_digest,s.created_at,s.expires_at`,
+      [sessionIdDigest, sha256(credentialId)]
+    );
+    return selected.rows[0] ?? null;
+  }
+
+  async #requireWebSessionSnapshot(
+    client: PoolClient,
+    session: ApprovalWebSessionV1,
+    lock: boolean
+  ): Promise<WebSessionRow> {
+    const row = await this.#selectWebSession(client, session.sessionIdDigest, session.credentialId, lock);
+    if (row === null || row.human_id !== session.humanId ||
+      row.authentication_method !== session.authenticationMethod ||
+      Number(row.authentication_revision) !== session.identityRevision ||
+      row.csrf_digest !== session.csrfTokenDigest ||
+      JSON.stringify(row.policy_scope_ids) !== JSON.stringify(session.policyScopeIds)) {
+      throw new ApprovalUiPersistenceDeniedV1();
+    }
+    return row;
+  }
+
+  async #readWebRecord(
+    client: PoolClient,
+    humanId: string,
+    approvalId: string
+  ): Promise<ApprovalWebRecordV1 | null> {
+    const revision = await client.query<{ state_revision: string }>(
+      `SELECT a.state_revision FROM approvals a JOIN approval_ui_scope_grants g
+        ON g.human_id=$2 AND g.policy_scope_id=a.policy_scope_id AND g.active=true
+       WHERE a.approval_id=$1 FOR SHARE OF a`,
+      [approvalId, humanId]
+    );
+    const value = revision.rows[0];
+    if (value === undefined) return null;
+    const detail = await this.#readDetail(client, humanId, approvalId);
+    return approvalWebRecordV1Schema.parse({
+      schemaVersion: "1.0.0", revision: Number(value.state_revision),
+      approval: detail.approval, view: detail.view, outcome: detail.outcome,
+      result: detail.result, audit: detail.audit
+    });
+  }
+
   async #readDetail(client: PoolClient, humanId: string, approvalId: string): Promise<ApprovalUiDetailV1> {
     const selected = await client.query<ApprovalDetailRow>(
       `SELECT a.redacted_document,v.view_document,o.outcome_id,o.request_id,o.action_id,
         o.decision_id,o.approval_id,o.forwarding_attempt_id,o.result_id,o.provenance_id,
         o.status AS outcome_status,o.possible_partial_effects,o.recovery_class,
         o.trust_evidence_eligible,f.forwarding_started_at AS forwarded_at,
-        f.finished_at,o.observed_at
+        f.finished_at,o.observed_at,gr.result_id AS governed_result_id,
+        gr.disposition AS result_disposition,gr.schema_validation AS result_schema_validation,
+        gr.processed_at AS result_processed_at
        FROM approvals a JOIN approval_ui_scope_grants g ON g.human_id=$2
          AND g.policy_scope_id=a.policy_scope_id AND g.active=true
        JOIN trustworthy_interface_views v ON v.request_id=a.request_id AND v.decision_id=a.decision_id
        LEFT JOIN outcomes o ON o.approval_id=a.approval_id
        LEFT JOIN forwarding_attempts f ON f.forwarding_attempt_id=o.forwarding_attempt_id
+       LEFT JOIN results gr ON gr.result_id=o.result_id
        WHERE a.approval_id=$1`,
       [approvalId, humanId]
     );
@@ -458,6 +834,12 @@ export class PostgresApprovalUiStoreV1 {
       recoveryClass: row.recovery_class, trustEvidenceEligible: row.trust_evidence_eligible,
       observedAt: row.observed_at?.toISOString()
     });
+    const result = row.governed_result_id === null ? null : {
+      resultId: row.governed_result_id,
+      disposition: row.result_disposition,
+      schemaValidation: row.result_schema_validation,
+      processedAt: row.result_processed_at?.toISOString()
+    };
     const events = await client.query<{
       event_id: string; event_type: "DECISION_RECORDED" | "DECISION_REJECTED";
       human_id: string; approval_id: string; policy_scope_id: string;
@@ -469,7 +851,7 @@ export class PostgresApprovalUiStoreV1 {
       [approval.approvalId, approval.route.policyScopeId]
     );
     return approvalUiDetailV1Schema.parse({
-      schemaVersion: "1.0.0", approval, view, outcome,
+      schemaVersion: "1.0.0", approval, view, outcome, result,
       audit: events.rows.map((event) => ({
         schemaVersion: "1.0.0", eventId: event.event_id, eventType: event.event_type,
         humanId: event.human_id, approvalId: event.approval_id,

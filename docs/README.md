@@ -45,10 +45,11 @@ incomplete.
 
 The local status dashboard is operational and informational. The completed `P2-F010`
 trustworthy-interface layer supplies canonical approval, awareness, audit, recovery,
-and fatigue data, but it is not a rendered operator application. Planned `P2-F020`
-requires a functional authenticated web interface with live pending approvals, exact
-`Approve once` and `Deny` actions, PostgreSQL-backed state, outcome/audit display, and
-browser plus end-to-end security tests. Phase 2 cannot complete without that feature.
+and fatigue data. Completed `P2-F020` renders that data in a functional authenticated
+web interface with live pending approvals, exact `Approve once` and `Deny` actions,
+PostgreSQL-backed state, governed result/outcome/audit display, and browser plus
+end-to-end security tests. Its evidence is disposable and does not establish protected
+deployment coverage.
 
 A provider-neutral supervisor contract now redacts and bounds semantic context before
 any external submission, validates digest-bound advisory output, and records an
@@ -65,6 +66,7 @@ trust remains a later shadow-mode experiment and never grants unrestricted acces
 
 ## Documentation
 
+- [`handbook.md`](../handbook.md) - beginner-friendly explanation, setup, architecture, security model, workflows, status, and glossary
 - `docs/technical-specification.md` - authoritative architecture and security requirements
 - `docs/featurelist.json` - machine-readable Phase 2 feature tracking
 - `docs/progress.md` - current delivery status and validation evidence

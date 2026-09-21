@@ -128,6 +128,25 @@ class MemoryStore implements ApprovalWebStoreV1 {
     });
     return Promise.resolve(this.current);
   }
+
+  public reconcileExecutionFailure(input: Parameters<ApprovalWebStoreV1["reconcileExecutionFailure"]>[0]): Promise<void> {
+    if (this.current.approval.approvalId !== input.approvalId) throw new Error("Unknown approval");
+    if (this.current.approval.state === "APPROVED") {
+      this.current = approvalWebRecordV1Schema.parse({
+        ...this.current,
+        revision: this.current.revision + 1,
+        approval: { ...this.current.approval, state: "REVOKED", consumption: null },
+        audit: [...this.current.audit, {
+          schemaVersion: "1.0.0", eventId: "execution-failed", eventType: "DECISION_REJECTED",
+          humanId: input.humanId, approvalId: input.approvalId,
+          policyScopeId: this.current.approval.route.policyScopeId,
+          reasonCodes: ["approval.execution_failed"], evidenceDigest: "e".repeat(64),
+          occurredAt: input.occurredAt
+        }]
+      });
+    }
+    return Promise.resolve();
+  }
 }
 
 const servers = new Set<Server>();
@@ -139,12 +158,17 @@ afterEach(async () => {
   servers.clear();
 });
 
-async function start(store = new MemoryStore(), authenticated = true) {
+async function start(
+  store = new MemoryStore(),
+  authenticated = true,
+  executeApprovedCall: ((input: { approvalId: string; humanId: string }) => Promise<void>) | null = () => Promise.resolve()
+) {
   const tokens = [sessionToken, csrfToken];
   const app = createApprovalWebAppV1({
     origin,
     authenticateHuman: () => authenticated ? principal : null,
     store,
+    ...(executeApprovedCall === null ? {} : { executeApprovedCall }),
     clock: () => new Date(now.getTime() + 10_000),
     tokenFactory: () => tokens.shift() ?? "x".repeat(43),
     readStaticAsset: (path) => path === "/index.html"
@@ -180,6 +204,70 @@ async function createSession(url: string, fixationCookie?: string) {
 }
 
 describe("authenticated approval web boundary", () => {
+  it("fails closed before changing state when protected execution is unavailable", async () => {
+    const { url, store } = await start(new MemoryStore(), true, null);
+    const session = await createSession(url);
+    const endpoint = `${url}/approval/api/approvals/${store.current.approval.approvalId}/decision`;
+    const response = await fetch(endpoint, {
+      method: "POST",
+      headers: {
+        ...fetchHeaders,
+        Cookie: session.cookie,
+        "Content-Type": "application/json",
+        "If-Match": '"1"',
+        "X-CSRF-Token": csrfToken
+      },
+      body: JSON.stringify({ schemaVersion: "1.0.0", decision: "APPROVE" })
+    });
+    expect(response.status).toBe(503);
+    expect(await response.json()).toMatchObject({ error: { code: "approval.runtime_unavailable" } });
+    expect(store.decisions).toBe(0);
+  });
+
+  it("reconciles an approval when protected execution fails before consumption", async () => {
+    const { url, store } = await start(new MemoryStore(), true, () => Promise.reject(new Error("runtime unavailable")));
+    const session = await createSession(url);
+    const endpoint = `${url}/approval/api/approvals/${store.current.approval.approvalId}/decision`;
+    const response = await fetch(endpoint, {
+      method: "POST",
+      headers: {
+        ...fetchHeaders, Cookie: session.cookie, "Content-Type": "application/json",
+        "If-Match": '"1"', "X-CSRF-Token": csrfToken
+      },
+      body: JSON.stringify({ schemaVersion: "1.0.0", decision: "APPROVE" })
+    });
+    expect(response.status).toBe(503);
+    expect(store.current.approval.state).toBe("REVOKED");
+    expect(store.current.revision).toBe(3);
+  });
+
+  it("rejects audit events from another approval or policy scope", () => {
+    const candidate = record();
+    expect(() => approvalWebRecordV1Schema.parse({
+      ...candidate,
+      audit: [{
+        schemaVersion: "1.0.0",
+        eventId: "audit-cross-scope",
+        eventType: "DECISION_RECORDED",
+        humanId: "human-web",
+        approvalId: candidate.approval.approvalId,
+        policyScopeId: "other-policy-scope",
+        reasonCodes: ["approval_ui.denied"],
+        evidenceDigest: "b".repeat(64),
+        occurredAt: now.toISOString()
+      }]
+    })).toThrow();
+    expect(() => approvalWebRecordV1Schema.parse({
+      ...candidate,
+      result: {
+        resultId: "result-without-bound-outcome",
+        disposition: "QUARANTINE",
+        schemaValidation: "INVALID",
+        processedAt: now.toISOString()
+      }
+    })).toThrow();
+  });
+
   it("serves only hardened no-store assets after independent human authentication", async () => {
     const { url } = await start();
     const response = await fetch(`${url}/approval/`);
@@ -217,6 +305,27 @@ describe("authenticated approval web boundary", () => {
     const sessionBody = await session.response.json() as { csrfToken?: unknown; expiresAt?: unknown };
     expect(sessionBody.csrfToken).toBe(csrfToken);
     expect(typeof sessionBody.expiresAt).toBe("string");
+
+    const resumed = await fetch(`${url}/approval/api/session`, {
+      headers: {
+        ...fetchHeaders,
+        Cookie: session.cookie,
+        "X-CSRF-Token": csrfToken
+      }
+    });
+    expect(resumed.status).toBe(200);
+    expect(await resumed.json()).toMatchObject({
+      schemaVersion: "1.0.0",
+      human: { humanId: principal.humanId, authenticationMethod: principal.authenticationMethod }
+    });
+    const wrongResume = await fetch(`${url}/approval/api/session`, {
+      headers: {
+        ...fetchHeaders,
+        Cookie: session.cookie,
+        "X-CSRF-Token": "z".repeat(43)
+      }
+    });
+    expect(wrongResume.status).toBe(403);
 
     const pending = await fetch(`${url}/approval/api/pending`, {
       headers: { ...fetchHeaders, Cookie: session.cookie }
@@ -273,7 +382,11 @@ describe("authenticated approval web boundary", () => {
   });
 
   it("allows one exact decision and makes duplicate and multi-tab races stale", async () => {
-    const { url, store } = await start();
+    const executions: Array<{ approvalId: string; humanId: string }> = [];
+    const { url, store } = await start(new MemoryStore(), true, (input) => {
+      executions.push(input);
+      return Promise.resolve();
+    });
     const session = await createSession(url);
     const endpoint = `${url}/approval/api/approvals/${store.current.approval.approvalId}/decision`;
     const request = () => fetch(endpoint, {
@@ -290,6 +403,7 @@ describe("authenticated approval web boundary", () => {
     const responses = await Promise.all([request(), request()]);
     expect(responses.map((item) => item.status).sort()).toEqual([200, 409]);
     expect(store.decisions).toBe(1);
+    expect(executions).toEqual([{ approvalId: store.current.approval.approvalId, humanId: principal.humanId }]);
     expect(store.current.approval).toMatchObject({ state: "APPROVED", decidedByHumanId: principal.humanId });
 
     const reload = await fetch(`${url}/approval/api/approvals/${store.current.approval.approvalId}`, {

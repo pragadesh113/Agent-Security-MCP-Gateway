@@ -238,7 +238,7 @@ export class ProtectedCredentialBrokerV1 {
     request: {
       readonly leaseId: string;
       readonly credentialProfileId: string;
-      readonly credentialRevision: number;
+      readonly credentialRevision?: number;
       readonly audienceId: string;
       readonly routeId: string;
       readonly approvalId: string;
@@ -260,7 +260,8 @@ export class ProtectedCredentialBrokerV1 {
       throw new ProtectedCredentialDeniedV1("SESSION_MISMATCH");
     }
     if (lease.credentialProfileId !== request.credentialProfileId ||
-      lease.credentialRevision !== request.credentialRevision) {
+      (request.credentialRevision !== undefined &&
+        lease.credentialRevision !== request.credentialRevision)) {
       throw new ProtectedCredentialDeniedV1("REVISION_MISMATCH");
     }
     if (lease.audienceId !== request.audienceId) {

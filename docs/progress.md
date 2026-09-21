@@ -1,28 +1,171 @@
 # Agent Security MCP Gateway Progress
 
 **Current phase:** Phase 2 - Production-Oriented MCP Gateway  
-**Overall status:** Milestone 6 operational integration in progress; release gates pending  
-**Current feature:** `P2-F020` in progress; live PostgreSQL web-store/runtime composition remains
-**Last updated:** 2026-09-14
+**Overall status:** Phase 2 local non-production deliverable complete; production assurance deferred
+**Current feature:** none; all 21 tracked features are complete under the approved local-only scope
+**Last updated:** 2026-09-20
 
-`P2-F020` is now in progress. This slice adds `src/interfaces/approval-web-v1.ts`,
-the PostgreSQL approval-UI migration/store, and `approval-ui/` HTML/CSS/JavaScript
-assets. The boundary enforces independently authenticated human principals, exact
-scope-bound sessions, opaque host cookies, CSRF and same-origin fetch checks,
-ETag-based stale-decision protection, bounded JSON/static responses, and fail-closed
-decision handling. The UI has only one-shot Approve and Deny actions and renders live
-records; it contains no approval mock data or bulk controls. The browser/server contract
-now uses POST for session creation, permits normal same-origin GETs without an Origin
-header while rejecting supplied origin confusion, and agrees on API paths, CSRF header,
-session token, and error shape. Approval-time identity rotation is rechecked correctly,
-expiry is attributed to the system rather than the viewer, and the migration protects
-all immutable approval JSON bindings during state transitions. Build, lint, typecheck,
-32 unit files/288 tests, 14 integration files/61 tests, and all 21 feature records pass.
-The PostgreSQL store and web-app store interfaces still require one digest-based
-composition before the UI can load live protected state; protected browser workflow
-evidence remains pending and coverage remains `UNPROTECTED`.
+### 2026-09-21 - P2-DOC-001 - Beginner technical report refreshed
 
-Latest validated baseline: 32 unit files/288 tests and 14 integration files/61 tests.
+- Status: `complete`; documentation-only improvement with no runtime or coverage change
+- Result: replaced the stale Semester VII snapshot in root `report.md` with a current,
+  standalone technical onboarding report covering MCP fundamentals, threat model,
+  architecture, request/result flow, every active source module, contracts, policy,
+  approval, PostgreSQL migrations, coverage, runtime entrypoints, setup, testing,
+  release evidence, limitations, troubleshooting, and glossary
+- Reconciliation: the report now reflects all 21 locally complete Phase 2 features,
+  the functional protected approval UI, current validation evidence, and the explicit
+  distinction between local completion and deferred production assurance
+- Validation: Markdown structure, internal repository references, feature tracker, and
+  repository diff whitespace were checked; runtime tests were not rerun because no
+  executable behavior changed
+- Coverage: unchanged at `UNPROTECTED`; protected production forwarding remains disabled
+- Next action: keep `report.md` synchronized with the authoritative specification,
+  feature tracker, progress record, commands, and release gates
+
+### 2026-09-20 - P2-DOC-001 - Startup and operation guide added
+
+- Status: `complete`; documentation-only improvement with no runtime or coverage change
+- Result: added root `startup.md` with step-by-step prerequisites, installation, basic
+  gateway and dashboard startup, smoke verification, addresses and ports, development
+  loop, validation commands, open-source MCP checks, Docker release preparation,
+  evidence capture, advanced approval UI configuration, shutdown, troubleshooting,
+  and an 8-to-10-minute presentation flow with prompt equivalents and expected results
+- Docker recovery: documents the observed Windows AF_UNIX stale-socket failure and the
+  recoverable parent-directory refresh without factory reset or Docker-data deletion
+- Safety: distinguishes the beginner local workflow from the protected mutual-TLS UI,
+  retains `UNPROTECTED` coverage, and forbids production credentials and claims
+- Documentation integration: linked `startup.md` from the root README and recorded it
+  in `P2-DOC-001` completion evidence
+- Validation: all 19 referenced npm scripts resolve; `git diff --check`, build, lint,
+  typecheck, 32 unit files/295 tests, 15 integration files/66 tests, and all 21 feature
+  records pass; browser tests were not rerun because browser behavior did not change
+- Coverage: unchanged at `UNPROTECTED`; protected production forwarding remains disabled
+- Next action: use `startup.md` as the first operational guide and keep it synchronized
+  with package scripts, ports, environment variables, and startup behavior
+
+`P2-F020` is complete with disposable evidence. The protected mutual-TLS entrypoint composes
+`ApprovalWebRuntimeBridgeV1` and the real `ClientApprovedCallExecutorV1`. PostgreSQL is
+the trusted resolver for the approved human/session binding and the loader for the
+exact approved call. Runtime request arguments are retained only as AES-256-GCM
+ciphertext with an operator-supplied 32-byte key and key identifier; plaintext remains
+excluded from ordinary trajectory and audit documents. Startup requires an absolute
+trusted runtime module that supplies the credential lease and exact downstream
+forwarder, and fails rather than exposing an approving endpoint when those dependencies
+are absent or incomplete.
+
+The approval decision boundary still accepts only the opaque approval id and the
+independently authenticated human id. It reloads all agent authority from PostgreSQL,
+checks active human scope authority, exact session digest, approval state and expiry,
+then invokes the executor. Executor failures observed by the web process before durable
+consumption transactionally change `APPROVED -> REVOKED` and append
+`approval.execution_failed`; failures after consumption are represented by the
+executor's terminal outcome path. The UI rereads durable records for outcome, recovery,
+coverage, and audit rendering. The bridge test uses the real executor rather than a
+casted fake.
+
+PostgreSQL integration now proves authenticated web `APPROVE` through the real bridge,
+trusted session resolution, approved-call decryption/loading, atomic consumption, one
+forwarding attempt, and durable terminal outcomes. Credential issuance now receives the
+executor-generated forwarding authorization, allowing the approved HashiCorp Vault
+provider and non-exporting broker to bind the lease to the exact approval, action,
+route, audience, endpoint, session, and durable forwarding attempt. The exact HTTP
+forwarder then authenticates and governs the result before PostgreSQL persistence.
+Chromium proves live keyboard denial, a successful governed `Approve once` workflow,
+reload/reconnect, duplicate and two-tab concurrency, expiry, stale-human-authority
+denial, coverage-driven revocation, provider failure, and invalid-result quarantine.
+The browser now displays a bound non-content result disposition and schema verdict.
+Current validation passes: build, typecheck, all 21 feature records, 32 unit files/295
+tests, 15 integration files/66 tests, and 4 Playwright browser tests; lint also passes.
+
+Approval now creates a durable dispatch in the same transaction as `APPROVED`. The
+runtime claims it before session resolution. A bounded restart worker serializes stale
+recovery with `FOR UPDATE SKIP LOCKED`: unconsumed approvals become `REVOKED` with zero
+forwarding, while consumed attempts lacking an outcome become terminal `UNKNOWN` with
+possible partial effects and are never retried. Claim timeout must exceed the finite
+executor timeout.
+
+Coverage remains `UNPROTECTED` and protected forwarding remains disabled. The repository
+has production-shaped approved Vault/broker/exact-forwarder composition, but all browser
+evidence is disposable. `P2-F018` is complete under the user-approved local open-source
+interoperability scope. Independent hosts and external review remain deferred production
+assurance. `P2-F019` is also complete with verified local packaging and release evidence.
+
+### 2026-09-20 - P2-F019 - Local non-production release completed
+
+- Status: `complete`; all 21 Phase 2 features are complete under the explicitly
+  non-production scope
+- Docker repair: Docker Desktop startup was restored without factory reset by
+  preserving the inaccessible runtime-socket directories as dated backups and
+  recreating only those ephemeral directories; Docker AI/Model Runner was disabled in
+  the existing settings as recommended for this current Windows socket bug; images,
+  containers, volumes, and other settings were not removed
+- Disposable deployment: verified `network=none`, zero published ports, read-only root
+  filesystem, all capabilities dropped, `no-new-privileges`, and a non-root user;
+  lifecycle smoke passed with `UNPROTECTED` coverage and zero downstream tool calls;
+  the current Docker 29.7.2 engine passed a second post-repair deployment smoke
+- Release evidence: package boundary verified 111 files; CycloneDX SBOM generated 277
+  components; release manifest verified 138 file hashes and local image identity; 264
+  generated files reproduced exactly; dependency audit reported zero vulnerabilities
+- Full validation: build, lint, typecheck, 32 unit files/295 tests, 15 integration
+  files/66 tests, all 21 feature records, dashboard generation, packaging, deployment,
+  manifest verification, reproducible build, and dependency audit passed
+- Artifact posture: unsigned, unpublished, not production-approved, and ineligible for
+  `ENFORCED` coverage
+- Coverage: `UNPROTECTED`; protected production forwarding remains disabled
+- Deferred production assurance: independently operated hosts, external review,
+  production credential custody, exclusive mediation, signing, and publication
+- Next action: none for local Phase 2; open a separately approved production-assurance
+  phase only if production use is requested
+
+### 2026-09-20 - P2-F018 - Local open-source interoperability accepted
+
+- Status: `complete` under the user's explicit local-only scope change; the prior
+  independent-host and external-review requirements are deferred production gates
+- Actual workflow: the pinned MCP Everything reference server `2026.8.31` advertised
+  13 tools and completed `get-sum`; Microsoft Playwright MCP `0.0.81` advertised 26
+  tools and completed an isolated loopback browser call; both rejected an unknown tool
+- Evidence: `artifacts/open-source-mcp-smoke.json` binds package versions, registry
+  integrity, observations, and an evidence digest
+- Truthful limitation: the artifact remains `LOCAL_INTEROPERABILITY_ONLY`, records
+  `independentlyOperated: false`, and reports `UNPROTECTED`; no external review or
+  production-host claim is made
+- Coverage: unchanged at `UNPROTECTED`; protected forwarding remains disabled
+- Next action: complete `P2-F019` as non-production local release evidence, without
+  signing, publishing, or claiming production approval
+
+### 2026-09-20 - P2-F018 - External evidence blocker revalidated
+
+- Status: `blocked`; none of the three acceptance criteria is complete
+- Reconciliation: implementation, feature tracking, and the evidence contracts agree;
+  no independently operated host configuration, retained operational trajectory, or
+  completed independent review is present in the repository
+- Focused validation: the independent-host, operational-trial, and independent-review
+  unit suites passed 3 files/13 tests
+- Full validation: `npm run build`, `npm run lint`, `npm run typecheck`, `npm test`
+  (32 files/295 tests), `npm run test:integration` (15 files/66 tests), and
+  `npm run validate:features` (21 records) passed
+- Not run: the Chromium browser matrix and local open-source-server smoke were not
+  rerun because no browser, protected-runtime, or interoperability behavior changed;
+  independently operated host workflows and independent review remain unavailable
+- Coverage: `UNPROTECTED`; protected forwarding remains disabled and no release claim
+  changed
+- Remaining risk: local fixtures, locally launched third-party servers, and project
+  self-review cannot establish independent operation or reviewer independence
+- Exact unblock action: provide connection and authentication details for two named,
+  independently operated non-production MCP hosts plus an independent reviewer, then
+  execute the prepared paired operational trials and review evidence workflow
+
+Code-review follow-up checklist for the next session:
+
+- [x] Compose the protected entrypoint with `ApprovalWebRuntimeBridgeV1`, PostgreSQL session/call authority, and the real `ClientApprovedCallExecutorV1`; fail startup when trusted runtime dependencies are absent.
+- [x] Replace the casted bridge fake with the real executor and verify consume/outcome sequencing.
+- [x] Prove PostgreSQL `APPROVE -> resolve -> consume -> forwarding attempt -> terminal outcome -> audit`, including durable pre-consumption reconciliation observed by the web process.
+- [x] Run build, typecheck, lint, feature validation, full unit/integration suites, and the Chromium denial workflow.
+- [x] Add an atomic durable dispatch/outbox claim and bounded recovery worker; prove restart and concurrent-worker recovery, zero forwarding for unconsumed approvals, and no retry for consumed ambiguous attempts.
+- [x] Compose the approved HashiCorp Vault provider, non-exporting credential broker, and exact downstream forwarder; prove one disposable governed browser success without exposing credentials.
+- [x] Complete browser/integration coverage for live APPROVE success, reload, duplicate click, multi-tab/concurrent consumption, reconnect, expiry, revocation, stale authority/coverage, and provider/result failures.
+- [ ] Keep coverage `UNPROTECTED` and protected forwarding disabled until the production-provider, isolation, recovery, and full evidence gates pass.
 
 The feature graph now contains 21 records. `P2-F020` explicitly tracks the functional
 authenticated human approval and audit web application. The completed `P2-F010`
@@ -324,12 +467,14 @@ reusable. Its allowlisted audit carries no arguments, credentials, or approval t
 The service is process-local test infrastructure, not a PostgreSQL or production human
 approval boundary, and it is not wired into the client-facing gateway.
 
-The completed trustworthy-interface builder supplies canonical data for a future
-operator application, and the local dashboard displays status only. No current browser
-route can load a pending approval or submit `Approve once` or `Deny`. This missing
-application is tracked as `P2-F020`, including independent human authentication,
-browser-session protections, live PostgreSQL state, exact decision controls, governed
-outcome/audit display, and automated browser plus end-to-end tests.
+The trustworthy-interface builder supplies canonical data to an authenticated browser
+application that loads live PostgreSQL approvals and submits exact `Approve once` or
+`Deny` decisions. The protected mutual-TLS entrypoint has no fixture authentication
+fallback and composes a durable dispatch bridge to the approved-call executor. The
+browser matrix covers success, denial, reload/reconnect, concurrent use, expiry,
+revocation, provider failure, and quarantined results, including a bound disposition
+and schema verdict. `P2-F020` is complete with disposable evidence; protected
+deployment evidence remains a separate `P2-F019` release gate.
 
 A disposable exact-forwarding coordinator now revalidates the consumed authorization,
 canonical action, authenticated session, current healthy route/schema, and recomputed
@@ -349,12 +494,14 @@ canonical actions, decisions and reasons, approvals, forwarding attempts, proven
 governed results, outcomes, hash-chained security events, shadow trust evidence,
 coverage, protocol violations, supervisor assessments, and recovery records. Runtime
 startup requires an explicit reachable PostgreSQL URL and has no in-memory fallback.
-Transactions atomically persist request/decision state, consume approvals under row
-locks, create unique forwarding attempts, link result/outcome/trust state, and append
-tamper-evident events. Known configured secrets are rejected before database work, raw
-tool arguments and result content are not stored, and immutable registry conflicts fail
-the complete transaction. Real PostgreSQL 18.4 is used only as disposable test
-infrastructure; the client-facing lifecycle remains unwired and non-forwarding.
+Transactions atomically persist request/decision state, approval decisions and runtime
+dispatches, consume approvals under row locks, create unique forwarding attempts, link
+result/outcome/trust state, and append tamper-evident events. Known configured secrets
+are rejected before database work. Raw arguments are absent from ordinary records and
+retained only as separately keyed AES-256-GCM runtime ciphertext; result content is not
+stored. Immutable registry and dispatch conflicts fail the complete transaction. Real
+PostgreSQL 18.4 remains disposable test evidence; production isolation and protected
+forwarding authority are not established.
 
 A host-neutral V1 dynamic-trust controller now starts in shadow mode and keeps the
 effective and authoritative decision identical to deterministic policy. It validates
@@ -545,12 +692,9 @@ criterion is complete yet.
 
 1. Complete `P2-F018` with two named independently operated non-production MCP hosts,
    adaptive repeated trials, and a genuinely independent reviewer.
-2. Implement `P2-F020`: a real authenticated
-   browser interface for live pending approvals, exact `Approve once` and `Deny`,
-   durable status/outcome/audit display, and negative browser security tests.
-3. Run named-host trials and independent review, then complete deployment and release
+2. Run named-host trials and independent review, then complete deployment and release
    evidence. Keep the runtime `UNPROTECTED` until every gate passes.
-4. Preserve the advisory supervisor's default-disabled, fail-safe behavior.
+3. Preserve the advisory supervisor's default-disabled, fail-safe behavior.
 
 ## Current coverage
 
@@ -561,7 +705,7 @@ criterion is complete yet.
 | Discovery and routes | `UNPROTECTED` | Client-facing discovery is authenticated and registry-backed, but the registry and provider configuration remain disposable and are not yet administered or persisted by the live runtime |
 | Tool calls | `UNPROTECTED` | PostgreSQL transactions now preserve decisions, approval consumption, and unique forwarding state across connections/restart, but forwarding remains an unwired disposable flow and bypass controls are incomplete |
 | Tool results | `UNPROTECTED` | Governed provenance/results/outcomes and shadow trust evidence are transactionally durable, but are not wired to a protected client-facing path and exclusive mediation is unverified |
-| Human approval UI | `UNPROTECTED` | Canonical interface data and backend approval transitions exist, but no authenticated browser application is connected to live pending approvals or PostgreSQL decision state |
+| Human approval UI | `UNPROTECTED` | The functional authenticated browser application, durable PostgreSQL transitions, race/failure matrix, and production-shaped Vault/broker/exact-forwarder path are complete with disposable evidence, but deployment isolation is missing |
 | Protected resources | `UNPROTECTED` | The monitor and disposable assurance workflow exist, but deployment network/IAM/sandbox/OS/downstream probes and production credential custody are not configured |
 
 ## Known risks
@@ -612,6 +756,232 @@ Add entries below in reverse chronological order:
 ```
 
 ## Update log
+
+### 2026-09-18 - P2-F020 - Browser/PostgreSQL race and failure matrix revalidated
+
+- Status: `complete`; all six acceptance criteria remain supported by disposable
+  browser and PostgreSQL evidence
+- Acceptance criteria addressed: reran the authenticated browser path for reload,
+  duplicate/two-tab concurrent decisions, durable single consumption, expiry,
+  coverage revocation, provider failure, governed-result quarantine, and durable
+  outcome display; added explicit stale-human-authority browser evidence
+- Focused tests: 5 approval-focused unit/integration files passed 33 tests; the final
+  Chromium matrix passed 4 workflows. The first browser run after adding the stale-
+  authority case failed only because the test expected the internal session wording;
+  the boundary intentionally returned the safer normalized message `Approval decision
+  is unavailable`. The assertion was corrected without changing runtime behavior, and
+  the complete browser matrix reran successfully.
+- Integration tests: the stale-authority workflow opens a live approval under an
+  authorized PostgreSQL session, removes that exact scope grant, attempts `Approve
+  once`, observes a normalized denial, and verifies the approval remains `PENDING`
+  with zero forwarding attempts. Stale coverage separately produces durable
+  `REVOKED`; expiry produces durable `EXPIRED`; concurrent tabs produce one downstream
+  attempt; provider failure produces `UNKNOWN` with possible partial effects; invalid
+  result schema produces a quarantined governed result.
+- Actual workflow: real headless Chromium drove the HTTPS approval UI against
+  disposable PostgreSQL, the approved Vault adapter, non-exporting broker, exact HTTP
+  forwarder, downstream authenticator, and result guard
+- Full validation: `npm run build`, `npm run lint`, `npm run typecheck`, `npm test`
+  (32 files/295 tests), `npm run test:integration` (15 files/66 tests),
+  `npm run test:browser` (4 workflows), and `npm run validate:features` (21 records)
+  passed
+- Coverage: `UNPROTECTED`; all evidence remains disposable, and no production
+  isolation, independently operated host, credential-custody, or bypass-control proof
+  was added. Protected deployment forwarding remains disabled.
+- Remaining: none for `P2-F020`; `P2-F018` remains blocked on two independently
+  operated hosts and an independent reviewer, and `P2-F019` remains dependency-blocked
+- Risks: provider failure after consumption remains conservatively `UNKNOWN` with
+  possible partial effects; result quarantine does not imply a failed downstream effect
+- Next action: obtain connection/authentication details for two independently operated
+  non-production MCP hosts plus an independent reviewer, then execute `P2-F018`
+
+### 2026-09-16 - P2-DOC-001 - Beginner project handbook added
+
+- Status: `complete`; documentation scope only, with no runtime or coverage change
+- Result: added root `handbook.md` as a plain-English guide to MCP concepts, project
+  goals and non-goals, threats, security invariants, request flow, risk tiers,
+  canonicalization, identity, routing, approval, result mediation, PostgreSQL,
+  coverage, trust, supervisor behavior, testing, repository layout, setup, commands,
+  workflows, safe contribution, failure behavior, feature status, remaining work,
+  troubleshooting, FAQ, glossary, and authoritative references
+- Beginner safeguards: separates implementation evidence from production protection,
+  explains why coverage remains `UNPROTECTED`, labels disposable workflows accurately,
+  and warns against production credentials and resources
+- Documentation integration: linked the handbook from the root and docs README files
+  and recorded it in the completed documentation feature evidence
+- Validation: all 24 handbook links resolved; build, lint, typecheck, 32 unit files/
+  295 tests, 15 integration files/66 tests, dashboard generation, and all 21 feature
+  records passed. Browser tests were not rerun because no browser behavior changed
+- Coverage: `UNPROTECTED`; explanatory documentation creates no enforcement guarantee
+- Remaining: none for the handbook request
+- Risks: the handbook is intentionally introductory; the technical specification and
+  live feature/progress records remain authoritative when implementation changes
+- Next action: keep the handbook synchronized whenever architecture, commands, feature
+  status, or production-readiness evidence changes
+
+### 2026-09-16 - P2-F018 - Two open-source MCP servers exercised locally
+
+- Status: `blocked`; the smoke improves interoperability evidence but completes none
+  of the three acceptance criteria
+- Acceptance criteria addressed: selected separately maintained open-source MCP
+  implementations, pinned their registry versions and integrity hashes, and exercised
+  real initialize, initialized, tools/list, harmless tools/call, and unknown-tool
+  rejection over MCP stdio
+- Implementation: `npm run mcp-servers:verify:disposable` launches the MIT-licensed
+  MCP Everything reference server `2026.8.31` and Apache-2.0 Microsoft Playwright MCP
+  `0.0.81` with a sanitized environment, bounded output and timeouts, disposable
+  loopback content, exact package pins, and no production credentials
+- Actual workflow: Everything advertised 13 tools and completed `get-sum`; Playwright
+  advertised 26 tools and navigated isolated headless Chrome to a disposable loopback
+  page; both rejected an unknown tool. A SHA-256-bound artifact was retained at
+  `artifacts/open-source-mcp-smoke.json` with scope `LOCAL_INTEROPERABILITY_ONLY`,
+  `independentlyOperated: false`, and coverage `UNPROTECTED`
+- Focused validation: `node --check scripts/verify-open-source-mcp-servers.mjs` and the
+  complete disposable smoke passed; package metadata was verified from the npm
+  registry and official source repositories
+- Cumulative validation: build, lint, typecheck, 32 unit files/295 tests, 15
+  integration files/66 tests, and all 21 feature records passed; the prior `P2-F020`
+  Chromium matrix remains current and was not rerun because this slice does not alter
+  the browser UI or protected runtime
+- Coverage: `UNPROTECTED`; these are locally launched downstream servers, not two
+  independently operated MCP hosts, and the smoke does not traverse the protected runtime
+- Remaining: all `P2-F018` criteria, including real independently operated host
+  trajectories, adaptive paired trials through the runtime, and independent review
+- Risks: package provenance and separate upstream maintainers do not establish
+  independent operation; treating this local smoke as acceptance evidence would be a
+  false readiness claim
+- Next action: obtain two externally operated non-production host connections and an
+  independent reviewer, then run the prepared operational evidence path
+
+### 2026-09-16 - P2-F018 - External blocker reverified and dashboard handoff reconciled
+
+- Status: `blocked`; none of the three acceptance criteria is complete
+- Acceptance criteria addressed: verified that the named-host, paired adaptive-trial,
+  and independent-review evidence contracts remain executable and fail safely, while
+  confirming that no real host configuration, retained operational trajectory, or
+  completed independent review has appeared in the repository
+- Status correction: the live dashboard now reports completed `P2-F020` browser
+  evidence as `TESTED`, removes the obsolete instruction to implement that feature,
+  and points from blocked `P2-F018` to dependency-blocked `P2-F019`
+- Focused tests: 4 files/18 tests passed for the dashboard evidence boundary and all
+  three `P2-F018` evidence contracts; `node --check` also passed
+- Cumulative tests: `npm run dashboard:build` and `npm run validate:features` passed
+  for all 21 feature records; the full runtime ladder was not rerun because this slice
+  changed status presentation only and the 2026-09-16 full validation remains current
+- Actual workflow: not run; two authenticated independently operated non-production
+  MCP hosts and an independent reviewer are still unavailable
+- Coverage: `UNPROTECTED`; no forwarding, deployment, credential, or review claim changed
+- Remaining: all `P2-F018` criteria
+- Risks: local fixtures, Inspector/mcp-cli discovery smoke, or project self-review must
+  not be relabelled as independent operational or review evidence
+- Next action: provide connection and authentication details for two independently
+  operated non-production MCP hosts plus the independent reviewer's identity/contact
+  path, then execute the prepared evidence workflows
+
+### 2026-09-16 - P2-F020 - Functional approval and audit browser workflow completed
+
+- Status: `complete`; all six acceptance criteria pass with disposable browser,
+  PostgreSQL, Vault-provider, and downstream evidence
+- Acceptance criteria addressed: live canonical data; independent human/session/scope
+  authority; same-origin, CSRF, ETag, and client-authority protection; exact controls;
+  durable single transition/forwarding; outcome, recovery, coverage, audit, and result
+  disposition display; complete positive and fail-closed automated workflows
+- Implementation: browser sessions can be safely resumed across reloads and tabs by
+  revalidating the existing HttpOnly session together with its exact CSRF binding;
+  selected approval IDs are navigation state only and reload through the authorized
+  server boundary. Stale-state reconciliation retains its visible warning. A strict
+  result summary binds `resultId`, disposition, schema verdict, and processing time to
+  the durable outcome without exposing raw result content.
+- Focused tests: 4 affected Vitest files/19 tests passed for web boundary, protected
+  runtime, PostgreSQL UI state, and approval execution; the complete unit suite passed
+  32 files/295 tests
+- Cumulative tests: all 15 integration files/66 tests passed against disposable HTTP,
+  PostgreSQL, dispatch, result-mediation, and recovery boundaries
+- Actual workflow: 4 Chromium workflows passed for keyboard denial; Vault-backed
+  approval; reload/reconnect plus duplicate and two-tab concurrent approval with one
+  downstream attempt; expiry and stale-coverage revocation with zero forwarding; and
+  provider failure plus invalid-result quarantine
+- Full validation: `npm run build`, `npm run lint`, `npm run typecheck`, `npm test`,
+  `npm run test:integration`, `npm run test:browser`, and
+  `npm run validate:features` passed after correcting one pre-existing redundant
+  approved-provider guard reported by lint
+- Coverage: `UNPROTECTED`; the workflows use disposable authentication, Vault response,
+  downstream server, PostgreSQL, and coverage evidence and do not establish production
+  credential custody or exclusive mediation
+- Remaining: none for `P2-F020`; `P2-F018` remains externally blocked and `P2-F019`
+  retains deployment isolation, signing, SBOM, recovery, and production release gates
+- Risks: provider failure after the non-exporting lease enters forwarding remains
+  conservatively `UNKNOWN` with possible partial effects; quarantined result content is
+  not released even though the downstream execution outcome itself is `COMPLETED`
+- Next action: obtain two independently operated non-production MCP hosts and a
+  genuinely independent reviewer, then execute the prepared `P2-F018` evidence path
+
+### 2026-09-14 - P2-F020 - Vault-backed governed browser approval completed
+
+- Status: `in_progress`; the first successful end-to-end browser `Approve once` path
+  is complete
+- Acceptance criteria addressed: exact approval authority reaches credential issuance;
+  one non-exporting Vault-backed lease authorizes one exact downstream attempt; the
+  authenticated result is schema checked, governed, persisted, and displayed
+- Security correction: `issueCredentialLease` now receives the executor-generated
+  `ApprovedForwardingAuthorizationV1`. A lease cannot be issued without the exact
+  approval id, action hash, route, audience, endpoint, session, and durable forwarding
+  attempt; route substitution is rejected before provider or downstream I/O
+- Focused tests: 3 unit files/28 tests passed for executor ordering, credential broker
+  binding, and protected runtime composition; the complete unit suite passed 32 files/
+  295 tests
+- Cumulative tests: all 15 integration files/66 tests passed against disposable HTTP
+  and PostgreSQL boundaries
+- Integration tests: the existing PostgreSQL approval, dispatch, restart, concurrency,
+  and terminal-outcome suite remained green
+- Actual workflow: two Chromium tests passed. The new workflow loaded live canonical
+  PostgreSQL state, approved once, decrypted the stored request, consumed the approval,
+  fetched one exact Vault revision through the approved provider boundary, sent one
+  credentialed downstream request, governed the authenticated result, persisted a
+  `COMPLETED` outcome, and displayed `Consumed`, `Completed`, and `Irreversible`
+- Full validation: build, lint, typecheck, unit, integration, browser, and all 21
+  feature records passed
+- Coverage: `UNPROTECTED`; the browser, Vault response, human identity, downstream,
+  and coverage evidence are disposable and do not prove deployment isolation or
+  production credential custody
+- Remaining: reload, duplicate-click, multi-tab/concurrent consumption, reconnect,
+  expiry, revocation, stale authority/coverage, provider failure, result failure, and
+  protected deployment-isolation evidence
+- Risks: the exact forwarder relies on trusted current-route, downstream-authentication,
+  output-schema, classification, and egress adapters supplied by the protected runtime;
+  deployment configuration must bind those adapters to durable approved authorities
+- Next action: add the browser/PostgreSQL reload and multi-tab/concurrent-consumption
+  slice, then continue through expiry, revocation, stale authority, and provider/result
+  failure behavior
+
+### 2026-09-14 - P2-F020 - Durable approval dispatch and crash recovery completed
+
+- Status: `in_progress`; the crash/restart portion of the fourth acceptance criterion is complete
+- Acceptance criteria addressed: approval and dispatch commit atomically; the runtime
+  claims before session resolution; concurrent workers recover one stale dispatch;
+  unconsumed approvals revoke with zero forwarding; consumed ambiguous attempts become
+  terminal `UNKNOWN` and are never retried
+- Focused tests: 3 files/23 tests passed, including claim-before-resolution failure,
+  migration constraints/triggers, restart-style recovery, two-worker serialization,
+  durable audit, no forwarding for unclaimed approval, and no retry after consumption
+- Cumulative tests: 32 unit files/294 tests and 15 integration files/66 tests passed
+- Integration tests: disposable PostgreSQL applied migration `0010`; approval and
+  outbox were committed together, and recovery persisted approval/dispatch/forwarding/
+  outcome/recovery/audit state under real row locks
+- Actual workflow: the Chromium live canonical keyboard-denial workflow passed; a full
+  browser APPROVE success workflow remains outstanding
+- Full validation: build, typecheck, lint, unit, integration, browser, and all 21
+  feature records passed
+- Coverage: `UNPROTECTED`; recovery correctness does not supply production credentials,
+  downstream isolation, or protected forwarding authority
+- Remaining: approved production credential/forwarder providers and the complete
+  successful APPROVE, race, reconnect, expiry, revocation, stale-state, and failure
+  browser/integration matrix
+- Risks: recovery deliberately records consumed calls with missing outcomes as
+  `UNKNOWN` and possible partial effects; it cannot prove whether the downstream effect
+  occurred and therefore must not retry it
+- Next action: compose the approved production-shaped credential broker and exact
+  downstream forwarder, then exercise one governed APPROVE success through the browser
 
 ### 2026-09-12 - P2-F018 - External evidence blocker confirmed
 

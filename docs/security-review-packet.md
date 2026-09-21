@@ -22,6 +22,7 @@ npm run lint
 npm run typecheck
 npm test
 npm run test:integration
+npm run test:browser
 npm run validate:features
 npm run gateway:serve
 npm run gateway:smoke
@@ -43,7 +44,7 @@ Review these artifacts and source boundaries:
 - `src/forwarding/`
 - `src/persistence/`
 - `src/coverage/`
-- `apps/approval-ui/` or the final `P2-F020` frontend location (currently absent)
+- `approval-ui/`, `src/interfaces/approval-web-v1.ts`, and the protected approval runtime
 - `scripts/serve-gateway.mjs`
 - `scripts/smoke-gateway.mjs`
 - `artifacts/local-evidence.json`

@@ -1,14 +1,15 @@
 # Phase 2 Release-Gate Audit
 
-**Status:** Not a production release; preparation and evidence collection only  
-**Last audited:** 2026-09-12  
+**Status:** Local non-production release evidence complete; not production-approved
+**Last audited:** 2026-09-20
 **Coverage:** `UNPROTECTED`
 
-The one-command non-production preparation automation is implemented. Docker Desktop's
-Linux engine is available again, and the separate simulated-production database mount
-has been repaired and verified healthy without replacing its named data volume. The
-existing release manifest and local evidence still predate the automation changes and
-remain stale until the complete preparation command succeeds.
+The one-command non-production preparation automation passes. Docker Desktop's Linux
+engine was restored without factory reset by preserving and recreating only stale
+runtime-socket directories and disabling Docker AI/Model Runner for this current
+Windows AF_UNIX socket bug. The complete workflow rebuilt and inspected the hardened
+image, ran the disposable smoke, generated and verified current SBOM/manifest evidence,
+verified reproducibility, and completed the dependency audit.
 
 This document records the difference between completed Phase 2 implementation work
 and the evidence still required before a production-candidate release. Passing
@@ -20,10 +21,11 @@ live view that rereads the authoritative docs on every request, run
 `dashboard/status.json` remains available for static previews. Both views are
 informational and are not authorization or forwarding surfaces.
 
-The dashboard must not be confused with the planned human approval application. No
-current browser route can load a live pending approval or submit `Approve once` or
-`Deny`. That operational control is tracked by `P2-F020` and is required before the
-production-candidate gate can pass.
+The dashboard must not be confused with the human approval application. The separate
+`approval-ui/` route loads live canonical PostgreSQL state and submits exact
+`Approve once` or `Deny` decisions through the protected-runtime boundary. `P2-F020`
+has disposable browser evidence; neither browser application establishes production
+deployment isolation.
 
 The live view also exposes a guard-decision flow and background activity feed. These
 events describe dashboard/lifecycle and coverage-guard work only; they are not a
@@ -67,13 +69,13 @@ command signs, publishes, or production-approves an artifact.
 | Gateway service | Local discovery-only | The client-facing MCP adapter accepts lifecycle traffic and authenticated registry-backed `tools/list`, but forwards no protected call. `tools/call` remains denied under `UNPROTECTED` coverage with zero downstream requests. |
 | Production identity | Protected profile implemented | Mutual-TLS peer identity and durable PostgreSQL rotation/revocation exist; full production deployment evidence remains absent. |
 | Credential custody | Not production-ready | The disposable vault demonstrates metadata-only leases and internal injection, but no production secret manager or gateway-held deployment credential is configured. |
-| Human approval web UI | Not implemented | Canonical interface data and backend state transitions exist, but no authenticated browser application is connected to live pending approvals, PostgreSQL decisions, governed outcomes, or audit state. |
+| Human approval web UI | Implemented with disposable evidence | Live canonical pending approvals, exact decisions, PostgreSQL transitions, governed outcome/result disposition, audit display, reload, races, expiry, revocation, and failure paths pass in Chromium; production deployment isolation remains absent. |
 | Independent bypass controls | Not configured | No production network, IAM, sandbox, OS, or downstream control blocks direct access around the gateway. |
-| Security review | Pending | No independent review report is present in this repository. |
-| Two-host validation | Disposable evidence only | Host-neutral adapters and disposable peer tests exist; two independent production hosts have not been validated. |
+| Security review | Deferred production assurance | No independent review report is present; the approved local delivery does not claim one. |
+| Two-server interoperability | Local evidence complete | Pinned MCP Everything and Microsoft Playwright MCP servers pass local harmless/unknown-tool interoperability smoke. Both are locally operated and the artifact explicitly records that limitation. |
 | Adaptive/repeated evaluation | Research evidence only | Seeded/adversarial suites exist, but no production deployment evaluation package or independent repeated-trial report is present. |
-| Signed artifacts and SBOM | Unsigned local evidence | CycloneDX SBOM, release manifest, reproducible-build, and dependency checks pass locally; signing and publication remain absent. |
-| Recovery and rollback | Documentation only | Operational recovery, incident response, upgrade, and rollback procedures still need owners, tested commands, and retained evidence. |
+| Artifacts and SBOM | Verified unsigned local evidence | The 277-component CycloneDX SBOM, 138-file release manifest plus image identity, 264-file reproducible build, and zero-vulnerability dependency audit pass locally; signing and publication remain deferred. |
+| Recovery and rollback | Local exercise complete | The one-command workflow exercised clean rebuild, hardened disposable deployment, lifecycle smoke, exact-container cleanup, manifest verification, and rollback inputs; production owners and objectives remain deferred. |
 
 ## Gate disposition
 
@@ -87,9 +89,9 @@ command signs, publishes, or production-approves an artifact.
 ### Enforced test gate — PARTIAL / TEST INFRASTRUCTURE ONLY
 
 The repository contains disposable authenticated identities, policy and approval
-tests, PostgreSQL persistence tests, result mediation tests, and fail-safe behavior.
-These demonstrate component behavior but are not wired into a production client-facing
-service or independently isolated deployment.
+tests, PostgreSQL persistence tests, result mediation tests, fail-safe behavior, and a
+functional protected-runtime browser workflow. These remain disposable evidence and
+do not establish an independently isolated production deployment.
 
 ### Production-candidate gate — BLOCKED
 
@@ -98,15 +100,16 @@ The following evidence is still required:
 1. Independent security review with findings resolved or accepted by an authorized owner.
 2. Two-host validation using independently operated MCP-compliant hosts.
 3. Adaptive, repeated-trial evaluation with retained metrics and baselines.
-4. Functional `P2-F020` browser approval and audit evidence, including independent
-   human authentication, exact `Approve once`/`Deny`, CSRF/origin/session protection,
-   durable race/expiry/reload handling, and a complete browser-to-outcome workflow.
-5. Deployment evidence that gateway credentials and network/IAM/sandbox/OS controls
+4. Deployment evidence that gateway credentials and network/IAM/sandbox/OS controls
    prevent direct or alternate-path access.
-6. Operational recovery and incident-response runbooks exercised against disposable
+5. Operational recovery and incident-response runbooks exercised against disposable
    resources, with ownership and recovery objectives recorded.
-7. Reproducible signed artifacts, SBOM, dependency analysis, upgrade procedure, and
+6. Reproducible signed artifacts, SBOM, dependency analysis, upgrade procedure, and
    tested rollback procedure.
+
+These production-candidate items are deferred by the user-approved 2026-09-20 local
+completion scope. Their absence keeps production approval blocked but no longer blocks
+completion of the explicitly non-production Phase 2 deliverable.
 
 ## Safe preparation sequence
 

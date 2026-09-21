@@ -1,4 +1,10 @@
-import { createHash, randomUUID } from "node:crypto";
+import {
+  createCipheriv,
+  createDecipheriv,
+  createHash,
+  randomBytes,
+  randomUUID
+} from "node:crypto";
 import { resolve } from "node:path";
 
 import { Pool, type PoolClient } from "pg";
@@ -62,6 +68,7 @@ import {
   supervisorAssessmentAuditV1Schema,
   type SupervisorAssessmentAuditV1
 } from "../supervisor/advisory-supervisor-v1.js";
+import type { ApprovedClientToolCallV1 } from "../runtime/client-tool-call-v1.js";
 
 const eventTypeV1Schema = z.enum([
   "DECIDED", "DENIED", "MODIFIED", "ALTERNATE_ROUTE", "REPLAYED", "BYPASS",
@@ -96,7 +103,12 @@ export const postgresPersistenceConfigV1Schema = z.object({
   applicationName: z.string().trim().min(1).max(64).default("agent-security-gateway"),
   knownSecretValues: z.array(z.string().min(4).max(16_384)).max(1_000).default([]),
   connectionTimeoutMs: z.number().int().positive().max(60_000).default(5_000),
-  maxConnections: z.number().int().positive().max(100).default(10)
+  maxConnections: z.number().int().positive().max(100).default(10),
+  approvalRuntimePayloadEncryption: z.object({
+    keyId: identifierV1Schema,
+    key: z.instanceof(Uint8Array).refine((value) => value.byteLength === 32,
+      "Approval runtime encryption keys must contain exactly 32 bytes")
+  }).strict().optional()
 }).strict();
 
 export type SecurityEventInputV1 = z.infer<typeof securityEventInputV1Schema>;
@@ -152,6 +164,22 @@ interface CoverageEventRowV1 {
   readonly report_document: unknown;
 }
 
+interface ApprovalRuntimeEncryptionV1 {
+  readonly keyId: string;
+  readonly key: Buffer;
+}
+
+interface ApprovalRuntimeDispatchRowV1 {
+  readonly dispatch_state: "PENDING" | "CLAIMED" | "COMPLETED" | "FAILED";
+  readonly human_id: string;
+  readonly claim_id: string | null;
+  readonly approval_state: string;
+  readonly approval_document: unknown;
+  readonly forwarding_attempt_id: string | null;
+  readonly forwarding_authorized_at: Date | null;
+  readonly outcome_status: ExecutionOutcomeV1["status"] | null;
+}
+
 function eventHash(previousHash: string, event: SecurityEventInputV1): string {
   return createHash("sha256")
     .update(computeCanonicalDigestV1({ previousHash, event }), "utf8")
@@ -195,10 +223,16 @@ function exactAuthorizationMatchesApproval(
 export class PostgresTrajectoryStoreV1 {
   readonly #pool: Pool;
   readonly #knownSecrets: readonly string[];
+  readonly #approvalRuntimeEncryption: ApprovalRuntimeEncryptionV1 | null;
 
-  private constructor(pool: Pool, knownSecrets: readonly string[]) {
+  private constructor(
+    pool: Pool,
+    knownSecrets: readonly string[],
+    approvalRuntimeEncryption: ApprovalRuntimeEncryptionV1 | null
+  ) {
     this.#pool = pool;
     this.#knownSecrets = knownSecrets;
+    this.#approvalRuntimeEncryption = approvalRuntimeEncryption;
   }
 
   public static async connect(configInput: PostgresPersistenceConfigV1): Promise<PostgresTrajectoryStoreV1> {
@@ -215,7 +249,14 @@ export class PostgresTrajectoryStoreV1 {
         pool,
         config.migrationsDirectory ?? resolve(process.cwd(), "migrations")
       );
-      return new PostgresTrajectoryStoreV1(pool, Object.freeze([...config.knownSecretValues]));
+      return new PostgresTrajectoryStoreV1(
+        pool,
+        Object.freeze([...config.knownSecretValues]),
+        config.approvalRuntimePayloadEncryption === undefined ? null : {
+          keyId: config.approvalRuntimePayloadEncryption.keyId,
+          key: Buffer.from(config.approvalRuntimePayloadEncryption.key)
+        }
+      );
     } catch {
       await pool.end().catch(() => undefined);
       throw new PersistenceUnavailableV1();
@@ -233,7 +274,230 @@ export class PostgresTrajectoryStoreV1 {
   }
 
   public async close(): Promise<void> {
+    this.#approvalRuntimeEncryption?.key.fill(0);
     await this.#pool.end();
+  }
+
+  public async resolve(input: {
+    readonly approvalId: string;
+    readonly humanId: string;
+  }): Promise<AuthenticatedSessionIdentityBindingV1> {
+    const approvalId = identifierV1Schema.parse(input.approvalId);
+    const humanId = identifierV1Schema.parse(input.humanId);
+    const selected = await this.#pool.query<{
+      runtime_document: unknown;
+      document_digest: string;
+    }>(
+      `SELECT s.runtime_document,s.document_digest
+         FROM approvals a
+         JOIN sessions s ON s.state_namespace=a.session_id
+         JOIN approval_ui_scope_grants g ON g.human_id=$2
+           AND g.policy_scope_id=a.policy_scope_id AND g.active=true
+        WHERE a.approval_id=$1 AND a.decided_by_human_id=$2
+          AND a.state='APPROVED' AND a.expires_at>clock_timestamp()
+          AND s.status='ACTIVE'`,
+      [approvalId, humanId]
+    );
+    const row = selected.rows[0];
+    if (row === undefined || row.runtime_document === null) throw new PersistenceDeniedV1();
+    const session = authenticatedSessionIdentityBindingV1Schema.parse(row.runtime_document);
+    if (computeCanonicalDigestV1(session) !== row.document_digest) throw new PersistenceDeniedV1();
+    return session;
+  }
+
+  public async loadApprovedCall(input: {
+    readonly approvalId: string;
+    readonly session: AuthenticatedSessionIdentityBindingV1;
+  }): Promise<ApprovedClientToolCallV1> {
+    const encryption = this.#approvalRuntimeEncryption;
+    if (encryption === null) throw new PersistenceDeniedV1();
+    const approvalId = identifierV1Schema.parse(input.approvalId);
+    const callerSession = authenticatedSessionIdentityBindingV1Schema.parse(input.session);
+    const selected = await this.#pool.query<{
+      key_id: string;
+      nonce: Buffer;
+      authentication_tag: Buffer;
+      ciphertext: Buffer;
+      session_document: unknown;
+      session_digest: string;
+      action_document: unknown;
+      decision_document: unknown;
+      approval_document: unknown;
+      request_id: string;
+    }>(
+      `SELECT p.key_id,p.nonce,p.authentication_tag,p.ciphertext,r.request_id,
+          s.runtime_document AS session_document,s.document_digest AS session_digest,
+          ca.redacted_document AS action_document,d.redacted_document AS decision_document,
+          a.redacted_document AS approval_document
+         FROM approvals a
+         JOIN requests r ON r.request_id=a.request_id
+         JOIN approval_runtime_payloads p ON p.request_id=r.request_id
+         JOIN sessions s ON s.state_namespace=r.state_namespace
+         JOIN canonical_actions ca ON ca.action_id=a.action_id
+         JOIN decisions d ON d.decision_id=a.decision_id
+        WHERE a.approval_id=$1 AND a.state='APPROVED'
+          AND a.expires_at>clock_timestamp() AND s.status='ACTIVE'`,
+      [approvalId]
+    );
+    const row = selected.rows[0];
+    if (row === undefined || row.key_id !== encryption.keyId || row.session_document === null) {
+      throw new PersistenceDeniedV1();
+    }
+    const session = authenticatedSessionIdentityBindingV1Schema.parse(row.session_document);
+    if (computeCanonicalDigestV1(session) !== row.session_digest ||
+      computeCanonicalDigestV1(session) !== computeCanonicalDigestV1(callerSession)) {
+      throw new PersistenceDeniedV1();
+    }
+    let plaintext: Buffer | undefined;
+    try {
+      const decipher = createDecipheriv("aes-256-gcm", encryption.key, row.nonce);
+      decipher.setAAD(Buffer.from(`${row.key_id}:${row.request_id}`, "utf8"));
+      decipher.setAuthTag(row.authentication_tag);
+      plaintext = Buffer.concat([decipher.update(row.ciphertext), decipher.final()]);
+      const request = toolCallRequestV1Schema.parse(JSON.parse(plaintext.toString("utf8")));
+      const action = canonicalActionV1Schema.parse(row.action_document);
+      const decision = policyDecisionV1Schema.parse(row.decision_document);
+      const approval = approvalV1Schema.parse(row.approval_document);
+      if (request.requestId !== approval.requestId || approval.approvalId !== approvalId) {
+        throw new PersistenceDeniedV1();
+      }
+      return { session, request, action, decision, approval };
+    } catch (error) {
+      if (error instanceof PersistenceDeniedV1) throw error;
+      throw new PersistenceDeniedV1();
+    } finally {
+      plaintext?.fill(0);
+    }
+  }
+
+  public async claimApprovalDispatch(input: {
+    readonly approvalId: string;
+    readonly humanId: string;
+    readonly claimId: string;
+    readonly claimedAt: string;
+  }): Promise<void> {
+    const approvalId = identifierV1Schema.parse(input.approvalId);
+    const humanId = identifierV1Schema.parse(input.humanId);
+    const claimId = identifierV1Schema.parse(input.claimId);
+    const claimedAt = z.iso.datetime({ offset: true }).parse(input.claimedAt);
+    await this.#transaction(async (client) => {
+      const selected = await client.query<{
+        dispatch_state: string;
+        human_id: string;
+        approval_state: string;
+        decided_by_human_id: string | null;
+        unexpired: boolean;
+      }>(
+        `SELECT d.state AS dispatch_state,d.human_id,a.state AS approval_state,
+           a.decided_by_human_id,a.expires_at>clock_timestamp() AS unexpired
+         FROM approval_runtime_dispatches d JOIN approvals a ON a.approval_id=d.approval_id
+         WHERE d.approval_id=$1 FOR UPDATE OF d,a`,
+        [approvalId]
+      );
+      const row = selected.rows[0];
+      if (row === undefined || row.dispatch_state !== "PENDING" || row.human_id !== humanId ||
+        row.approval_state !== "APPROVED" || row.decided_by_human_id !== humanId || !row.unexpired) {
+        throw new PersistenceDeniedV1();
+      }
+      await this.#requireImmutableMatch(client.query(
+        `UPDATE approval_runtime_dispatches SET state='CLAIMED',claim_id=$2,claimed_at=$3
+         WHERE approval_id=$1 AND state='PENDING'`,
+        [approvalId, claimId, claimedAt]
+      ));
+    });
+  }
+
+  public async completeApprovalDispatch(input: {
+    readonly approvalId: string;
+    readonly claimId: string;
+    readonly completedAt: string;
+  }): Promise<void> {
+    const approvalId = identifierV1Schema.parse(input.approvalId);
+    const claimId = identifierV1Schema.parse(input.claimId);
+    const completedAt = z.iso.datetime({ offset: true }).parse(input.completedAt);
+    await this.#transaction(async (client) => {
+      const selected = await client.query<{
+        dispatch_state: string;
+        claim_id: string | null;
+        approval_state: string;
+        outcome_status: string | null;
+      }>(
+        `SELECT d.state AS dispatch_state,d.claim_id,a.state AS approval_state,
+           o.status AS outcome_status
+         FROM approval_runtime_dispatches d JOIN approvals a ON a.approval_id=d.approval_id
+         LEFT JOIN outcomes o ON o.approval_id=a.approval_id
+         WHERE d.approval_id=$1 FOR UPDATE OF d,a`,
+        [approvalId]
+      );
+      const row = selected.rows[0];
+      if (row === undefined || row.dispatch_state !== "CLAIMED" || row.claim_id !== claimId ||
+        row.approval_state !== "CONSUMED" || row.outcome_status === null) {
+        throw new PersistenceDeniedV1();
+      }
+      await this.#requireImmutableMatch(client.query(
+        `UPDATE approval_runtime_dispatches SET state='COMPLETED',finished_at=$3
+         WHERE approval_id=$1 AND state='CLAIMED' AND claim_id=$2`,
+        [approvalId, claimId, completedAt]
+      ));
+    });
+  }
+
+  public async failApprovalDispatch(input: {
+    readonly approvalId: string;
+    readonly humanId: string;
+    readonly claimId: string;
+    readonly failedAt: string;
+  }): Promise<void> {
+    const approvalId = identifierV1Schema.parse(input.approvalId);
+    const humanId = identifierV1Schema.parse(input.humanId);
+    const claimId = identifierV1Schema.parse(input.claimId);
+    const failedAt = z.iso.datetime({ offset: true }).parse(input.failedAt);
+    await this.#transaction(async (client) => {
+      const row = await this.#selectApprovalRuntimeDispatch(client, approvalId);
+      if (row === null || row.dispatch_state !== "CLAIMED" || row.claim_id !== claimId ||
+        row.human_id !== humanId) throw new PersistenceDeniedV1();
+      await this.#finishFailedApprovalRuntimeDispatch(
+        client,
+        approvalId,
+        row,
+        failedAt,
+        "approval.runtime_dispatch.failed"
+      );
+    });
+  }
+
+  public async recoverStaleApprovalDispatches(input: {
+    readonly staleBefore: string;
+    readonly recoveredAt: string;
+    readonly limit?: number;
+  }): Promise<number> {
+    const staleBefore = z.iso.datetime({ offset: true }).parse(input.staleBefore);
+    const recoveredAt = z.iso.datetime({ offset: true }).parse(input.recoveredAt);
+    const limit = z.number().int().min(1).max(1_000).default(100).parse(input.limit);
+    return this.#transaction(async (client) => {
+      const selected = await client.query<{ approval_id: string }>(
+        `SELECT approval_id FROM approval_runtime_dispatches
+         WHERE (state='PENDING' AND created_at<=$1) OR
+           (state='CLAIMED' AND claimed_at<=$1)
+         ORDER BY COALESCE(claimed_at,created_at),approval_id
+         FOR UPDATE SKIP LOCKED LIMIT $2`,
+        [staleBefore, limit]
+      );
+      for (const item of selected.rows) {
+        const row = await this.#selectApprovalRuntimeDispatch(client, item.approval_id);
+        if (row === null || (row.dispatch_state !== "PENDING" && row.dispatch_state !== "CLAIMED")) {
+          continue;
+        }
+        await this.#finishFailedApprovalRuntimeDispatch(
+          client,
+          item.approval_id,
+          row,
+          recoveredAt,
+          "approval.runtime_dispatch.recovered"
+        );
+      }
+      return selected.rowCount ?? 0;
+    });
   }
 
   public async persistDecisionTrajectory(input: {
@@ -285,6 +549,7 @@ export class PostgresTrajectoryStoreV1 {
           binding.route.routeId, request.route.schemaDigest, request.argumentsDigest,
           request.payloadBytes, request.nonce, request.callChain.callChainId, request.requestedAt]
       );
+      await this.#persistApprovalRuntimePayload(client, request);
       await client.query(
         `INSERT INTO canonical_actions(action_id, request_id, action_hash, resources_digest,
           data_flow_digest, effect, environment, redacted_document, created_at)
@@ -944,12 +1209,14 @@ export class PostgresTrajectoryStoreV1 {
     ));
     await this.#requireImmutableMatch(client.query(
       `INSERT INTO sessions(state_namespace,transport_session_id,identity_key,
-        client_instance_key,status,document_digest,created_at,updated_at)
-       VALUES ($1,$2,$3,$4,'ACTIVE',$5,$6,$6) ON CONFLICT (state_namespace) DO UPDATE
-       SET state_namespace = EXCLUDED.state_namespace
-       WHERE sessions.document_digest = EXCLUDED.document_digest`,
+        client_instance_key,status,document_digest,created_at,updated_at,runtime_document)
+       VALUES ($1,$2,$3,$4,'ACTIVE',$5,$6,$6,$7::jsonb) ON CONFLICT (state_namespace) DO UPDATE
+       SET runtime_document = COALESCE(sessions.runtime_document, EXCLUDED.runtime_document)
+       WHERE sessions.document_digest = EXCLUDED.document_digest
+         AND (sessions.runtime_document IS NULL OR sessions.runtime_document=EXCLUDED.runtime_document)`,
       [input.session.stateNamespace, input.session.transportSessionId, input.identityKey,
-        input.clientInstanceKey, computeCanonicalDigestV1(input.session), input.occurredAt]
+        input.clientInstanceKey, computeCanonicalDigestV1(input.session), input.occurredAt,
+        JSON.stringify(input.session)]
     ));
     await this.#requireImmutableMatch(client.query(
       `INSERT INTO servers(server_id,authenticated_principal_id,credential_audience_id,
@@ -1012,6 +1279,176 @@ export class PostgresTrajectoryStoreV1 {
         computeCanonicalDigestV1({ outcomeId: outcome.outcomeId,
           recoveryClass: outcome.recoveryClass, possiblePartialEffects: outcome.possiblePartialEffects }),
         outcome.observedAt]
+    );
+  }
+
+  async #persistApprovalRuntimePayload(
+    client: PoolClient,
+    request: ToolCallRequestV1
+  ): Promise<void> {
+    const encryption = this.#approvalRuntimeEncryption;
+    if (encryption === null) return;
+    const nonce = randomBytes(12);
+    let plaintext: Buffer | undefined;
+    try {
+      plaintext = Buffer.from(JSON.stringify(request), "utf8");
+      const cipher = createCipheriv("aes-256-gcm", encryption.key, nonce);
+      cipher.setAAD(Buffer.from(`${encryption.keyId}:${request.requestId}`, "utf8"));
+      const ciphertext = Buffer.concat([cipher.update(plaintext), cipher.final()]);
+      const authenticationTag = cipher.getAuthTag();
+      await client.query(
+        `INSERT INTO approval_runtime_payloads(request_id,key_id,nonce,authentication_tag,
+          ciphertext,created_at) VALUES ($1,$2,$3,$4,$5,$6)`,
+        [request.requestId, encryption.keyId, nonce, authenticationTag, ciphertext,
+          request.requestedAt]
+      );
+    } finally {
+      plaintext?.fill(0);
+      nonce.fill(0);
+    }
+  }
+
+  async #selectApprovalRuntimeDispatch(
+    client: PoolClient,
+    approvalId: string
+  ): Promise<ApprovalRuntimeDispatchRowV1 | null> {
+    const selected = await client.query<ApprovalRuntimeDispatchRowV1>(
+      `SELECT d.state AS dispatch_state,d.human_id,d.claim_id,
+         a.state AS approval_state,a.redacted_document AS approval_document,
+         a.forwarding_attempt_id,f.authorized_at AS forwarding_authorized_at,
+         o.status AS outcome_status
+       FROM approval_runtime_dispatches d
+       JOIN approvals a ON a.approval_id=d.approval_id
+       LEFT JOIN forwarding_attempts f ON f.forwarding_attempt_id=a.forwarding_attempt_id
+       LEFT JOIN outcomes o ON o.approval_id=a.approval_id
+       WHERE d.approval_id=$1 FOR UPDATE OF d,a`,
+      [approvalId]
+    );
+    return selected.rows[0] ?? null;
+  }
+
+  async #finishFailedApprovalRuntimeDispatch(
+    client: PoolClient,
+    approvalId: string,
+    row: ApprovalRuntimeDispatchRowV1,
+    finishedAt: string,
+    reasonCode: string
+  ): Promise<void> {
+    const approval = approvalV1Schema.parse(row.approval_document);
+    if (row.approval_state === "APPROVED") {
+      const revoked = approvalV1Schema.parse({ ...approval, state: "REVOKED", consumption: null });
+      await this.#requireImmutableMatch(client.query(
+        `UPDATE approvals SET state='REVOKED',redacted_document=$2::jsonb
+         WHERE approval_id=$1 AND state='APPROVED'`,
+        [approvalId, JSON.stringify(revoked)]
+      ));
+      await this.#appendEvent(client, {
+        eventId: randomUUID(), eventType: "FAILED", requestId: approval.requestId,
+        stateNamespace: approval.sessionId, forwardingAttemptId: null,
+        actorId: "approval-runtime-recovery", reasonCodes: [reasonCode],
+        evidenceDigest: computeCanonicalDigestV1({ approvalId, reasonCode, finishedAt }),
+        occurredAt: finishedAt
+      });
+      await this.#appendApprovalRuntimeUiEvent(client, {
+        humanId: row.human_id,
+        approval,
+        reasonCode,
+        occurredAt: finishedAt
+      });
+    } else if (row.approval_state === "CONSUMED" && row.outcome_status === null) {
+      if (row.forwarding_attempt_id === null || row.forwarding_authorized_at === null) {
+        throw new PersistenceDeniedV1();
+      }
+      const actionResult = await client.query<{ redacted_document: unknown }>(
+        "SELECT redacted_document FROM canonical_actions WHERE action_id=$1",
+        [approval.actionId]
+      );
+      const action = canonicalActionV1Schema.parse(actionResult.rows[0]?.redacted_document);
+      const outcome = executionOutcomeV1Schema.parse({
+        schemaVersion: "1.0.0",
+        outcomeId: randomUUID(),
+        requestId: approval.requestId,
+        actionId: approval.actionId,
+        sessionId: approval.sessionId,
+        decisionId: approval.decisionId,
+        approvalId,
+        forwardingAttemptId: row.forwarding_attempt_id,
+        resultId: null,
+        provenanceId: null,
+        status: "UNKNOWN",
+        forwardedAt: row.forwarding_authorized_at.toISOString(),
+        finishedAt,
+        possiblePartialEffects: true,
+        recoveryClass: action.effect === "READ" ? "NOT_APPLICABLE" :
+          action.reversibility === "IRREVERSIBLE" ? "IRREVERSIBLE" : "UNKNOWN",
+        trustEvidenceEligible: false,
+        observedAt: finishedAt
+      });
+      await this.#insertOutcome(client, outcome);
+      await this.#requireImmutableMatch(client.query(
+        `UPDATE forwarding_attempts SET state='UNKNOWN',finished_at=$2
+         WHERE forwarding_attempt_id=$1 AND state='FORWARDING'`,
+        [row.forwarding_attempt_id, finishedAt]
+      ));
+      await this.#appendEvent(client, {
+        eventId: randomUUID(), eventType: "UNKNOWN_OUTCOME", requestId: approval.requestId,
+        stateNamespace: approval.sessionId, forwardingAttemptId: row.forwarding_attempt_id,
+        actorId: "approval-runtime-recovery", reasonCodes: [reasonCode],
+        evidenceDigest: computeCanonicalDigestV1(outcome), occurredAt: finishedAt
+      });
+      await this.#appendApprovalRuntimeUiEvent(client, {
+        humanId: row.human_id,
+        approval,
+        reasonCode,
+        occurredAt: finishedAt
+      });
+    }
+    const completed = row.outcome_status === "COMPLETED";
+    await this.#requireImmutableMatch(client.query(
+      `UPDATE approval_runtime_dispatches SET state=$2,finished_at=$3,
+         failure_reason_code=$4
+       WHERE approval_id=$1 AND state IN ('PENDING','CLAIMED')`,
+      [approvalId, completed ? "COMPLETED" : "FAILED", finishedAt,
+        completed ? null : reasonCode]
+    ));
+  }
+
+  async #appendApprovalRuntimeUiEvent(client: PoolClient, input: {
+    readonly humanId: string;
+    readonly approval: ApprovalV1;
+    readonly reasonCode: string;
+    readonly occurredAt: string;
+  }): Promise<void> {
+    await client.query("SELECT pg_advisory_xact_lock(hashtext('agent-security:approval-ui-audit:v1'))");
+    const previous = await client.query<{ event_hash: string }>(
+      "SELECT event_hash FROM approval_ui_security_events ORDER BY sequence_id DESC LIMIT 1"
+    );
+    const previousHash = previous.rows[0]?.event_hash ?? "0".repeat(64);
+    const eventId = randomUUID();
+    const event = {
+      eventId,
+      eventType: "DECISION_REJECTED" as const,
+      humanId: input.humanId,
+      approvalId: input.approval.approvalId,
+      policyScopeId: input.approval.route.policyScopeId,
+      reasonCodes: [input.reasonCode],
+      evidenceDigest: computeCanonicalDigestV1({
+        approvalId: input.approval.approvalId,
+        reasonCode: input.reasonCode,
+        occurredAt: input.occurredAt
+      }),
+      occurredAt: input.occurredAt
+    };
+    const hash = createHash("sha256")
+      .update(computeCanonicalDigestV1({ previousHash, event }), "utf8")
+      .digest("hex");
+    await client.query(
+      `INSERT INTO approval_ui_security_events(event_id,event_type,human_id,approval_id,
+        policy_scope_id,reason_codes,evidence_digest,previous_hash,event_hash,occurred_at)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)`,
+      [event.eventId, event.eventType, event.humanId, event.approvalId,
+        event.policyScopeId, event.reasonCodes, event.evidenceDigest,
+        previousHash, hash, event.occurredAt]
     );
   }
 

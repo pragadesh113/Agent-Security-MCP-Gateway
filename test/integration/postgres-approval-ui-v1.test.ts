@@ -138,7 +138,7 @@ describe("PostgreSQL approval UI boundary", () => {
     };
     const human = {
       schemaVersion: "1.0.0" as const, humanId: "human-approval-ui",
-      subjectId: "opaque-idp-subject", authenticationMethod: "OIDC" as const,
+      credentialId: "opaque-idp-subject", authenticationMethod: "OIDC" as const,
       authenticationRevision: 1, authenticatedAt: now.toISOString()
     };
     await ui.configureHuman({ authority, human, policyScopeIds: [candidate.action.route.policyScopeId] });
@@ -149,7 +149,7 @@ describe("PostgreSQL approval UI boundary", () => {
       approvalId: pending.approvalId, actionHash: pending.actionHash,
       policyScopeId: candidate.action.route.policyScopeId, state: "PENDING"
     });
-    expect(JSON.stringify(pendingItems)).not.toContain(human.subjectId);
+    expect(JSON.stringify(pendingItems)).not.toContain(human.credentialId);
     expect((await ui.readDetail(browser.sessionToken, pending.approvalId)).outcome).toBeNull();
 
     const decision = {

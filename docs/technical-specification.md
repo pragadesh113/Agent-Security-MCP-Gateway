@@ -717,14 +717,47 @@ interface must then show the durable approved, denied, expired, revoked, consume
 failed state and the governed outcome without exposing credentials, approval secrets,
 raw untrusted errors, or unauthorised cross-scope audit data.
 
-Completion requires automated browser and integration evidence for the actual path:
-pending request to authenticated human display, exact decision, PostgreSQL state
+An `APPROVE` decision is not sufficient by itself: the web boundary must have a trusted
+protected-runtime continuation configured. Without it, approval fails before changing
+state. The protected entrypoint now composes this continuation with PostgreSQL as the
+trusted session resolver and approved-call loader plus the real client approved-call
+executor. It passes only the approval identifier and authenticated human identifier;
+the runtime reloads canonical authority from PostgreSQL, revalidates coverage and
+bindings, atomically consumes the approval, and owns forwarding and outcome persistence.
+Startup fails if its operator-supplied credential lease or exact forwarder module is
+missing or incomplete. Production-approved providers and deployment evidence remain
+required before protected forwarding can be enabled.
+
+The production-shaped runtime composition now passes the executor-generated forwarding
+authorization into credential issuance, preventing a lease from being created without
+the exact approval, action hash, route, audience, endpoint, session, and durable
+forwarding-attempt binding. The approved HashiCorp Vault provider, non-exporting broker,
+exact HTTP forwarder, downstream authenticator, schema/result guard, and PostgreSQL
+outcome store have been exercised together through a real Chromium approval workflow.
+This remains disposable browser evidence and does not establish production Vault
+custody, independent isolation, or protected deployment coverage.
+
+The human decision transaction also inserts one immutable-bound runtime dispatch row.
+The continuation must atomically claim that row before resolving the agent session or
+executing the call. A bounded periodic recovery worker uses row locks with
+`SKIP LOCKED`, so concurrent workers recover each stale dispatch once. A stale
+unconsumed `APPROVED` record is revoked with durable failure audit and no forwarding
+attempt. A stale dispatch whose approval was already atomically consumed is never
+retried: if no outcome exists, recovery records `UNKNOWN`, possible partial effects,
+and a recovery record before closing the dispatch. Claim timeout must exceed the
+executor timeout, preventing a live bounded execution from being reclaimed early.
+
+Automated browser and integration evidence now covers the actual path from a live
+pending request through authenticated human display, exact decision, PostgreSQL state
 transition, atomic consumption, at most one downstream forwarding attempt, governed
-result, and audit/outcome display. Tests must cover reload, duplicate click, multi-tab
-and concurrent races, reconnect, expiry, revocation, stale policy/route/schema/coverage,
-authentication failure, CSRF/origin rejection, dependency failure, keyboard operation,
-and unambiguous confirmation and error states. This work is tracked separately as
-`P2-F020`; `P2-F010` covers only the completed host-neutral interface model.
+result, and audit/outcome display. The matrix includes reload/reconnect, duplicate and
+multi-tab concurrent decisions, expiry, revocation after stale coverage, authentication
+and scope failure, CSRF/origin rejection, provider and result failure, keyboard
+operation, and unambiguous durable states. A bound non-content result summary exposes
+the disposition and schema verdict, preventing quarantined content from appearing as
+an ordinary successful release. This completes `P2-F020` with disposable evidence;
+`P2-F010` remains the host-neutral model, and production isolation and provider
+assurance remain deferred production work outside the completed local `P2-F019` scope.
 
 ## 13. Transactional forwarding
 
@@ -781,9 +814,20 @@ provenance, results, outcomes, shadow trust evidence, and security events. Appro
 row locks and uniqueness constraints preserve one-time consumption across concurrent
 connections and store restarts. Security events are serialized into a SHA-256 chain
 and protected from update or deletion by a database trigger. Raw arguments and result
-content are omitted; configured known secrets cause rejection before any database
-query. Real PostgreSQL 18.4 integration evidence is disposable development evidence,
-not production deployment hardening or exclusive-mediation proof.
+content are omitted from ordinary trajectory, audit, and interface documents. For an
+approved runtime continuation only, the exact request is stored in a separate
+append-only table as AES-256-GCM ciphertext with a unique 96-bit nonce, 128-bit
+authentication tag, explicit key identifier, and request-bound additional authenticated
+data. The external 256-bit key is mandatory for approved-call loading and is never
+stored in PostgreSQL; missing keys, key-id mismatch, authentication failure, or binding
+mismatch deny. Plaintext buffers are bounded by request validation and wiped after use.
+The approval decision and its runtime dispatch are committed atomically. Dispatch
+authority is immutable, state transitions are database-constrained, deletion is
+forbidden, and stale recovery is serialized across workers without retrying an
+ambiguously forwarded request.
+Configured known secrets still cause rejection before any database query. Real
+PostgreSQL 18.4 integration evidence is disposable development evidence, not production
+deployment hardening or exclusive-mediation proof.
 
 ## 16. Coverage, health, and observability
 
@@ -910,6 +954,17 @@ self-authorize it. The contract is deliberately labelled `EVIDENCE_CONTRACT_ONLY
 schema validation and canonical digests prepare and protect review evidence but do not
 prove reviewer independence, verify a signature, or substitute for an actual review.
 
+A disposable interoperability verifier additionally pins the open-source MCP
+Everything reference server and Microsoft Playwright MCP package versions and registry
+integrity hashes, launches both with sanitized environments, negotiates MCP over stdio,
+lists real tools, completes one harmless tool call, and requires unknown-tool rejection.
+Its retained artifact is explicitly `LOCAL_INTEROPERABILITY_ONLY`,
+`independentlyOperated: false`, and `UNPROTECTED`. Separate upstream maintainers do not
+make locally launched processes independently operated. Under the user-approved
+2026-09-20 local-delivery scope, this reproducible two-implementation workflow completes
+`P2-F018`; independently operated hosts and external security review remain deferred
+production-assurance gates and are not implied by feature completion.
+
 ## 20. Delivery sequence and acceptance
 
 ### Milestone 1 - Safe protocol foundation
@@ -945,18 +1000,29 @@ prove reviewer independence, verify a signature, or substitute for an actual rev
 - dynamic trust shadow-mode comparison and promotion decision;
 - optional advisory supervisor after deterministic controls are established.
 
-### Milestone 6 - Operational integration and production evidence
+### Milestone 6 - Operational integration and local release evidence
 
 - authenticated client-facing discovery and complete `tools/call` composition;
 - approved production-shaped identity, credential, administration, and analyzer providers;
 - functional authenticated human approval and audit web interface;
-- named independently operated MCP hosts and adaptive repeated trials;
-- independent security review, exclusive-mediation deployment evidence, signed
-  artifacts and SBOM, and exercised recovery and rollback.
+- two pinned open-source MCP server implementations exercised locally with explicit
+  local-only evidence;
+- non-production deployment, artifact, SBOM, recovery, and rollback evidence.
 
-Phase 2 is complete only when all critical feature acceptance criteria in
-`docs/featurelist.json` pass, protected paths are exclusively mediated, bypass tests fail
-safely, downstream results are governed, Tier 3 remains exactly approval-gated, and
-the required security/usability metrics are reported. A host-neutral approval view or
-wireframe cannot satisfy Phase 2 completion: the `P2-F020` browser workflow and its
-end-to-end human-decision evidence must also pass.
+Independently operated hosts, external security review, exclusive production
+mediation, production credential custody, and signed publication are deferred
+production-assurance work outside the approved local Phase 2 completion scope.
+
+Phase 2 local delivery is complete only when all acceptance criteria in
+`docs/featurelist.json` pass, required validation succeeds, downstream results are
+governed, Tier 3 remains exactly approval-gated, and coverage remains truthful. This
+does not authorize production use: without exclusive mediation and production evidence,
+coverage remains `UNPROTECTED` and protected forwarding remains disabled. A host-neutral
+approval view or wireframe cannot satisfy local delivery: the `P2-F020` browser workflow
+and its end-to-end human-decision evidence must also pass.
+
+The completed local release gate additionally requires the two pinned open-source MCP
+interoperability checks, hardened disposable container verification, SBOM and manifest
+verification, reproducible build, dependency audit, and explicit unsigned/unpublished
+artifact posture. Independently operated hosts, external review, production isolation,
+credential custody, signing, and publication remain deferred production-assurance gates.
