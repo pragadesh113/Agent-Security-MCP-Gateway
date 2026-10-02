@@ -5,6 +5,22 @@
 **Status:** Complete for the approved local non-production scope; production assurance deferred
 **Current feature:** none; all 21 tracked Phase 2 features are complete
 
+### Research extension: next session-sized deliverable
+
+The [research extension plan](addon-md.txt) adds research validation after local
+implementation completion. On 2026-09-27, its section 1 protocol deliverable was
+completed in [research-protocol.md](research-protocol.md), with a source-checked
+[Progent/MCIP comparison](research-related-work.md). This prepares the study; novelty,
+semantic resolver accuracy, comparative effectiveness, and submission readiness remain
+unverified. It does not reopen completed Phase 2 implementation features or authorize
+production use.
+
+Next action: construct a versioned candidate resolver corpus with tool contracts,
+restricted grammar, initial resource states, expected effects, label provenance, and
+family-level development/held-out splits. Obtain independent review before treating
+candidate labels as ground truth. No corpus or experiment was completed by the
+protocol task.
+
 ### Active code-review follow-up
 
 The protected approval entrypoint, PostgreSQL authority resolver/approved-call loader,

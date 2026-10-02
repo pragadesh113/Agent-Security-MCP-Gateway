@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720" role="img"><title>Risk tiers and required treatment</title><rect width="1200" height="720" fill="white"/>
+<text x="38" y="60.41" font-family="Arial,Helvetica,sans-serif" font-size="27" font-weight="700" fill="#203348">Risk tiers and required treatment</text>
+<text x="38" y="88.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#637385">Classification follows effect and context, not reassuring tool names.</text>
+<polyline points="38,104 1162,104" fill="none" stroke="#b7c6d2" stroke-width="1.4"/>
+<text x="38" y="694.79" font-family="Arial,Helvetica,sans-serif" font-size="13" font-weight="400" fill="#637385">Agent Security MCP Gateway | Phase 2 | Original repository figure</text>
+<rect x="40" y="140" width="85" height="48" fill="#285a86" stroke="#a8bbc9"/>
+<text x="52" y="165.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="700" fill="#ffffff">Tier</text>
+<rect x="125" y="140" width="500" height="48" fill="#285a86" stroke="#a8bbc9"/>
+<text x="137" y="165.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="700" fill="#ffffff">Effect class</text>
+<rect x="625" y="140" width="535" height="48" fill="#285a86" stroke="#a8bbc9"/>
+<text x="637" y="165.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="700" fill="#ffffff">Default treatment</text>
+<rect x="40" y="188" width="85" height="48" fill="#f2f5f8" stroke="#a8bbc9"/>
+<text x="52" y="213.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">0</text>
+<rect x="125" y="188" width="500" height="48" fill="#f2f5f8" stroke="#a8bbc9"/>
+<text x="137" y="213.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">Proven non-sensitive read; no egress or execution</text>
+<rect x="625" y="188" width="535" height="48" fill="#f2f5f8" stroke="#a8bbc9"/>
+<text x="637" y="213.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">Allow only with verified scope and coverage.</text>
+<rect x="40" y="236" width="85" height="48" fill="#ffffff" stroke="#a8bbc9"/>
+<text x="52" y="261.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">1</text>
+<rect x="125" y="236" width="500" height="48" fill="#ffffff" stroke="#a8bbc9"/>
+<text x="137" y="261.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">Bounded reversible local write</text>
+<rect x="625" y="236" width="535" height="48" fill="#ffffff" stroke="#a8bbc9"/>
+<text x="637" y="261.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">Allow or constrain within an approved isolated scope.</text>
+<rect x="40" y="284" width="85" height="48" fill="#f2f5f8" stroke="#a8bbc9"/>
+<text x="52" y="309.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">2</text>
+<rect x="125" y="284" width="500" height="48" fill="#f2f5f8" stroke="#a8bbc9"/>
+<text x="137" y="309.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">Executable, networked, supply-chain or meaningful state change</text>
+<rect x="625" y="284" width="535" height="48" fill="#f2f5f8" stroke="#a8bbc9"/>
+<text x="637" y="309.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">Sandbox, constrain or require approval.</text>
+<rect x="40" y="332" width="85" height="48" fill="#ffffff" stroke="#a8bbc9"/>
+<text x="52" y="357.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">3</text>
+<rect x="125" y="332" width="500" height="48" fill="#ffffff" stroke="#a8bbc9"/>
+<text x="137" y="357.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">Production, privileged, destructive, credentials or hard to reverse</text>
+<rect x="625" y="332" width="535" height="48" fill="#ffffff" stroke="#a8bbc9"/>
+<text x="637" y="357.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">One exact approval or denial; trust cannot weaken this.</text>
+</svg>

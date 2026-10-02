@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720" role="img"><title>Protocol admission and bounded execution</title><rect width="1200" height="720" fill="white"/>
+<text x="38" y="60.41" font-family="Arial,Helvetica,sans-serif" font-size="27" font-weight="700" fill="#203348">Protocol admission and bounded execution</text>
+<text x="38" y="88.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#637385">Limits apply to authenticated scopes and remain active during work.</text>
+<polyline points="38,104 1162,104" fill="none" stroke="#b7c6d2" stroke-width="1.4"/>
+<text x="38" y="694.79" font-family="Arial,Helvetica,sans-serif" font-size="13" font-weight="400" fill="#637385">Agent Security MCP Gateway | Phase 2 | Original repository figure</text>
+<rect x="40" y="140" width="225" height="48" fill="#285a86" stroke="#a8bbc9"/>
+<text x="52" y="165.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="700" fill="#ffffff">Control</text>
+<rect x="265" y="140" width="580" height="48" fill="#285a86" stroke="#a8bbc9"/>
+<text x="277" y="165.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="700" fill="#ffffff">Scope / evidence</text>
+<rect x="845" y="140" width="315" height="48" fill="#285a86" stroke="#a8bbc9"/>
+<text x="857" y="165.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="700" fill="#ffffff">Failure response</text>
+<rect x="40" y="188" width="225" height="48" fill="#f2f5f8" stroke="#a8bbc9"/>
+<text x="52" y="213.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">Replay resistance</text>
+<rect x="265" y="188" width="580" height="48" fill="#f2f5f8" stroke="#a8bbc9"/>
+<text x="277" y="213.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">Session-bound request identifiers, nonces and timestamp skew</text>
+<rect x="845" y="188" width="315" height="48" fill="#f2f5f8" stroke="#a8bbc9"/>
+<text x="857" y="213.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">Reject replay before invocation.</text>
+<rect x="40" y="236" width="225" height="48" fill="#ffffff" stroke="#a8bbc9"/>
+<text x="52" y="261.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">Rate and concurrency</text>
+<rect x="265" y="236" width="580" height="48" fill="#ffffff" stroke="#a8bbc9"/>
+<text x="277" y="261.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">User, agent, client, session, route, server, destination and action</text>
+<rect x="845" y="236" width="315" height="48" fill="#ffffff" stroke="#a8bbc9"/>
+<text x="857" y="261.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">Deny admission at exhausted quotas.</text>
+<rect x="40" y="284" width="225" height="48" fill="#f2f5f8" stroke="#a8bbc9"/>
+<text x="52" y="309.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">Payload and recursion</text>
+<rect x="265" y="284" width="580" height="48" fill="#f2f5f8" stroke="#a8bbc9"/>
+<text x="277" y="309.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">Input/result bytes, depth, fan-out and cyclic ancestry</text>
+<rect x="845" y="284" width="315" height="48" fill="#f2f5f8" stroke="#a8bbc9"/>
+<text x="857" y="309.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">Stop oversized or recursive work.</text>
+<rect x="40" y="332" width="225" height="64" fill="#ffffff" stroke="#a8bbc9"/>
+<text x="52" y="357.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">Deadline and cancellation</text>
+<rect x="265" y="332" width="580" height="64" fill="#ffffff" stroke="#a8bbc9"/>
+<text x="277" y="357.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">Bounded time, abort propagation and runtime checkpoints</text>
+<rect x="845" y="332" width="315" height="64" fill="#ffffff" stroke="#a8bbc9"/>
+<text x="857" y="357.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">Cancel; persist safe outcome</text>
+<text x="857" y="379.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">classification.</text>
+<rect x="40" y="396" width="225" height="64" fill="#f2f5f8" stroke="#a8bbc9"/>
+<text x="52" y="421.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">Dependency health</text>
+<rect x="265" y="396" width="580" height="64" fill="#f2f5f8" stroke="#a8bbc9"/>
+<text x="277" y="421.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">Identity, route, policy, database, parser and downstream</text>
+<rect x="845" y="396" width="315" height="64" fill="#f2f5f8" stroke="#a8bbc9"/>
+<text x="857" y="421.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">Fail closed; circuit breaker; no memory</text>
+<text x="857" y="443.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">fallback.</text>
+</svg>

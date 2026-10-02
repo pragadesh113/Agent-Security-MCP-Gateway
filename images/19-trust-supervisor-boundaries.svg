@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720" role="img"><title>Shadow trust and advisory supervision</title><rect width="1200" height="720" fill="white"/>
+<text x="38" y="60.41" font-family="Arial,Helvetica,sans-serif" font-size="27" font-weight="700" fill="#203348">Shadow trust and advisory supervision</text>
+<text x="38" y="88.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#637385">Neither behavioral reputation nor an LLM verdict is authorization.</text>
+<polyline points="38,104 1162,104" fill="none" stroke="#b7c6d2" stroke-width="1.4"/>
+<text x="38" y="694.79" font-family="Arial,Helvetica,sans-serif" font-size="13" font-weight="400" fill="#637385">Agent Security MCP Gateway | Phase 2 | Original repository figure</text>
+<rect x="40" y="150" width="330" height="155" fill="#eef3f7" stroke="#a8bbc9"/>
+<rect x="40" y="150" width="5" height="155" fill="#285a86" stroke="#285a86"/>
+<text x="56" y="178.77" font-family="Arial,Helvetica,sans-serif" font-size="19" font-weight="700" fill="#285a86">01 Deterministic decision</text>
+<text x="56" y="208.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">Hard policy, Tier 3 approval and coverage</text>
+<text x="56" y="229.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">are authoritative.</text>
+<rect x="435" y="150" width="330" height="155" fill="#eef3f7" stroke="#a8bbc9"/>
+<rect x="435" y="150" width="5" height="155" fill="#285a86" stroke="#285a86"/>
+<text x="451" y="178.77" font-family="Arial,Helvetica,sans-serif" font-size="19" font-weight="700" fill="#285a86">02 Eligible evidence</text>
+<text x="451" y="208.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">Only verified outcomes can count</text>
+<text x="451" y="229.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">positively; unknown outcomes cannot.</text>
+<polyline points="370,227 435,227" fill="none" stroke="#285a86" stroke-width="1.4"/>
+<polygon points="435,227 425.78939005997114,230.8941834230865 425.78939005997114,223.1058165769135" fill="#285a86"/>
+<rect x="830" y="150" width="330" height="155" fill="#eef3f7" stroke="#a8bbc9"/>
+<rect x="830" y="150" width="5" height="155" fill="#285a86" stroke="#285a86"/>
+<text x="846" y="178.77" font-family="Arial,Helvetica,sans-serif" font-size="19" font-weight="700" fill="#285a86">03 Shadow computation</text>
+<text x="846" y="208.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">Calculate trust or counterfactual output</text>
+<text x="846" y="229.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">without changing policy.</text>
+<polyline points="765,227 830,227" fill="none" stroke="#285a86" stroke-width="1.4"/>
+<polygon points="830,227 820.7893900599712,230.8941834230865 820.7893900599712,223.1058165769135" fill="#285a86"/>
+<rect x="830" y="382" width="330" height="155" fill="#eef3f7" stroke="#a8bbc9"/>
+<rect x="830" y="382" width="5" height="155" fill="#285a86" stroke="#285a86"/>
+<text x="846" y="410.77" font-family="Arial,Helvetica,sans-serif" font-size="19" font-weight="700" fill="#285a86">04 Anomaly freeze</text>
+<text x="846" y="440.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">Identity change, route drift, audit gaps and</text>
+<text x="846" y="461.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">missing outcomes stop positive trust.</text>
+<polyline points="995,305 995,382" fill="none" stroke="#285a86" stroke-width="1.4"/>
+<polygon points="995,382 991.1058165769135,372.78939005997114 998.8941834230865,372.78939005997114" fill="#285a86"/>
+<rect x="435" y="382" width="330" height="155" fill="#eef3f7" stroke="#a8bbc9"/>
+<rect x="435" y="382" width="5" height="155" fill="#285a86" stroke="#285a86"/>
+<text x="451" y="410.77" font-family="Arial,Helvetica,sans-serif" font-size="19" font-weight="700" fill="#285a86">05 Advisory supervisor</text>
+<text x="451" y="440.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">Minimized redacted context; structured</text>
+<text x="451" y="461.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">recommendation can add restriction.</text>
+<polyline points="830,459 765,459" fill="none" stroke="#285a86" stroke-width="1.4"/>
+<polygon points="765,459 774.2106099400288,455.10581657691347 774.2106099400288,462.89418342308653" fill="#285a86"/>
+<rect x="40" y="382" width="330" height="155" fill="#eef3f7" stroke="#a8bbc9"/>
+<rect x="40" y="382" width="5" height="155" fill="#285a86" stroke="#285a86"/>
+<text x="56" y="410.77" font-family="Arial,Helvetica,sans-serif" font-size="19" font-weight="700" fill="#285a86">06 Promotion gate</text>
+<text x="56" y="440.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">Future bounded influence requires</text>
+<text x="56" y="461.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">independent repeated-trial evidence.</text>
+<polyline points="435,459 370,459" fill="none" stroke="#285a86" stroke-width="1.4"/>
+<polygon points="370,459 379.21060994002886,455.10581657691347 379.21060994002886,462.89418342308653" fill="#285a86"/>
+</svg>

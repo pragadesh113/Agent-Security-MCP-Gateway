@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720" role="img"><title>The complete request-to-outcome audit trajectory</title><rect width="1200" height="720" fill="white"/>
+<text x="38" y="60.41" font-family="Arial,Helvetica,sans-serif" font-size="27" font-weight="700" fill="#203348">The complete request-to-outcome audit trajectory</text>
+<text x="38" y="88.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#637385">Ordinary audit rows exclude raw arguments, result content and known secrets.</text>
+<polyline points="38,104 1162,104" fill="none" stroke="#b7c6d2" stroke-width="1.4"/>
+<text x="38" y="694.79" font-family="Arial,Helvetica,sans-serif" font-size="13" font-weight="400" fill="#637385">Agent Security MCP Gateway | Phase 2 | Original repository figure</text>
+<rect x="40" y="150" width="330" height="155" fill="#eef3f7" stroke="#a8bbc9"/>
+<rect x="40" y="150" width="5" height="155" fill="#285a86" stroke="#285a86"/>
+<text x="56" y="178.77" font-family="Arial,Helvetica,sans-serif" font-size="19" font-weight="700" fill="#285a86">01 Request and action</text>
+<text x="56" y="208.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">Authenticated context + canonical effect +</text>
+<text x="56" y="229.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">exact digests.</text>
+<rect x="435" y="150" width="330" height="155" fill="#eef3f7" stroke="#a8bbc9"/>
+<rect x="435" y="150" width="5" height="155" fill="#285a86" stroke="#285a86"/>
+<text x="451" y="178.77" font-family="Arial,Helvetica,sans-serif" font-size="19" font-weight="700" fill="#285a86">02 Policy decision</text>
+<text x="451" y="208.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">Version, tier, disposition, reasons,</text>
+<text x="451" y="229.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">constraints and coverage.</text>
+<polyline points="370,227 435,227" fill="none" stroke="#285a86" stroke-width="1.4"/>
+<polygon points="435,227 425.78939005997114,230.8941834230865 425.78939005997114,223.1058165769135" fill="#285a86"/>
+<rect x="830" y="150" width="330" height="155" fill="#eef3f7" stroke="#a8bbc9"/>
+<rect x="830" y="150" width="5" height="155" fill="#285a86" stroke="#285a86"/>
+<text x="846" y="178.77" font-family="Arial,Helvetica,sans-serif" font-size="19" font-weight="700" fill="#285a86">03 Human authority</text>
+<text x="846" y="208.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">Exact decision, expiry and binding; no</text>
+<text x="846" y="229.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">exposed approval token.</text>
+<polyline points="765,227 830,227" fill="none" stroke="#285a86" stroke-width="1.4"/>
+<polygon points="830,227 820.7893900599712,230.8941834230865 820.7893900599712,223.1058165769135" fill="#285a86"/>
+<rect x="830" y="382" width="330" height="155" fill="#eef3f7" stroke="#a8bbc9"/>
+<rect x="830" y="382" width="5" height="155" fill="#285a86" stroke="#285a86"/>
+<text x="846" y="410.77" font-family="Arial,Helvetica,sans-serif" font-size="19" font-weight="700" fill="#285a86">04 Forwarding attempt</text>
+<text x="846" y="440.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">Durable consumption and one correlated</text>
+<text x="846" y="461.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">initiation record.</text>
+<polyline points="995,305 995,382" fill="none" stroke="#285a86" stroke-width="1.4"/>
+<polygon points="995,382 991.1058165769135,372.78939005997114 998.8941834230865,372.78939005997114" fill="#285a86"/>
+<rect x="435" y="382" width="330" height="155" fill="#eef3f7" stroke="#a8bbc9"/>
+<rect x="435" y="382" width="5" height="155" fill="#285a86" stroke="#285a86"/>
+<text x="451" y="410.77" font-family="Arial,Helvetica,sans-serif" font-size="19" font-weight="700" fill="#285a86">05 Result and outcome</text>
+<text x="451" y="440.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">Provenance, release disposition,</text>
+<text x="451" y="461.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">completion or uncertainty.</text>
+<polyline points="830,459 765,459" fill="none" stroke="#285a86" stroke-width="1.4"/>
+<polygon points="765,459 774.2106099400288,455.10581657691347 774.2106099400288,462.89418342308653" fill="#285a86"/>
+<rect x="40" y="382" width="330" height="155" fill="#eef3f7" stroke="#a8bbc9"/>
+<rect x="40" y="382" width="5" height="155" fill="#285a86" stroke="#285a86"/>
+<text x="56" y="410.77" font-family="Arial,Helvetica,sans-serif" font-size="19" font-weight="700" fill="#285a86">06 Tamper evidence</text>
+<text x="56" y="440.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">Append-only records; SHA-256</text>
+<text x="56" y="461.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">event-chain linkage and recovery state.</text>
+<polyline points="435,459 370,459" fill="none" stroke="#285a86" stroke-width="1.4"/>
+<polygon points="370,459 379.21060994002886,455.10581657691347 379.21060994002886,462.89418342308653" fill="#285a86"/>
+<text x="40" y="640.45" font-family="Arial,Helvetica,sans-serif" font-size="15" font-weight="400" fill="#637385">Exact runtime arguments are separately AES-256-GCM encrypted; the external encryption key is not stored in PostgreSQL.</text>
+</svg>

@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720" role="img"><title>Conservative recovery after interruption</title><rect width="1200" height="720" fill="white"/>
+<text x="38" y="60.41" font-family="Arial,Helvetica,sans-serif" font-size="27" font-weight="700" fill="#203348">Conservative recovery after interruption</text>
+<text x="38" y="88.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#637385">Do not retry a request whose remote effect is uncertain.</text>
+<polyline points="38,104 1162,104" fill="none" stroke="#b7c6d2" stroke-width="1.4"/>
+<text x="38" y="694.79" font-family="Arial,Helvetica,sans-serif" font-size="13" font-weight="400" fill="#637385">Agent Security MCP Gateway | Phase 2 | Original repository figure</text>
+<rect x="40" y="270" width="290" height="140" fill="#eef3f7" stroke="#a8bbc9"/>
+<rect x="40" y="270" width="5" height="140" fill="#285a86" stroke="#285a86"/>
+<text x="56" y="298.77" font-family="Arial,Helvetica,sans-serif" font-size="19" font-weight="700" fill="#285a86">Stale dispatch</text>
+<text x="56" y="328.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">Worker claims recovery with row</text>
+<text x="56" y="349.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">locking and SKIP LOCKED.</text>
+<polyline points="330,310 470,205" fill="none" stroke="#285a86" stroke-width="1.4"/>
+<polygon points="470,205 464.9680221018288,213.64171270248653 460.295001994125,207.4110192255481" fill="#285a86"/>
+<polyline points="330,370 470,465" fill="none" stroke="#285a86" stroke-width="1.4"/>
+<polygon points="470,465 460.1918538919257,463.05057189856456 464.56503292258276,456.60588701128046" fill="#285a86"/>
+<rect x="470" y="150" width="300" height="125" fill="#eef3f7" stroke="#a8bbc9"/>
+<rect x="470" y="150" width="5" height="125" fill="#a24143" stroke="#a24143"/>
+<text x="486" y="178.77" font-family="Arial,Helvetica,sans-serif" font-size="19" font-weight="700" fill="#a24143">Not consumed</text>
+<text x="486" y="208.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">Revoke approval; no forwarding</text>
+<text x="486" y="229.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">attempt</text>
+<rect x="470" y="410" width="300" height="125" fill="#eef3f7" stroke="#a8bbc9"/>
+<rect x="470" y="410" width="5" height="125" fill="#a24143" stroke="#a24143"/>
+<text x="486" y="438.77" font-family="Arial,Helvetica,sans-serif" font-size="19" font-weight="700" fill="#a24143">Consumed; no outcome</text>
+<text x="486" y="468.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">Record UNKNOWN and possible</text>
+<text x="486" y="489.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">partial effects</text>
+<polyline points="770,212 850,212" fill="none" stroke="#285a86" stroke-width="1.4"/>
+<polygon points="850,212 840.7893900599712,215.8941834230865 840.7893900599712,208.1058165769135" fill="#285a86"/>
+<polyline points="770,472 850,472" fill="none" stroke="#285a86" stroke-width="1.4"/>
+<polygon points="850,472 840.7893900599712,475.89418342308653 840.7893900599712,468.10581657691347" fill="#285a86"/>
+<rect x="850" y="150" width="300" height="125" fill="#eef3f7" stroke="#a8bbc9"/>
+<rect x="850" y="150" width="5" height="125" fill="#285a86" stroke="#285a86"/>
+<text x="866" y="178.77" font-family="Arial,Helvetica,sans-serif" font-size="19" font-weight="700" fill="#285a86">REVOKED</text>
+<text x="866" y="208.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">No downstream initiation</text>
+<rect x="850" y="410" width="300" height="125" fill="#eef3f7" stroke="#a8bbc9"/>
+<rect x="850" y="410" width="5" height="125" fill="#285a86" stroke="#285a86"/>
+<text x="866" y="438.77" font-family="Arial,Helvetica,sans-serif" font-size="19" font-weight="700" fill="#285a86">UNKNOWN</text>
+<text x="866" y="468.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">Investigate; never automatically retry</text>
+<text x="40" y="640.45" font-family="Arial,Helvetica,sans-serif" font-size="15" font-weight="400" fill="#637385">Gateway initiation and remote completion are different facts. Claim timeout must exceed the finite executor timeout.</text>
+</svg>

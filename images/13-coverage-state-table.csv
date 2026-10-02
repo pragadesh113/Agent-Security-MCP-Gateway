@@ -1,0 +1,5 @@
+State,Meaning,Protection claim
+ENFORCED,"Authenticated, governed, audited, fail-safe and exclusively mediated",Exact declared path only; current trusted evidence required.
+DEGRADED,A required guarantee or bypass control is incomplete,Block protected mutations.
+OBSERVE_ONLY,Recorded traffic cannot reliably be blocked,No enforcement claim.
+UNPROTECTED,No verified enforcing path exists,Current deployment state; protected forwarding disabled.

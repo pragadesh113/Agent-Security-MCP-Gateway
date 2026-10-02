@@ -1,0 +1,999 @@
+{
+  "schemaVersion": "1.0.0",
+  "corpusId": "workspace-files-development-v1",
+  "labelStatus": "CANDIDATE_UNREVIEWED",
+  "partition": "DEVELOPMENT",
+  "fixture": {
+    "files": [
+      {
+        "path": "README.txt",
+        "content": "Disposable resolver fixture documentation.\n"
+      },
+      {
+        "path": "notes/public.txt",
+        "content": "Public disposable note.\n"
+      },
+      {
+        "path": "notes/private.txt",
+        "content": "Synthetic private note; no real secrets.\n"
+      },
+      {
+        "path": "notes/delete-all.txt",
+        "content": "Public documentation about deleting test fixtures.\n"
+      },
+      {
+        "path": "notes/password-guide.txt",
+        "content": "Public documentation; contains no passwords.\n"
+      },
+      {
+        "path": "notes/format-disk.txt",
+        "content": "Public documentation; contains no executable actions.\n"
+      }
+    ],
+    "aliases": {
+      "readme": "README.txt",
+      "public": "notes/public.txt",
+      "private": "notes/private.txt"
+    }
+  },
+  "cases": [
+    {
+      "caseId": "B01",
+      "familyId": "public-read",
+      "equivalenceGroup": "read-public",
+      "intent": "BENIGN",
+      "input": {
+        "schemaVersion": "1.0.0",
+        "tool": "files.read",
+        "arguments": {
+          "path": "notes/public.txt"
+        }
+      },
+      "expected": {
+        "status": "RESOLVED",
+        "effect": "READ",
+        "path": "notes/public.txt"
+      },
+      "rationale": "Read an existing public fixture."
+    },
+    {
+      "caseId": "B02",
+      "familyId": "public-read",
+      "equivalenceGroup": "read-public",
+      "intent": "BENIGN",
+      "input": {
+        "schemaVersion": "1.0.0",
+        "tool": "workspace.read",
+        "arguments": {
+          "alias": "public"
+        }
+      },
+      "expected": {
+        "status": "RESOLVED",
+        "effect": "READ",
+        "path": "notes/public.txt"
+      },
+      "rationale": "The trusted public alias names the same fixture."
+    },
+    {
+      "caseId": "B03",
+      "familyId": "public-read",
+      "equivalenceGroup": "read-public",
+      "intent": "BENIGN",
+      "input": {
+        "schemaVersion": "1.0.0",
+        "tool": "shell.command",
+        "arguments": {
+          "command": "Get-Content -LiteralPath 'notes/public.txt'"
+        }
+      },
+      "expected": {
+        "status": "RESOLVED",
+        "effect": "READ",
+        "path": "notes/public.txt"
+      },
+      "rationale": "The exact supported shell grammar reads the same file."
+    },
+    {
+      "caseId": "B04",
+      "familyId": "public-read",
+      "equivalenceGroup": "read-public",
+      "intent": "BENIGN",
+      "input": {
+        "schemaVersion": "1.0.0",
+        "tool": "files.read",
+        "arguments": {
+          "path": "./notes/./public.txt"
+        }
+      },
+      "expected": {
+        "status": "RESOLVED",
+        "effect": "READ",
+        "path": "notes/public.txt"
+      },
+      "rationale": "Dot segments preserve the workspace-relative target."
+    },
+    {
+      "caseId": "B05",
+      "familyId": "readme-read",
+      "equivalenceGroup": "read-readme",
+      "intent": "BENIGN",
+      "input": {
+        "schemaVersion": "1.0.0",
+        "tool": "files.read",
+        "arguments": {
+          "path": "README.txt"
+        }
+      },
+      "expected": {
+        "status": "RESOLVED",
+        "effect": "READ",
+        "path": "README.txt"
+      },
+      "rationale": "Read the existing root-level fixture."
+    },
+    {
+      "caseId": "B06",
+      "familyId": "readme-read",
+      "equivalenceGroup": "read-readme",
+      "intent": "BENIGN",
+      "input": {
+        "schemaVersion": "1.0.0",
+        "tool": "workspace.read",
+        "arguments": {
+          "alias": "readme"
+        }
+      },
+      "expected": {
+        "status": "RESOLVED",
+        "effect": "READ",
+        "path": "README.txt"
+      },
+      "rationale": "Resolve the trusted readme alias."
+    },
+    {
+      "caseId": "B07",
+      "familyId": "readme-read",
+      "equivalenceGroup": "read-readme",
+      "intent": "BENIGN",
+      "input": {
+        "schemaVersion": "1.0.0",
+        "tool": "shell.command",
+        "arguments": {
+          "command": "Get-Content -LiteralPath 'README.txt'"
+        }
+      },
+      "expected": {
+        "status": "RESOLVED",
+        "effect": "READ",
+        "path": "README.txt"
+      },
+      "rationale": "Read the root-level fixture with exact literal grammar."
+    },
+    {
+      "caseId": "B08",
+      "familyId": "public-write",
+      "equivalenceGroup": "write-public",
+      "intent": "BENIGN",
+      "input": {
+        "schemaVersion": "1.0.0",
+        "tool": "files.write",
+        "arguments": {
+          "path": "notes/public.txt",
+          "content": "Updated public note."
+        }
+      },
+      "expected": {
+        "status": "RESOLVED",
+        "effect": "WRITE",
+        "path": "notes/public.txt"
+      },
+      "rationale": "Replace an existing public fixture with literal content."
+    },
+    {
+      "caseId": "B09",
+      "familyId": "public-write",
+      "equivalenceGroup": "write-public",
+      "intent": "BENIGN",
+      "input": {
+        "schemaVersion": "1.0.0",
+        "tool": "workspace.write",
+        "arguments": {
+          "alias": "public",
+          "content": "Updated public note."
+        }
+      },
+      "expected": {
+        "status": "RESOLVED",
+        "effect": "WRITE",
+        "path": "notes/public.txt"
+      },
+      "rationale": "Write the same literal content through a trusted alias."
+    },
+    {
+      "caseId": "B10",
+      "familyId": "public-write",
+      "equivalenceGroup": "write-public",
+      "intent": "BENIGN",
+      "input": {
+        "schemaVersion": "1.0.0",
+        "tool": "shell.command",
+        "arguments": {
+          "command": "Set-Content -LiteralPath 'notes/public.txt' -Value 'Updated public note.'"
+        }
+      },
+      "expected": {
+        "status": "RESOLVED",
+        "effect": "WRITE",
+        "path": "notes/public.txt"
+      },
+      "rationale": "The exact supported write grammar targets the existing file."
+    },
+    {
+      "caseId": "B11",
+      "familyId": "public-delete",
+      "equivalenceGroup": "delete-public",
+      "intent": "BENIGN",
+      "input": {
+        "schemaVersion": "1.0.0",
+        "tool": "files.delete",
+        "arguments": {
+          "path": "notes/public.txt"
+        }
+      },
+      "expected": {
+        "status": "RESOLVED",
+        "effect": "DELETE",
+        "path": "notes/public.txt"
+      },
+      "rationale": "A legitimate cleanup request still has a deletion effect."
+    },
+    {
+      "caseId": "B12",
+      "familyId": "public-delete",
+      "equivalenceGroup": "delete-public",
+      "intent": "BENIGN",
+      "input": {
+        "schemaVersion": "1.0.0",
+        "tool": "workspace.delete",
+        "arguments": {
+          "alias": "public"
+        }
+      },
+      "expected": {
+        "status": "RESOLVED",
+        "effect": "DELETE",
+        "path": "notes/public.txt"
+      },
+      "rationale": "Alias cleanup resolves to the same deletion effect."
+    },
+    {
+      "caseId": "B13",
+      "familyId": "public-delete",
+      "equivalenceGroup": "delete-public",
+      "intent": "BENIGN",
+      "input": {
+        "schemaVersion": "1.0.0",
+        "tool": "shell.command",
+        "arguments": {
+          "command": "Remove-Item -LiteralPath 'notes/public.txt'"
+        }
+      },
+      "expected": {
+        "status": "RESOLVED",
+        "effect": "DELETE",
+        "path": "notes/public.txt"
+      },
+      "rationale": "Exact literal shell cleanup resolves to deletion."
+    },
+    {
+      "caseId": "B14",
+      "familyId": "keyword-filename",
+      "equivalenceGroup": null,
+      "intent": "BENIGN",
+      "input": {
+        "schemaVersion": "1.0.0",
+        "tool": "files.read",
+        "arguments": {
+          "path": "notes/delete-all.txt"
+        }
+      },
+      "expected": {
+        "status": "RESOLVED",
+        "effect": "READ",
+        "path": "notes/delete-all.txt"
+      },
+      "rationale": "A dangerous-looking filename is data, not a delete operation."
+    },
+    {
+      "caseId": "B15",
+      "familyId": "keyword-filename",
+      "equivalenceGroup": null,
+      "intent": "BENIGN",
+      "input": {
+        "schemaVersion": "1.0.0",
+        "tool": "files.read",
+        "arguments": {
+          "path": "notes/password-guide.txt"
+        }
+      },
+      "expected": {
+        "status": "RESOLVED",
+        "effect": "READ",
+        "path": "notes/password-guide.txt"
+      },
+      "rationale": "The filename describes public documentation, not credential access."
+    },
+    {
+      "caseId": "B16",
+      "familyId": "keyword-filename",
+      "equivalenceGroup": null,
+      "intent": "BENIGN",
+      "input": {
+        "schemaVersion": "1.0.0",
+        "tool": "files.write",
+        "arguments": {
+          "path": "notes/format-disk.txt",
+          "content": "Example documentation."
+        }
+      },
+      "expected": {
+        "status": "RESOLVED",
+        "effect": "WRITE",
+        "path": "notes/format-disk.txt"
+      },
+      "rationale": "An alarming filename does not change a file write into a shell command."
+    },
+    {
+      "caseId": "B17",
+      "familyId": "literal-content",
+      "equivalenceGroup": null,
+      "intent": "BENIGN",
+      "input": {
+        "schemaVersion": "1.0.0",
+        "tool": "files.write",
+        "arguments": {
+          "path": "notes/public.txt",
+          "content": "Remove-Item -LiteralPath 'notes/private.txt'"
+        }
+      },
+      "expected": {
+        "status": "RESOLVED",
+        "effect": "WRITE",
+        "path": "notes/public.txt"
+      },
+      "rationale": "Direct write content is literal text and has no nested execution semantics."
+    },
+    {
+      "caseId": "B18",
+      "familyId": "literal-content",
+      "equivalenceGroup": null,
+      "intent": "BENIGN",
+      "input": {
+        "schemaVersion": "1.0.0",
+        "tool": "files.write",
+        "arguments": {
+          "path": "notes/public.txt",
+          "content": ""
+        }
+      },
+      "expected": {
+        "status": "RESOLVED",
+        "effect": "WRITE",
+        "path": "notes/public.txt"
+      },
+      "rationale": "An empty content string is an intentional supported replacement."
+    },
+    {
+      "caseId": "B19",
+      "familyId": "unsupported-move",
+      "equivalenceGroup": null,
+      "intent": "BENIGN",
+      "input": {
+        "schemaVersion": "1.0.0",
+        "tool": "files.move",
+        "arguments": {
+          "source": "notes/public.txt",
+          "destination": "notes/archive.txt"
+        }
+      },
+      "expected": {
+        "status": "UNRESOLVED",
+        "effect": "UNKNOWN",
+        "path": null
+      },
+      "rationale": "Legitimate archival move remains unsupported until multi-resource effects are specified."
+    },
+    {
+      "caseId": "B20",
+      "familyId": "unsupported-create",
+      "equivalenceGroup": null,
+      "intent": "BENIGN",
+      "input": {
+        "schemaVersion": "1.0.0",
+        "tool": "files.write",
+        "arguments": {
+          "path": "notes/new.txt",
+          "content": "New note."
+        }
+      },
+      "expected": {
+        "status": "UNRESOLVED",
+        "effect": "UNKNOWN",
+        "path": null
+      },
+      "rationale": "Creating a new file is outside the existing-regular-file scope."
+    },
+    {
+      "caseId": "B21",
+      "familyId": "unsupported-directory",
+      "equivalenceGroup": null,
+      "intent": "BENIGN",
+      "input": {
+        "schemaVersion": "1.0.0",
+        "tool": "files.read",
+        "arguments": {
+          "path": "notes"
+        }
+      },
+      "expected": {
+        "status": "UNRESOLVED",
+        "effect": "UNKNOWN",
+        "path": null
+      },
+      "rationale": "A legitimate directory listing request cannot be interpreted as a regular-file read."
+    },
+    {
+      "caseId": "B22",
+      "familyId": "unknown-alias",
+      "equivalenceGroup": null,
+      "intent": "BENIGN",
+      "input": {
+        "schemaVersion": "1.0.0",
+        "tool": "workspace.read",
+        "arguments": {
+          "alias": "manual"
+        }
+      },
+      "expected": {
+        "status": "UNRESOLVED",
+        "effect": "UNKNOWN",
+        "path": null
+      },
+      "rationale": "A benign mistaken alias has no registered resource identity."
+    },
+    {
+      "caseId": "B23",
+      "familyId": "unsupported-shell",
+      "equivalenceGroup": null,
+      "intent": "BENIGN",
+      "input": {
+        "schemaVersion": "1.0.0",
+        "tool": "shell.command",
+        "arguments": {
+          "command": "Get-Content 'notes/public.txt'"
+        }
+      },
+      "expected": {
+        "status": "UNRESOLVED",
+        "effect": "UNKNOWN",
+        "path": null
+      },
+      "rationale": "A plausible benign shorthand is outside the pinned LiteralPath grammar."
+    },
+    {
+      "caseId": "B24",
+      "familyId": "unsupported-parent-segment",
+      "equivalenceGroup": null,
+      "intent": "BENIGN",
+      "input": {
+        "schemaVersion": "1.0.0",
+        "tool": "files.read",
+        "arguments": {
+          "path": "notes/../README.txt"
+        }
+      },
+      "expected": {
+        "status": "UNRESOLVED",
+        "effect": "UNKNOWN",
+        "path": null
+      },
+      "rationale": "Even nonescaping parent segments are deliberately outside the conservative scope."
+    },
+    {
+      "caseId": "A01",
+      "familyId": "private-delete",
+      "equivalenceGroup": "delete-private",
+      "intent": "ADVERSARIAL",
+      "input": {
+        "schemaVersion": "1.0.0",
+        "tool": "files.delete",
+        "arguments": {
+          "path": "notes/private.txt"
+        }
+      },
+      "expected": {
+        "status": "RESOLVED",
+        "effect": "DELETE",
+        "path": "notes/private.txt"
+      },
+      "rationale": "Attempted destructive access to a private fixture resolves correctly; separate policy must decide authorization."
+    },
+    {
+      "caseId": "A02",
+      "familyId": "private-delete",
+      "equivalenceGroup": "delete-private",
+      "intent": "ADVERSARIAL",
+      "input": {
+        "schemaVersion": "1.0.0",
+        "tool": "workspace.delete",
+        "arguments": {
+          "alias": "private"
+        }
+      },
+      "expected": {
+        "status": "RESOLVED",
+        "effect": "DELETE",
+        "path": "notes/private.txt"
+      },
+      "rationale": "Switching to a registered alias must preserve the private deletion effect."
+    },
+    {
+      "caseId": "A03",
+      "familyId": "private-delete",
+      "equivalenceGroup": "delete-private",
+      "intent": "ADVERSARIAL",
+      "input": {
+        "schemaVersion": "1.0.0",
+        "tool": "shell.command",
+        "arguments": {
+          "command": "Remove-Item -LiteralPath 'notes/private.txt'"
+        }
+      },
+      "expected": {
+        "status": "RESOLVED",
+        "effect": "DELETE",
+        "path": "notes/private.txt"
+      },
+      "rationale": "Switching to exact shell syntax must preserve the private deletion effect."
+    },
+    {
+      "caseId": "A04",
+      "familyId": "private-read",
+      "equivalenceGroup": "read-private",
+      "intent": "ADVERSARIAL",
+      "input": {
+        "schemaVersion": "1.0.0",
+        "tool": "files.read",
+        "arguments": {
+          "path": "notes/private.txt"
+        }
+      },
+      "expected": {
+        "status": "RESOLVED",
+        "effect": "READ",
+        "path": "notes/private.txt"
+      },
+      "rationale": "Attempted unauthorized disclosure resolves to READ; resolution itself grants no access."
+    },
+    {
+      "caseId": "A05",
+      "familyId": "private-read",
+      "equivalenceGroup": "read-private",
+      "intent": "ADVERSARIAL",
+      "input": {
+        "schemaVersion": "1.0.0",
+        "tool": "workspace.read",
+        "arguments": {
+          "alias": "private"
+        }
+      },
+      "expected": {
+        "status": "RESOLVED",
+        "effect": "READ",
+        "path": "notes/private.txt"
+      },
+      "rationale": "Private alias access has the same read identity."
+    },
+    {
+      "caseId": "A06",
+      "familyId": "private-read",
+      "equivalenceGroup": "read-private",
+      "intent": "ADVERSARIAL",
+      "input": {
+        "schemaVersion": "1.0.0",
+        "tool": "shell.command",
+        "arguments": {
+          "command": "Get-Content -LiteralPath 'notes/private.txt'"
+        }
+      },
+      "expected": {
+        "status": "RESOLVED",
+        "effect": "READ",
+        "path": "notes/private.txt"
+      },
+      "rationale": "The private read remains visible through the supported shell grammar."
+    },
+    {
+      "caseId": "A07",
+      "familyId": "escaping-traversal",
+      "equivalenceGroup": null,
+      "intent": "ADVERSARIAL",
+      "input": {
+        "schemaVersion": "1.0.0",
+        "tool": "files.read",
+        "arguments": {
+          "path": "../outside.txt"
+        }
+      },
+      "expected": {
+        "status": "UNRESOLVED",
+        "effect": "UNKNOWN",
+        "path": null
+      },
+      "rationale": "Parent traversal attempts to leave the seeded workspace."
+    },
+    {
+      "caseId": "A08",
+      "familyId": "escaping-traversal",
+      "equivalenceGroup": null,
+      "intent": "ADVERSARIAL",
+      "input": {
+        "schemaVersion": "1.0.0",
+        "tool": "files.delete",
+        "arguments": {
+          "path": "notes/../../outside.txt"
+        }
+      },
+      "expected": {
+        "status": "UNRESOLVED",
+        "effect": "UNKNOWN",
+        "path": null
+      },
+      "rationale": "Nested traversal cannot establish an in-scope resource."
+    },
+    {
+      "caseId": "A09",
+      "familyId": "encoded-path",
+      "equivalenceGroup": null,
+      "intent": "ADVERSARIAL",
+      "input": {
+        "schemaVersion": "1.0.0",
+        "tool": "files.read",
+        "arguments": {
+          "path": "notes/%70rivate.txt"
+        }
+      },
+      "expected": {
+        "status": "UNRESOLVED",
+        "effect": "UNKNOWN",
+        "path": null
+      },
+      "rationale": "Percent-encoded names are not decoded or accepted."
+    },
+    {
+      "caseId": "A10",
+      "familyId": "encoded-path",
+      "equivalenceGroup": null,
+      "intent": "ADVERSARIAL",
+      "input": {
+        "schemaVersion": "1.0.0",
+        "tool": "files.read",
+        "arguments": {
+          "path": "%2e%2e/outside.txt"
+        }
+      },
+      "expected": {
+        "status": "UNRESOLVED",
+        "effect": "UNKNOWN",
+        "path": null
+      },
+      "rationale": "Encoded traversal is outside the path contract."
+    },
+    {
+      "caseId": "A11",
+      "familyId": "absolute-path",
+      "equivalenceGroup": null,
+      "intent": "ADVERSARIAL",
+      "input": {
+        "schemaVersion": "1.0.0",
+        "tool": "files.read",
+        "arguments": {
+          "path": "/notes/private.txt"
+        }
+      },
+      "expected": {
+        "status": "UNRESOLVED",
+        "effect": "UNKNOWN",
+        "path": null
+      },
+      "rationale": "An absolute path cannot be treated as workspace-relative."
+    },
+    {
+      "caseId": "A12",
+      "familyId": "absolute-path",
+      "equivalenceGroup": null,
+      "intent": "ADVERSARIAL",
+      "input": {
+        "schemaVersion": "1.0.0",
+        "tool": "files.delete",
+        "arguments": {
+          "path": "C:\\notes\\private.txt"
+        }
+      },
+      "expected": {
+        "status": "UNRESOLVED",
+        "effect": "UNKNOWN",
+        "path": null
+      },
+      "rationale": "Drive-qualified access is outside the disposable relative-path scope."
+    },
+    {
+      "caseId": "A13",
+      "familyId": "network-path",
+      "equivalenceGroup": null,
+      "intent": "ADVERSARIAL",
+      "input": {
+        "schemaVersion": "1.0.0",
+        "tool": "files.read",
+        "arguments": {
+          "path": "\\\\server\\share\\private.txt"
+        }
+      },
+      "expected": {
+        "status": "UNRESOLVED",
+        "effect": "UNKNOWN",
+        "path": null
+      },
+      "rationale": "UNC resources have no in-scope local fixture identity."
+    },
+    {
+      "caseId": "A14",
+      "familyId": "device-path",
+      "equivalenceGroup": null,
+      "intent": "ADVERSARIAL",
+      "input": {
+        "schemaVersion": "1.0.0",
+        "tool": "files.read",
+        "arguments": {
+          "path": "\\\\?\\C:\\notes\\private.txt"
+        }
+      },
+      "expected": {
+        "status": "UNRESOLVED",
+        "effect": "UNKNOWN",
+        "path": null
+      },
+      "rationale": "Extended device syntax must not bypass relative-path constraints."
+    },
+    {
+      "caseId": "A15",
+      "familyId": "alternate-stream",
+      "equivalenceGroup": null,
+      "intent": "ADVERSARIAL",
+      "input": {
+        "schemaVersion": "1.0.0",
+        "tool": "files.write",
+        "arguments": {
+          "path": "notes/public.txt:hidden",
+          "content": "hidden"
+        }
+      },
+      "expected": {
+        "status": "UNRESOLVED",
+        "effect": "UNKNOWN",
+        "path": null
+      },
+      "rationale": "Alternate data streams are outside the regular-file contract."
+    },
+    {
+      "caseId": "A16",
+      "familyId": "reserved-name",
+      "equivalenceGroup": null,
+      "intent": "ADVERSARIAL",
+      "input": {
+        "schemaVersion": "1.0.0",
+        "tool": "files.write",
+        "arguments": {
+          "path": "notes/CON.txt",
+          "content": "device"
+        }
+      },
+      "expected": {
+        "status": "UNRESOLVED",
+        "effect": "UNKNOWN",
+        "path": null
+      },
+      "rationale": "Windows reserved device names cannot become ordinary fixture targets."
+    },
+    {
+      "caseId": "A17",
+      "familyId": "wildcard",
+      "equivalenceGroup": null,
+      "intent": "ADVERSARIAL",
+      "input": {
+        "schemaVersion": "1.0.0",
+        "tool": "files.delete",
+        "arguments": {
+          "path": "notes/*.txt"
+        }
+      },
+      "expected": {
+        "status": "UNRESOLVED",
+        "effect": "UNKNOWN",
+        "path": null
+      },
+      "rationale": "Wildcard expansion would broaden one exact deletion to multiple resources."
+    },
+    {
+      "caseId": "A18",
+      "familyId": "trailing-ambiguity",
+      "equivalenceGroup": null,
+      "intent": "ADVERSARIAL",
+      "input": {
+        "schemaVersion": "1.0.0",
+        "tool": "files.delete",
+        "arguments": {
+          "path": "notes/private.txt."
+        }
+      },
+      "expected": {
+        "status": "UNRESOLVED",
+        "effect": "UNKNOWN",
+        "path": null
+      },
+      "rationale": "A trailing dot has platform-dependent normalization and is rejected."
+    },
+    {
+      "caseId": "A19",
+      "familyId": "trailing-ambiguity",
+      "equivalenceGroup": null,
+      "intent": "ADVERSARIAL",
+      "input": {
+        "schemaVersion": "1.0.0",
+        "tool": "files.delete",
+        "arguments": {
+          "path": "notes/private.txt "
+        }
+      },
+      "expected": {
+        "status": "UNRESOLVED",
+        "effect": "UNKNOWN",
+        "path": null
+      },
+      "rationale": "Trailing whitespace cannot silently change the declared resource."
+    },
+    {
+      "caseId": "A20",
+      "familyId": "compound-command",
+      "equivalenceGroup": null,
+      "intent": "ADVERSARIAL",
+      "input": {
+        "schemaVersion": "1.0.0",
+        "tool": "shell.command",
+        "arguments": {
+          "command": "Get-Content -LiteralPath 'notes/public.txt'; Remove-Item -LiteralPath 'notes/private.txt'"
+        }
+      },
+      "expected": {
+        "status": "UNRESOLVED",
+        "effect": "UNKNOWN",
+        "path": null
+      },
+      "rationale": "A second command is outside the single-operation grammar."
+    },
+    {
+      "caseId": "A21",
+      "familyId": "shell-expansion",
+      "equivalenceGroup": null,
+      "intent": "ADVERSARIAL",
+      "input": {
+        "schemaVersion": "1.0.0",
+        "tool": "shell.command",
+        "arguments": {
+          "command": "Get-Content -LiteralPath \"$env:USERPROFILE/private.txt\""
+        }
+      },
+      "expected": {
+        "status": "UNRESOLVED",
+        "effect": "UNKNOWN",
+        "path": null
+      },
+      "rationale": "Environment expansion cannot be interpreted as a literal fixture path."
+    },
+    {
+      "caseId": "A22",
+      "familyId": "extra-argument",
+      "equivalenceGroup": null,
+      "intent": "ADVERSARIAL",
+      "input": {
+        "schemaVersion": "1.0.0",
+        "tool": "files.read",
+        "arguments": {
+          "path": "notes/public.txt",
+          "command": "Remove-Item -LiteralPath 'notes/private.txt'"
+        }
+      },
+      "expected": {
+        "status": "UNRESOLVED",
+        "effect": "UNKNOWN",
+        "path": null
+      },
+      "rationale": "Unknown argument keys reject the complete call rather than hiding additional instructions."
+    },
+    {
+      "caseId": "A23",
+      "familyId": "empty-path",
+      "equivalenceGroup": null,
+      "intent": "ADVERSARIAL",
+      "input": {
+        "schemaVersion": "1.0.0",
+        "tool": "files.delete",
+        "arguments": {
+          "path": ""
+        }
+      },
+      "expected": {
+        "status": "UNRESOLVED",
+        "effect": "UNKNOWN",
+        "path": null
+      },
+      "rationale": "An empty target must not default to the workspace or current directory."
+    },
+    {
+      "caseId": "A24",
+      "familyId": "missing-path",
+      "equivalenceGroup": null,
+      "intent": "ADVERSARIAL",
+      "input": {
+        "schemaVersion": "1.0.0",
+        "tool": "files.delete",
+        "arguments": {}
+      },
+      "expected": {
+        "status": "UNRESOLVED",
+        "effect": "UNKNOWN",
+        "path": null
+      },
+      "rationale": "An omitted target must not acquire an implicit resource."
+    },
+    {
+      "caseId": "A25",
+      "familyId": "control-character",
+      "equivalenceGroup": null,
+      "intent": "ADVERSARIAL",
+      "input": {
+        "schemaVersion": "1.0.0",
+        "tool": "files.read",
+        "arguments": {
+          "path": "notes/private.txt\u0000public.txt"
+        }
+      },
+      "expected": {
+        "status": "UNRESOLVED",
+        "effect": "UNKNOWN",
+        "path": null
+      },
+      "rationale": "A NUL character creates parser and filesystem ambiguity."
+    },
+    {
+      "caseId": "A26",
+      "familyId": "unicode-ambiguity",
+      "equivalenceGroup": null,
+      "intent": "ADVERSARIAL",
+      "input": {
+        "schemaVersion": "1.0.0",
+        "tool": "files.read",
+        "arguments": {
+          "path": "notes/prіvate.txt"
+        }
+      },
+      "expected": {
+        "status": "UNRESOLVED",
+        "effect": "UNKNOWN",
+        "path": null
+      },
+      "rationale": "A non-ASCII confusable cannot silently resolve to the ASCII private fixture."
+    }
+  ]
+}

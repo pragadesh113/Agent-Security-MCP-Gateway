@@ -6,46 +6,58 @@
 
 **Report baseline:** 21 September 2026
 
+**Editorial and source review:** 1 October 2026; numerical results retain their original evidence dates
+
 **Technology:** TypeScript, Node.js 24+, Express 5, Zod 4, PostgreSQL, Vitest, Playwright
 
 **Current coverage:** `UNPROTECTED`
 
 **Production approved:** No
 
-> This is a beginner-first guide to the active Phase 2 repository. It explains what
-> the project is, why it exists, how requests move through it, how the source is
-> organized, how to run and test it, and what is still required for production.
-> The archived `phase-1/` tree is deliberately outside this report.
+This report explains the active Phase 2 implementation through its request path,
+source modules, runnable commands, and retained local evidence. It draws on the
+repository documents listed in Section 22. The report and companion research paper
+describe the same project; their overlapping component names, rules, and results
+should be read as shared project material. External protocol and security concepts
+are attributed where they are introduced. The archived `phase-1/` tree is outside
+the report's scope.
+
+The [visual atlas](images/gallery.html) contains 24 original diagrams, tables,
+and charts, with editable SVG, vector PDF, high-resolution PNG, and CSV data
+where applicable. Relevant figures accompany the sections below. The
+[verification record](docs/document-originality-and-visuals.md) explains the
+source checks, figure provenance, and limits of the originality review.
 
 ---
 
 ## 1. Executive summary
 
-AI agents are no longer limited to producing text. Through the Model Context Protocol
-(MCP), an agent can discover tools and ask servers to read files, query databases,
-call APIs, or change external systems. That creates a security problem: model output,
-tool descriptions, tool arguments, and tool results can all be wrong or hostile.
+The default demonstration in this repository ends with a denied tool call and zero
+downstream calls. That outcome is deliberate: the gateway must establish authority
+and coverage before it can release a protected operation. MCP supplies the tool
+discovery and invocation mechanism; this project adds a separate authorization path.
+The protocol's tool interface and security guidance are defined in the
+[MCP tools specification, revision 2025-06-18](https://modelcontextprotocol.io/specification/2025-06-18/server/tools).
 
-This project places a security gateway between an MCP client and downstream MCP
-servers. The gateway behaves as a **reference monitor**: a control point through which
-supported MCP operations must pass. It authenticates the caller, validates protocol
-state, resolves the requested operation to a canonical resource and effect, applies
-deterministic policy, asks a separately authenticated human for one exact approval
-when necessary, forwards at most one authorized request using a gateway-held
-credential, validates the downstream result, and writes a linked audit trajectory to
-PostgreSQL.
+For a supported call, the gateway authenticates the client, checks the protocol
+session and registered route, and constructs a canonical action. Policy evaluates
+the target resource, requested effect, environment, and data flow. When approval is
+required, a separately authenticated human can authorize one exact attempt. The
+gateway then rechecks the bindings, consumes approval transactionally, obtains the
+route-bound credential, and governs the returned data before exposing it to the
+client. PostgreSQL retains the linked request-to-outcome record.
 
-The most important idea is that policy follows the **effect**, not the tool name. A
-dangerous operation should remain dangerous when it is expressed through another
-server, alias, path spelling, encoding, syntax, retry, or transport.
+Consider two tools that can remove the same database table. Changing the tool name
+must not change the authorization for that effect. The project's research question
+is whether this property holds across the representations and routes it supports,
+while legitimate tasks still complete. Architecture and passing component tests
+alone do not answer that comparative research question.
 
-All 21 Phase 2 feature records are complete for the approved local, non-production
-scope. The repository has substantial unit, integration, browser, PostgreSQL, Vault,
-open-source MCP interoperability, container, SBOM, manifest, and reproducibility
-evidence. That does **not** make it production-ready. No deployment has yet proved
-that native shell, browser, filesystem, network, or direct-credential paths are
-independently blocked. For that reason, the truthful global coverage remains
-`UNPROTECTED`, and protected production forwarding remains disabled.
+The approved local deliverable contains 21 completed feature records. Its retained
+evidence covers unit, integration, browser, PostgreSQL, Vault, interoperability, and
+release workflows, as detailed in Sections 13–16. A deployment has not established
+that native or direct access to the same resources is blocked. Global coverage
+therefore remains `UNPROTECTED`, with protected production forwarding disabled.
 
 ## 2. A five-minute mental model
 
@@ -94,7 +106,12 @@ dependency is unavailable, sensitive or state-changing work fails closed.
 
 ### 3.2 Simplified MCP lifecycle
 
-The implementation pins MCP revision `2025-06-18`.
+The implementation pins MCP revision `2025-06-18`. The initialization handshake and
+version/capability negotiation follow the
+[versioned MCP lifecycle specification](https://modelcontextprotocol.io/specification/2025-06-18/basic/lifecycle).
+The listing and invocation methods below come from the
+[versioned tools specification](https://modelcontextprotocol.io/specification/2025-06-18/server/tools);
+the gateway's fresh authorization check is a project enforcement rule.
 
 ```text
 client -> initialize request
@@ -109,6 +126,10 @@ gateway -> fresh authorization and, only when permitted, execution
 Discovery is not authorization. A tool visible during `tools/list` may be unhealthy,
 revoked, drifted, or forbidden by the time `tools/call` arrives, so the call is always
 evaluated again.
+
+![MCP lifecycle and authorization checkpoints](images/03-mcp-lifecycle.png)
+
+*Lifecycle negotiation permits communication; it does not grant blanket authorization.*
 
 ### 3.3 Why MCP needs an external security boundary
 
@@ -125,6 +146,25 @@ to create an effect. Relevant threats include:
 - secret leakage through logs, databases, supervisors, UI, or returned content;
 - dependency failure and ambiguous downstream outcomes; and
 - direct paths around the gateway that make a protection claim false.
+
+### 3.4 Design lineage and project contribution
+
+Checking access at a trusted boundary, defaulting safely, and limiting authority
+are established security design principles. Saltzer and Schroeder describe complete
+mediation, fail-safe defaults, and least privilege in
+[*The Protection of Information in Computer Systems*](https://web.mit.edu/Saltzer/www/publications/protection/Basic.html)
+(1975). This report applies those principles to the gateway; it does not present
+them as new inventions.
+
+He and colleagues examine agent tool use and environment access from a systems
+security perspective in [*Security of AI Agents*](https://arxiv.org/abs/2406.08689)
+(2024 preprint). That work motivates treating tool execution as a security problem
+beyond the generated answer. The repository's broader research synthesis is in
+[docs/research.md](docs/research.md). The project-specific work described here is
+the combination of canonical effect authorization, exact approval consumption,
+result governance, and evidence-scoped coverage. Demonstrating an advantage over
+other systems still requires the comparative evaluation described in the research
+paper and protocol.
 
 ## 4. Scope, goals, and non-goals
 
@@ -202,6 +242,10 @@ The design separates protocol adapters from host-neutral security logic. This ma
 the contracts, policy, approval, result, trust, and evaluation components reusable
 across transports and MCP hosts.
 
+![Bidirectional MCP reference monitor](images/01-gateway-architecture.png)
+
+*Separate request and result governance surrounds exact downstream forwarding.*
+
 ## 7. End-to-end call flow
 
 ### 7.1 Request phase
@@ -239,6 +283,10 @@ sequenceDiagram
     end
 ```
 
+![Agent request, decision and governed result](images/02-agent-request-result-flow.png)
+
+*Every intermediate request and result requires its own boundary checks.*
+
 ### 7.2 Decision branches
 
 | Decision | Meaning |
@@ -248,6 +296,10 @@ sequenceDiagram
 | `SANDBOX` | Execute only inside a named, verifiable isolation profile. |
 | `ALLOW_WITH_CONSTRAINTS` | Execute only after enforceable request/result restrictions are applied. |
 | `ALLOW` | Execute because policy, parsing, scope, and coverage permit it. |
+
+![Most-restrictive decision composition](images/06-policy-precedence.png)
+
+*Policy joins select the most restrictive decision; conflicting enforcement resolves to denial.*
 
 ### 7.3 Risk tiers
 
@@ -260,6 +312,10 @@ sequenceDiagram
 
 Unknown parsing can never become Tier 0 or Tier 1. Tests, linters, builds, and package
 commands are at least Tier 2 when they can execute repository or dependency code.
+
+![Risk tiers and required treatment](images/07-risk-tier-table.png)
+
+*Four risk tiers preserve immutable high-risk approval requirements.*
 
 ## 8. Source modules
 
@@ -318,6 +374,10 @@ revision, approval, action hash, and forwarding attempt. Secret bytes exist only
 inside the non-redirecting credential-consuming sink and are zeroized in `finally`.
 The concrete provider supports exact-version HashiCorp Vault KV v2 reads.
 
+![Credential custody and the non-exporting sink](images/12-credential-custody.png)
+
+*The broker binds gateway-only credential use to the exact authorized attempt.*
+
 ### 8.3 Discovery and routing
 
 The registry pins authenticated server identity, protocol revision, capabilities,
@@ -327,6 +387,10 @@ schema does not silently restore it; an authenticated administrator must review 
 current state. Duplicate IDs, shadowed public names, cross-server bindings, and
 ambiguous routes are rejected.
 
+![Integrity-checked discovery and route quarantine](images/15-discovery-integrity.png)
+
+*Schema or capability drift latches quarantine; later matching metadata is not automatic restoration.*
+
 ### 8.4 Protocol guard
 
 Admission requires bounded timestamps, nonces, request IDs, and session-scoped replay
@@ -335,6 +399,10 @@ destination, and action family. The guard also bounds payload/result size, call 
 delegation depth, fan-out, concurrency, redirects, retries, and total execution time.
 Ancestry detects recursion. Abort signals propagate cancellation, and circuit breakers
 deny work while a required dependency is unhealthy.
+
+![Protocol admission and bounded execution](images/16-protocol-guard-table.png)
+
+*Protocol guards bound replay and resource abuse without granting authorization.*
 
 ### 8.5 Canonicalization and analyzers
 
@@ -350,6 +418,18 @@ browser, process, deployment, schema
 
 Missing, failing, partial, version-mismatched, or category-substituted analysis becomes
 an explicit unresolved action. The engine never guesses that it is safe.
+
+![From syntax to a canonical security action](images/04-canonical-resolution.png)
+
+*Canonicalization joins trusted semantic findings with exact invocation bindings.*
+
+![Equivalent effects, separate approvals](images/05-representation-invariance.png)
+
+*Three trusted-resolver variants share destructive policy; their exact execution bindings remain separate.*
+
+![Candidate resolver development corpus](images/23-candidate-corpus-inventory.png)
+
+*Candidate corpus composition is an inventory, not independently reviewed resolver accuracy.*
 
 ### 8.6 Human approval and browser UI
 
@@ -374,6 +454,18 @@ before execution. Recovery revokes a stale unconsumed approval with zero forward
 If approval was consumed but no outcome exists, recovery records `UNKNOWN` with
 possible partial effects and does not retry.
 
+![Exact human approval and atomic consumption](images/08-approval-single-use.png)
+
+*Approval is consumed transactionally and permits at most one gateway initiation.*
+
+![Competing consumers of one approval](images/09-approval-concurrency.png)
+
+*The database permits one consumption and rejects its competitor.*
+
+![Conservative recovery after interruption](images/10-restart-recovery.png)
+
+*Recovery separates unconsumed authorization from consumed uncertain execution.*
+
 ### 8.7 Result mediation
 
 Every downstream result, error, resource, and metadata object remains untrusted. The
@@ -382,6 +474,10 @@ action, and call chain; enforces size and schema; refuses redirects; classifies 
 redacts known secrets; applies egress policy; and marks released content as data rather
 than instruction. Outcomes can be released, redacted, denied, or quarantined. A
 quarantined result cannot create positive trust evidence.
+
+![A permitted request can yield a prohibited result](images/11-result-governance.png)
+
+*Authenticated provenance identifies a source; it does not make content truthful or safe.*
 
 ### 8.8 Coverage
 
@@ -399,6 +495,14 @@ class, scope, freshness, TTL, revision, rollback, and equivocation.
 Disposable evidence cannot establish deployment assurance. A reachable bypass
 immediately degrades coverage and blocks mutations.
 
+![Truthful coverage is scoped evidence](images/13-coverage-state-table.png)
+
+*Coverage reports guarantees for a declared scope rather than feature-completion percentages.*
+
+![MCP mediation and native/direct bypass paths](images/14-bypass-trust-boundaries.png)
+
+*Native and direct paths are outside MCP mediation unless independently constrained.*
+
 ### 8.9 Dynamic trust and LLM supervisor
 
 Dynamic trust begins in `SHADOW`: it computes research counterfactuals but cannot
@@ -412,6 +516,10 @@ The optional LLM supervisor receives only minimal allowlisted semantic context a
 redacted, delimited untrusted fragments. It can recommend only `DENY` or
 `REQUIRE_APPROVAL`; it cannot allow a call. Timeout, invalid output, low confidence,
 provider failure, or audit failure falls back to deterministic policy or fails closed.
+
+![Shadow trust and advisory supervision](images/19-trust-supervisor-boundaries.png)
+
+*Trust stays observational; supervisor output cannot weaken immutable decisions.*
 
 ## 9. PostgreSQL data model
 
@@ -441,6 +549,10 @@ Important persistence properties:
   nonce, authentication tag, key ID, and request-bound additional data;
 - the external 32-byte encryption key is never stored in PostgreSQL; and
 - known configured secrets are rejected before any database query.
+
+![The complete request-to-outcome audit trajectory](images/17-audit-trajectory.png)
+
+*Linked state distinguishes rejected proposals, approved attempts, remote effects and returned data.*
 
 ## 10. Runnable applications and interfaces
 
@@ -566,10 +678,16 @@ The project tests both safe workflows and attacks.
 | Interoperability | `scripts/verify-open-source-mcp-servers.mjs` | Pinned MCP Everything and Microsoft Playwright MCP servers |
 | Deployment/release | scripts plus Docker | Hardened disposable container, SBOM, manifest, reproducibility, dependency audit |
 
-The latest authoritative evidence records 32 unit files/295 tests, 15 integration
-files/66 tests, four browser workflows, and all 21 feature records passing. Those
-counts are a dated evidence snapshot, not a substitute for rerunning validation after
-changes.
+The [20 September 2026 release checkpoint in docs/progress.md](docs/progress.md)
+records 32 unit files/295 tests and 15 integration files/66 tests passing; the
+approval-UI checkpoint records four browser workflows. All 21 feature records passed
+for that local scope. These are retained checkpoint counts rather than measurements
+from the editorial review on 1 October 2026. Rerunning validation after implementation
+changes may produce different counts.
+
+![Historical local verification counts](images/21-historical-validation-counts.png)
+
+*Dated verification counts describe test inventory, not a security effectiveness rate.*
 
 ### 13.2 Mandatory validation
 
@@ -599,6 +717,10 @@ npm run test:browser
 - approval fatigue, misleading context, safe replanning, trust grinding, identity
   changes, audit gaps, delayed harm, and anomaly freezes.
 
+![Failure triggers and conservative behavior](images/18-failure-response-table.png)
+
+*Failure handling preserves authority and uncertainty across request and result boundaries.*
+
 ## 14. Local release and operational evidence
 
 Run the full local non-production preparation with Docker available:
@@ -620,10 +742,12 @@ The verified disposable container uses:
 - `no-new-privileges`; and
 - a non-root user.
 
-The latest evidence records a 277-component CycloneDX SBOM, 138 release-manifest file
-hashes plus image identity, a reproducible 264-file generated build, and zero npm audit
-vulnerabilities. Artifacts are unsigned, unpublished, local-only, not
-production-approved, and ineligible to establish `ENFORCED` coverage.
+The [20 September 2026 release checkpoint](docs/progress.md) records a 277-component
+CycloneDX SBOM, 138 release-manifest file hashes plus image identity, a reproducible
+264-file generated build, and zero npm audit vulnerabilities at that checkpoint.
+The [release-gate audit](docs/release-gate-audit.md) distinguishes this local evidence
+from the deferred production gates. The artifacts are unsigned, unpublished,
+local-only, and ineligible to establish `ENFORCED` coverage.
 
 Useful commands:
 
@@ -637,6 +761,10 @@ npm run release:verify
 npm run build:verify-reproducible
 npm run evidence:capture
 ```
+
+![Retained local MCP discovery observations](images/22-retained-mcp-tool-counts.png)
+
+*Pinned local servers advertise 13 and 26 tools; harmless selected calls succeed and unknown tools are rejected.*
 
 ## 15. Feature and milestone status
 
@@ -673,6 +801,14 @@ Until these exist, the correct claim is:
 
 > The repository demonstrates fail-closed MCP mediation with disposable local
 > resources. It does not demonstrate production protection or exclusive mediation.
+
+![Planned paired security and utility study](images/20-research-evaluation-design.png)
+
+*Independent semantic labels and paired trajectories are needed beyond local conformance.*
+
+![Local engineering completion and production assurance](images/24-release-assurance-table.png)
+
+*Local implementation completion does not satisfy deferred production assurance.*
 
 ## 17. How to read the code as a beginner
 
@@ -819,20 +955,30 @@ Operational companions:
 - `docs/security-review-packet.md` — future independent review scope; and
 - `docs/AGENTS.md` — repository working and validation rules.
 
+External sources used for protocol and design background:
+
+- Model Context Protocol, [Lifecycle, revision 2025-06-18](https://modelcontextprotocol.io/specification/2025-06-18/basic/lifecycle).
+- Model Context Protocol, [Tools, revision 2025-06-18](https://modelcontextprotocol.io/specification/2025-06-18/server/tools).
+- Jerome H. Saltzer and Michael D. Schroeder, [*The Protection of Information in Computer Systems*](https://web.mit.edu/Saltzer/www/publications/protection/), 1975.
+- Yifeng He, Ethan Wang, Yuyang Rong, Zifei Cheng, and Hao Chen, [*Security of AI Agents*](https://arxiv.org/abs/2406.08689), arXiv:2406.08689, 2024 preprint.
+
+These sources supply background, not the repository's test results. Source and
+originality review notes, including the limits of the checks, are retained in
+[report-assets/originality-review.md](report-assets/originality-review.md).
+
 ## 23. Final conclusion
 
-The Agent Security MCP Gateway is an effect-based, bidirectional security boundary for
-MCP traffic. Its architecture combines strict contracts, authenticated sessions,
-integrity-checked routing, abuse-resistant protocol handling, canonical deterministic
-policy, exact human approval, gateway-held credentials, governed results, durable
-PostgreSQL trajectories, truthful coverage, and reproducible evaluation.
+The repository provides a locally exercised MCP authorization path with durable
+approval and outcome records. Its strongest engineering claim is specific: the
+supported request and result boundaries have disposable test evidence, and the
+gateway refuses protected work when the required authority or coverage is absent.
 
-The local Phase 2 engineering work is complete and extensively exercised. The most
-important remaining lesson is also a security property: tested components do not
-justify a production-protection claim. Until independent isolation, review,
-credential custody, operational recovery, host evidence, and signed release evidence
-exist, the project must remain `UNPROTECTED` and production forwarding must remain
-disabled.
+The next assurance work must establish that an agent cannot reach the same resource
+through another path, assess the implementation independently, and exercise the
+operational and release controls. The research study must separately compare
+equivalent-effect decisions and legitimate task completion against baselines.
+Until the production gates in Section 16 are met, coverage remains `UNPROTECTED`
+and protected production forwarding remains disabled.
 
 The package metadata names Apache-2.0 as the target license, but no root license file
 currently grants that license. Do not assume redistribution permission beyond rights

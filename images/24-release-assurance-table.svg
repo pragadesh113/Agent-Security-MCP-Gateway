@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720" role="img"><title>Local engineering completion and production assurance</title><rect width="1200" height="720" fill="white"/>
+<text x="38" y="60.41" font-family="Arial,Helvetica,sans-serif" font-size="27" font-weight="700" fill="#203348">Local engineering completion and production assurance</text>
+<text x="38" y="88.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#637385">Separate evidence questions prevent a misleading protection claim.</text>
+<polyline points="38,104 1162,104" fill="none" stroke="#b7c6d2" stroke-width="1.4"/>
+<text x="38" y="694.79" font-family="Arial,Helvetica,sans-serif" font-size="13" font-weight="400" fill="#637385">Agent Security MCP Gateway | Phase 2 | Original repository figure</text>
+<rect x="40" y="140" width="280" height="48" fill="#285a86" stroke="#a8bbc9"/>
+<text x="52" y="165.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="700" fill="#ffffff">Evidence boundary</text>
+<rect x="320" y="140" width="420" height="48" fill="#285a86" stroke="#a8bbc9"/>
+<text x="332" y="165.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="700" fill="#ffffff">Recorded state</text>
+<rect x="740" y="140" width="420" height="48" fill="#285a86" stroke="#a8bbc9"/>
+<text x="752" y="165.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="700" fill="#ffffff">What remains outside the claim</text>
+<rect x="40" y="188" width="280" height="48" fill="#f2f5f8" stroke="#a8bbc9"/>
+<text x="52" y="213.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">Phase 2 implementation</text>
+<rect x="320" y="188" width="420" height="48" fill="#f2f5f8" stroke="#a8bbc9"/>
+<text x="332" y="213.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">21 locally complete feature records</text>
+<rect x="740" y="188" width="420" height="48" fill="#f2f5f8" stroke="#a8bbc9"/>
+<text x="752" y="213.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">Independent production security review.</text>
+<rect x="40" y="236" width="280" height="48" fill="#ffffff" stroke="#a8bbc9"/>
+<text x="52" y="261.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">Regression / workflows</text>
+<rect x="320" y="236" width="420" height="48" fill="#ffffff" stroke="#a8bbc9"/>
+<text x="332" y="261.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">295 unit; 66 integration; 4 browser (historical)</text>
+<rect x="740" y="236" width="420" height="48" fill="#ffffff" stroke="#a8bbc9"/>
+<text x="752" y="261.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">Adaptive comparative security/utility experiments.</text>
+<rect x="40" y="284" width="280" height="48" fill="#f2f5f8" stroke="#a8bbc9"/>
+<text x="52" y="309.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">Upstream interoperability</text>
+<rect x="320" y="284" width="420" height="48" fill="#f2f5f8" stroke="#a8bbc9"/>
+<text x="332" y="309.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">Two version-pinned locally launched servers</text>
+<rect x="740" y="284" width="420" height="48" fill="#f2f5f8" stroke="#a8bbc9"/>
+<text x="752" y="309.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">Independently administered host operation.</text>
+<rect x="40" y="332" width="280" height="48" fill="#ffffff" stroke="#a8bbc9"/>
+<text x="52" y="357.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">Local packaging</text>
+<rect x="320" y="332" width="420" height="48" fill="#ffffff" stroke="#a8bbc9"/>
+<text x="332" y="357.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">Unsigned and unpublished non-production artifacts</text>
+<rect x="740" y="332" width="420" height="48" fill="#ffffff" stroke="#a8bbc9"/>
+<text x="752" y="357.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">Signing, publication and operational ownership.</text>
+<rect x="40" y="380" width="280" height="48" fill="#f2f5f8" stroke="#a8bbc9"/>
+<text x="52" y="405.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">Deployment coverage</text>
+<rect x="320" y="380" width="420" height="48" fill="#f2f5f8" stroke="#a8bbc9"/>
+<text x="332" y="405.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">UNPROTECTED; protected forwarding disabled</text>
+<rect x="740" y="380" width="420" height="48" fill="#f2f5f8" stroke="#a8bbc9"/>
+<text x="752" y="405.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">Exclusive mediation and production credential custody.</text>
+</svg>

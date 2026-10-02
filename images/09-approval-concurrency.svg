@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720" role="img"><title>Competing consumers of one approval</title><rect width="1200" height="720" fill="white"/>
+<text x="38" y="60.41" font-family="Arial,Helvetica,sans-serif" font-size="27" font-weight="700" fill="#203348">Competing consumers of one approval</text>
+<text x="38" y="88.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#637385">Durable evidence: two PostgreSQL connections.</text>
+<polyline points="38,104 1162,104" fill="none" stroke="#b7c6d2" stroke-width="1.4"/>
+<text x="38" y="694.79" font-family="Arial,Helvetica,sans-serif" font-size="13" font-weight="400" fill="#637385">Agent Security MCP Gateway | Phase 2 | Original repository figure</text>
+<rect x="40" y="155" width="280" height="110" fill="#eef3f7" stroke="#a8bbc9"/>
+<rect x="40" y="155" width="5" height="110" fill="#285a86" stroke="#285a86"/>
+<text x="56" y="183.77" font-family="Arial,Helvetica,sans-serif" font-size="19" font-weight="700" fill="#285a86">Connection A</text>
+<text x="56" y="213.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">Consume same approval</text>
+<rect x="40" y="415" width="280" height="110" fill="#eef3f7" stroke="#a8bbc9"/>
+<rect x="40" y="415" width="5" height="110" fill="#285a86" stroke="#285a86"/>
+<text x="56" y="443.77" font-family="Arial,Helvetica,sans-serif" font-size="19" font-weight="700" fill="#285a86">Connection B</text>
+<text x="56" y="473.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">Consume same approval</text>
+<polyline points="320,210 450,290" fill="none" stroke="#285a86" stroke-width="1.4"/>
+<polygon points="450,290 440.11477593554855,288.48925674067715 444.19663894975724,281.85622934258794" fill="#285a86"/>
+<polyline points="320,470 450,350" fill="none" stroke="#285a86" stroke-width="1.4"/>
+<polygon points="450,350 445.8733592212191,359.1088328496522 440.5906649566741,353.38591406306176" fill="#285a86"/>
+<rect x="450" y="250" width="290" height="155" fill="#eef3f7" stroke="#a8bbc9"/>
+<rect x="450" y="250" width="5" height="155" fill="#285a86" stroke="#285a86"/>
+<text x="466" y="278.77" font-family="Arial,Helvetica,sans-serif" font-size="19" font-weight="700" fill="#285a86">Row-locked transaction</text>
+<text x="466" y="308.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">Check state and expiry</text>
+<text x="466" y="329.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">Consume + unique attempt</text>
+<polyline points="740,288 850,210" fill="none" stroke="#285a86" stroke-width="1.4"/>
+<polygon points="850,210 844.7391102810822,218.504295347963 840.2340947690248,212.15106834377934" fill="#285a86"/>
+<polyline points="740,370 850,470" fill="none" stroke="#285a86" stroke-width="1.4"/>
+<polygon points="850,470 840.565189361412,466.6857356451265 845.8042118484954,460.9228109093347" fill="#285a86"/>
+<rect x="850" y="155" width="300" height="110" fill="#eef3f7" stroke="#a8bbc9"/>
+<rect x="850" y="155" width="5" height="110" fill="#237e78" stroke="#237e78"/>
+<text x="866" y="183.77" font-family="Arial,Helvetica,sans-serif" font-size="19" font-weight="700" fill="#237e78">Winning consumer</text>
+<text x="866" y="213.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">One forwarding-attempt row</text>
+<rect x="850" y="415" width="300" height="110" fill="#eef3f7" stroke="#a8bbc9"/>
+<rect x="850" y="415" width="5" height="110" fill="#a24143" stroke="#a24143"/>
+<text x="866" y="443.77" font-family="Arial,Helvetica,sans-serif" font-size="19" font-weight="700" fill="#a24143">Competing consumer</text>
+<text x="866" y="473.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">Rejected; no credential use</text>
+<text x="40" y="640.45" font-family="Arial,Helvetica,sans-serif" font-size="15" font-weight="400" fill="#637385">Illustrative winner assignment; either connection may win. A separate 16-way process-local fixture is not durable database evidence.</text>
+</svg>

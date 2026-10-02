@@ -1,0 +1,6 @@
+Control,Scope / evidence,Failure response
+Replay resistance,"Session-bound request identifiers, nonces and timestamp skew",Reject replay before invocation.
+Rate and concurrency,"User, agent, client, session, route, server, destination and action",Deny admission at exhausted quotas.
+Payload and recursion,"Input/result bytes, depth, fan-out and cyclic ancestry",Stop oversized or recursive work.
+Deadline and cancellation,"Bounded time, abort propagation and runtime checkpoints",Cancel; persist safe outcome classification.
+Dependency health,"Identity, route, policy, database, parser and downstream",Fail closed; circuit breaker; no memory fallback.

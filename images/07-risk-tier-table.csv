@@ -1,0 +1,5 @@
+Tier,Effect class,Default treatment
+0,Proven non-sensitive read; no egress or execution,Allow only with verified scope and coverage.
+1,Bounded reversible local write,Allow or constrain within an approved isolated scope.
+2,"Executable, networked, supply-chain or meaningful state change","Sandbox, constrain or require approval."
+3,"Production, privileged, destructive, credentials or hard to reverse",One exact approval or denial; trust cannot weaken this.

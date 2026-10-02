@@ -1,0 +1,126 @@
+{
+  "checks": [
+    {
+      "id": "01-gateway-architecture",
+      "canvas_bounds": "pass",
+      "box_text_fit": "pass"
+    },
+    {
+      "id": "02-agent-request-result-flow",
+      "canvas_bounds": "pass",
+      "box_text_fit": "pass"
+    },
+    {
+      "id": "03-mcp-lifecycle",
+      "canvas_bounds": "pass",
+      "box_text_fit": "pass"
+    },
+    {
+      "id": "04-canonical-resolution",
+      "canvas_bounds": "pass",
+      "box_text_fit": "pass"
+    },
+    {
+      "id": "05-representation-invariance",
+      "canvas_bounds": "pass",
+      "box_text_fit": "pass"
+    },
+    {
+      "id": "06-policy-precedence",
+      "canvas_bounds": "pass",
+      "box_text_fit": "pass"
+    },
+    {
+      "id": "07-risk-tier-table",
+      "canvas_bounds": "pass",
+      "box_text_fit": "pass"
+    },
+    {
+      "id": "08-approval-single-use",
+      "canvas_bounds": "pass",
+      "box_text_fit": "pass"
+    },
+    {
+      "id": "09-approval-concurrency",
+      "canvas_bounds": "pass",
+      "box_text_fit": "pass"
+    },
+    {
+      "id": "10-restart-recovery",
+      "canvas_bounds": "pass",
+      "box_text_fit": "pass"
+    },
+    {
+      "id": "11-result-governance",
+      "canvas_bounds": "pass",
+      "box_text_fit": "pass"
+    },
+    {
+      "id": "12-credential-custody",
+      "canvas_bounds": "pass",
+      "box_text_fit": "pass"
+    },
+    {
+      "id": "13-coverage-state-table",
+      "canvas_bounds": "pass",
+      "box_text_fit": "pass"
+    },
+    {
+      "id": "14-bypass-trust-boundaries",
+      "canvas_bounds": "pass",
+      "box_text_fit": "pass"
+    },
+    {
+      "id": "15-discovery-integrity",
+      "canvas_bounds": "pass",
+      "box_text_fit": "pass"
+    },
+    {
+      "id": "16-protocol-guard-table",
+      "canvas_bounds": "pass",
+      "box_text_fit": "pass"
+    },
+    {
+      "id": "17-audit-trajectory",
+      "canvas_bounds": "pass",
+      "box_text_fit": "pass"
+    },
+    {
+      "id": "18-failure-response-table",
+      "canvas_bounds": "pass",
+      "box_text_fit": "pass"
+    },
+    {
+      "id": "19-trust-supervisor-boundaries",
+      "canvas_bounds": "pass",
+      "box_text_fit": "pass"
+    },
+    {
+      "id": "20-research-evaluation-design",
+      "canvas_bounds": "pass",
+      "box_text_fit": "pass"
+    },
+    {
+      "id": "21-historical-validation-counts",
+      "canvas_bounds": "pass",
+      "box_text_fit": "pass"
+    },
+    {
+      "id": "22-retained-mcp-tool-counts",
+      "canvas_bounds": "pass",
+      "box_text_fit": "pass"
+    },
+    {
+      "id": "23-candidate-corpus-inventory",
+      "canvas_bounds": "pass",
+      "box_text_fit": "pass"
+    },
+    {
+      "id": "24-release-assurance-table",
+      "canvas_bounds": "pass",
+      "box_text_fit": "pass"
+    }
+  ],
+  "count": 24,
+  "method": "Pillow text bounds; per-box wrapped-line height; table bottom bounds; SVG XML and image dimensions verified separately."
+}

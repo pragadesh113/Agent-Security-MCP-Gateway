@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720" role="img"><title>Historical local verification counts</title><rect width="1200" height="720" fill="white"/>
+<text x="38" y="60.41" font-family="Arial,Helvetica,sans-serif" font-size="27" font-weight="700" fill="#203348">Historical local verification counts</text>
+<text x="38" y="88.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#637385">September 25, 2026 manuscript verification snapshot.</text>
+<polyline points="38,104 1162,104" fill="none" stroke="#b7c6d2" stroke-width="1.4"/>
+<text x="38" y="694.79" font-family="Arial,Helvetica,sans-serif" font-size="13" font-weight="400" fill="#637385">Agent Security MCP Gateway | Phase 2 | Original repository figure</text>
+<polyline points="350.0,147 350.0,380" fill="none" stroke="#dbe3e9" stroke-width="1.4"/>
+<text x="338.0" y="406.62" font-family="Arial,Helvetica,sans-serif" font-size="14" font-weight="400" fill="#637385">0</text>
+<polyline points="488.0,147 488.0,380" fill="none" stroke="#dbe3e9" stroke-width="1.4"/>
+<text x="476.0" y="406.62" font-family="Arial,Helvetica,sans-serif" font-size="14" font-weight="400" fill="#637385">59</text>
+<polyline points="626.0,147 626.0,380" fill="none" stroke="#dbe3e9" stroke-width="1.4"/>
+<text x="614.0" y="406.62" font-family="Arial,Helvetica,sans-serif" font-size="14" font-weight="400" fill="#637385">118</text>
+<polyline points="764.0,147 764.0,380" fill="none" stroke="#dbe3e9" stroke-width="1.4"/>
+<text x="752.0" y="406.62" font-family="Arial,Helvetica,sans-serif" font-size="14" font-weight="400" fill="#637385">177</text>
+<polyline points="902.0,147 902.0,380" fill="none" stroke="#dbe3e9" stroke-width="1.4"/>
+<text x="890.0" y="406.62" font-family="Arial,Helvetica,sans-serif" font-size="14" font-weight="400" fill="#637385">236</text>
+<polyline points="1040.0,147 1040.0,380" fill="none" stroke="#dbe3e9" stroke-width="1.4"/>
+<text x="1028.0" y="406.62" font-family="Arial,Helvetica,sans-serif" font-size="14" font-weight="400" fill="#637385">295</text>
+<text x="40" y="182.94" font-family="Arial,Helvetica,sans-serif" font-size="18" font-weight="400" fill="#203348">Unit tests</text>
+<rect x="350" y="159" width="690.0" height="44" fill="#285a86" stroke="#285a86"/>
+<text x="1052.0" y="183.94" font-family="Arial,Helvetica,sans-serif" font-size="18" font-weight="700" fill="#203348">295</text>
+<text x="40" y="257.94" font-family="Arial,Helvetica,sans-serif" font-size="18" font-weight="400" fill="#203348">Integration tests</text>
+<rect x="350" y="234" width="154.3728813559322" height="44" fill="#285a86" stroke="#285a86"/>
+<text x="516.3728813559322" y="258.94" font-family="Arial,Helvetica,sans-serif" font-size="18" font-weight="700" fill="#203348">66</text>
+<text x="40" y="332.94" font-family="Arial,Helvetica,sans-serif" font-size="18" font-weight="400" fill="#203348">Browser workflows</text>
+<rect x="350" y="309" width="9.35593220338983" height="44" fill="#285a86" stroke="#285a86"/>
+<text x="371.35593220338984" y="333.94" font-family="Arial,Helvetica,sans-serif" font-size="18" font-weight="700" fill="#203348">4</text>
+<text x="350" y="441.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#637385">Number of checks (different test granularities)</text>
+<text x="40" y="640.45" font-family="Arial,Helvetica,sans-serif" font-size="15" font-weight="400" fill="#637385">Counts have different granularities and shared fixtures. Do not infer attack prevention, statistical confidence or production coverage.</text>
+</svg>

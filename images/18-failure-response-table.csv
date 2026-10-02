@@ -1,0 +1,7 @@
+Trigger,Safe response
+"Arguments, route or policy changed",Reject prior approval binding; require a new evaluation.
+Approval consumed or expired,No second forwarding-attempt record or credential use.
+Newer coverage degradation,Block mutation before credential-consuming operation.
+Stale consumed dispatch; no outcome,Persist UNKNOWN / possible partial effects; do not retry.
+"Invalid provenance, schema or secret-bearing result","Withhold, quarantine or redact before release."
+Required persistence unavailable,Fail closed; no runtime in-memory fallback.

@@ -67,6 +67,8 @@ trust remains a later shadow-mode experiment and never grants unrestricted acces
 ## Documentation
 
 - [`handbook.md`](../handbook.md) - beginner-friendly explanation, setup, architecture, security model, workflows, status, and glossary
+- [`project-guide.md`](project-guide.md) - complete self-study guide with architecture, operation, evidence, research plan, code-reading route, and comprehension questions
+- [`project-guide.html`](project-guide.html) - navigable reading edition with chapter navigation, diagrams, and print layout
 - `docs/technical-specification.md` - authoritative architecture and security requirements
 - `docs/featurelist.json` - machine-readable Phase 2 feature tracking
 - `docs/progress.md` - current delivery status and validation evidence

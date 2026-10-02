@@ -1,0 +1,6 @@
+Evidence boundary,Recorded state,What remains outside the claim
+Phase 2 implementation,21 locally complete feature records,Independent production security review.
+Regression / workflows,295 unit; 66 integration; 4 browser (historical),Adaptive comparative security/utility experiments.
+Upstream interoperability,Two version-pinned locally launched servers,Independently administered host operation.
+Local packaging,Unsigned and unpublished non-production artifacts,"Signing, publication and operational ownership."
+Deployment coverage,UNPROTECTED; protected forwarding disabled,Exclusive mediation and production credential custody.

@@ -13,6 +13,7 @@
     "test:integration": "vitest run test/integration",
     "test:browser": "playwright test",
     "validate:features": "node scripts/validate-features.mjs",
+    "research:resolver": "npm run build && node scripts/evaluate-workspace-resolver.mjs",
     "verify:package-boundary": "node scripts/verify-package-boundary.mjs",
     "dashboard:build": "node scripts/generate-dashboard.mjs",
     "dashboard:serve": "node scripts/serve-dashboard.mjs",

@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720" role="img"><title>Truthful coverage is scoped evidence</title><rect width="1200" height="720" fill="white"/>
+<text x="38" y="60.41" font-family="Arial,Helvetica,sans-serif" font-size="27" font-weight="700" fill="#203348">Truthful coverage is scoped evidence</text>
+<text x="38" y="88.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#637385">A functional gateway is insufficient to establish exclusive resource access.</text>
+<polyline points="38,104 1162,104" fill="none" stroke="#b7c6d2" stroke-width="1.4"/>
+<text x="38" y="694.79" font-family="Arial,Helvetica,sans-serif" font-size="13" font-weight="400" fill="#637385">Agent Security MCP Gateway | Phase 2 | Original repository figure</text>
+<rect x="40" y="140" width="220" height="48" fill="#285a86" stroke="#a8bbc9"/>
+<text x="52" y="165.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="700" fill="#ffffff">State</text>
+<rect x="260" y="140" width="495" height="48" fill="#285a86" stroke="#a8bbc9"/>
+<text x="272" y="165.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="700" fill="#ffffff">Meaning</text>
+<rect x="755" y="140" width="405" height="48" fill="#285a86" stroke="#a8bbc9"/>
+<text x="767" y="165.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="700" fill="#ffffff">Protection claim</text>
+<rect x="40" y="188" width="220" height="64" fill="#f2f5f8" stroke="#a8bbc9"/>
+<text x="52" y="213.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">ENFORCED</text>
+<rect x="260" y="188" width="495" height="64" fill="#f2f5f8" stroke="#a8bbc9"/>
+<text x="272" y="213.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">Authenticated, governed, audited, fail-safe and exclusively</text>
+<text x="272" y="235.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">mediated</text>
+<rect x="755" y="188" width="405" height="64" fill="#f2f5f8" stroke="#a8bbc9"/>
+<text x="767" y="213.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">Exact declared path only; current trusted evidence</text>
+<text x="767" y="235.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">required.</text>
+<rect x="40" y="252" width="220" height="48" fill="#ffffff" stroke="#a8bbc9"/>
+<text x="52" y="277.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">DEGRADED</text>
+<rect x="260" y="252" width="495" height="48" fill="#ffffff" stroke="#a8bbc9"/>
+<text x="272" y="277.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">A required guarantee or bypass control is incomplete</text>
+<rect x="755" y="252" width="405" height="48" fill="#ffffff" stroke="#a8bbc9"/>
+<text x="767" y="277.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">Block protected mutations.</text>
+<rect x="40" y="300" width="220" height="48" fill="#f2f5f8" stroke="#a8bbc9"/>
+<text x="52" y="325.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">OBSERVE_ONLY</text>
+<rect x="260" y="300" width="495" height="48" fill="#f2f5f8" stroke="#a8bbc9"/>
+<text x="272" y="325.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">Recorded traffic cannot reliably be blocked</text>
+<rect x="755" y="300" width="405" height="48" fill="#f2f5f8" stroke="#a8bbc9"/>
+<text x="767" y="325.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">No enforcement claim.</text>
+<rect x="40" y="348" width="220" height="64" fill="#ffffff" stroke="#a8bbc9"/>
+<text x="52" y="373.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">UNPROTECTED</text>
+<rect x="260" y="348" width="495" height="64" fill="#ffffff" stroke="#a8bbc9"/>
+<text x="272" y="373.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">No verified enforcing path exists</text>
+<rect x="755" y="348" width="405" height="64" fill="#ffffff" stroke="#a8bbc9"/>
+<text x="767" y="373.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">Current deployment state; protected forwarding</text>
+<text x="767" y="395.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">disabled.</text>
+</svg>

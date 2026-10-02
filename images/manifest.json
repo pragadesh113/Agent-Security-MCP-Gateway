@@ -1,0 +1,430 @@
+{
+  "schemaVersion": "1.0.0",
+  "prepared": "2026-10-01",
+  "original_artwork": true,
+  "evidence_sha256": {
+    "artifacts/open-source-mcp-smoke.json": "d92f531d531cc9cb3af6a636a541258661227022be33b7f6fccd49b20766624e",
+    "docs/featurelist.json": "fa10a4950a9cc273f66db05c73393498633d983b0237407c2448f2955eb6fd6a",
+    "docs/research-protocol.md": "d41facd3239740006bd6e9a8867d14109b5503bf8e8a910e2a1c31789760fc25",
+    "docs/technical-specification.md": "cc504851b8351ed2a1ba94c12405a68d95cc3242ad326cd0d90bd0513df4ff07",
+    "paper/evidence-notes.md": "5855aad01cd12fa2e81f9f6f50276d78e515ad22886c2e9e9476a17f6abcc5f2",
+    "paper/main.tex": "6e6578648c6decc575106421d1c964dc6a4fe0a785f6d0324c09883524427871",
+    "report.md": "ef12968b556fc79e0729ee3e5dae8018e2bf91b6f982911f37642007a8e3fc54",
+    "research/resolver/README.md": "210680a56771984c6fa5f6bc1ea6932603b50bcf09f382456a1461214684fabc",
+    "research/resolver/corpus-v1.json": "a0a2d647cc7570a986773416c2c0eba74c4f7eb4633845914b6b83ba291d9251",
+    "test/integration/postgres-persistence-v1.test.ts": "a52ae0a0d0e66678e1b448a99c92bc06162c9ddd95f8b6c0e5833cf7f8077368",
+    "test/unit/canonical-policy-v1.test.ts": "aad2e86fd4fce9b00026590419f17fe2ca2e476f2a62f748de6ceed0659a8f5d"
+  },
+  "figures": [
+    {
+      "id": "01-gateway-architecture",
+      "title": "Bidirectional MCP reference monitor",
+      "report_section": "6 Architecture",
+      "paper_section": "IV Reference Monitor Design",
+      "caption": "Separate request and result governance surrounds exact downstream forwarding.",
+      "sources": [
+        "docs/technical-specification.md",
+        "report.md",
+        "paper/main.tex"
+      ],
+      "files": {
+        "svg": "01-gateway-architecture.svg",
+        "pdf": "01-gateway-architecture.pdf",
+        "png": "01-gateway-architecture.png"
+      }
+    },
+    {
+      "id": "02-agent-request-result-flow",
+      "title": "Agent request, decision and governed result",
+      "report_section": "7 End-to-end call flow",
+      "paper_section": "I Introduction; IV Design",
+      "caption": "Every intermediate request and result requires its own boundary checks.",
+      "sources": [
+        "docs/technical-specification.md",
+        "report.md",
+        "paper/main.tex"
+      ],
+      "files": {
+        "svg": "02-agent-request-result-flow.svg",
+        "pdf": "02-agent-request-result-flow.pdf",
+        "png": "02-agent-request-result-flow.png"
+      }
+    },
+    {
+      "id": "03-mcp-lifecycle",
+      "title": "MCP lifecycle and authorization checkpoints",
+      "report_section": "3.2 Simplified MCP lifecycle",
+      "paper_section": "II Background; V Implementation",
+      "caption": "Lifecycle negotiation permits communication; it does not grant blanket authorization.",
+      "sources": [
+        "docs/technical-specification.md",
+        "report.md",
+        "paper/main.tex"
+      ],
+      "files": {
+        "svg": "03-mcp-lifecycle.svg",
+        "pdf": "03-mcp-lifecycle.pdf",
+        "png": "03-mcp-lifecycle.png"
+      }
+    },
+    {
+      "id": "04-canonical-resolution",
+      "title": "From syntax to a canonical security action",
+      "report_section": "8.5 Canonicalization and analyzers",
+      "paper_section": "III-B Semantic Equivalence; IV-A Canonicalization",
+      "caption": "Canonicalization joins trusted semantic findings with exact invocation bindings.",
+      "sources": [
+        "docs/technical-specification.md",
+        "report.md",
+        "paper/main.tex"
+      ],
+      "files": {
+        "svg": "04-canonical-resolution.svg",
+        "pdf": "04-canonical-resolution.pdf",
+        "png": "04-canonical-resolution.png"
+      }
+    },
+    {
+      "id": "05-representation-invariance",
+      "title": "Equivalent effects, separate approvals",
+      "report_section": "8.5 Canonicalization",
+      "paper_section": "VI-A RQ1",
+      "caption": "Three trusted-resolver variants share destructive policy; their exact execution bindings remain separate.",
+      "sources": [
+        "test/unit/canonical-policy-v1.test.ts",
+        "paper/main.tex"
+      ],
+      "files": {
+        "svg": "05-representation-invariance.svg",
+        "pdf": "05-representation-invariance.pdf",
+        "png": "05-representation-invariance.png"
+      }
+    },
+    {
+      "id": "06-policy-precedence",
+      "title": "Most-restrictive decision composition",
+      "report_section": "5 Security invariants; 7.2 Decisions",
+      "paper_section": "III-B; IV-B Deterministic Policy",
+      "caption": "Policy joins select the most restrictive decision; conflicting enforcement resolves to denial.",
+      "sources": [
+        "docs/technical-specification.md",
+        "report.md",
+        "paper/main.tex"
+      ],
+      "files": {
+        "svg": "06-policy-precedence.svg",
+        "pdf": "06-policy-precedence.pdf",
+        "png": "06-policy-precedence.png"
+      },
+      "editable_table": "06-policy-precedence.csv"
+    },
+    {
+      "id": "07-risk-tier-table",
+      "title": "Risk tiers and required treatment",
+      "report_section": "7.3 Risk tiers",
+      "paper_section": "III-B Semantic Equivalence",
+      "caption": "Four risk tiers preserve immutable high-risk approval requirements.",
+      "sources": [
+        "docs/technical-specification.md",
+        "report.md",
+        "paper/main.tex"
+      ],
+      "files": {
+        "svg": "07-risk-tier-table.svg",
+        "pdf": "07-risk-tier-table.pdf",
+        "png": "07-risk-tier-table.png"
+      },
+      "editable_table": "07-risk-tier-table.csv"
+    },
+    {
+      "id": "08-approval-single-use",
+      "title": "Exact human approval and atomic consumption",
+      "report_section": "8.6 Human approval and browser UI",
+      "paper_section": "IV-C Single-Use Approval",
+      "caption": "Approval is consumed transactionally and permits at most one gateway initiation.",
+      "sources": [
+        "docs/technical-specification.md",
+        "report.md",
+        "paper/main.tex"
+      ],
+      "files": {
+        "svg": "08-approval-single-use.svg",
+        "pdf": "08-approval-single-use.pdf",
+        "png": "08-approval-single-use.png"
+      }
+    },
+    {
+      "id": "09-approval-concurrency",
+      "title": "Competing consumers of one approval",
+      "report_section": "8.6 Approval; 9 PostgreSQL",
+      "paper_section": "VI-B Exact Authority",
+      "caption": "The database permits one consumption and rejects its competitor.",
+      "sources": [
+        "test/integration/postgres-persistence-v1.test.ts",
+        "paper/evidence-notes.md"
+      ],
+      "files": {
+        "svg": "09-approval-concurrency.svg",
+        "pdf": "09-approval-concurrency.pdf",
+        "png": "09-approval-concurrency.png"
+      }
+    },
+    {
+      "id": "10-restart-recovery",
+      "title": "Conservative recovery after interruption",
+      "report_section": "8.6 Approval; 9 PostgreSQL",
+      "paper_section": "IV-C Recovery",
+      "caption": "Recovery separates unconsumed authorization from consumed uncertain execution.",
+      "sources": [
+        "docs/technical-specification.md",
+        "report.md",
+        "paper/main.tex"
+      ],
+      "files": {
+        "svg": "10-restart-recovery.svg",
+        "pdf": "10-restart-recovery.pdf",
+        "png": "10-restart-recovery.png"
+      }
+    },
+    {
+      "id": "11-result-governance",
+      "title": "A permitted request can yield a prohibited result",
+      "report_section": "8.7 Result mediation",
+      "paper_section": "IV-D Credential Custody and Result Governance",
+      "caption": "Authenticated provenance identifies a source; it does not make content truthful or safe.",
+      "sources": [
+        "docs/technical-specification.md",
+        "report.md",
+        "paper/main.tex"
+      ],
+      "files": {
+        "svg": "11-result-governance.svg",
+        "pdf": "11-result-governance.pdf",
+        "png": "11-result-governance.png"
+      }
+    },
+    {
+      "id": "12-credential-custody",
+      "title": "Credential custody and the non-exporting sink",
+      "report_section": "8.2 Identity and credentials",
+      "paper_section": "IV-D Credential Custody",
+      "caption": "The broker binds gateway-only credential use to the exact authorized attempt.",
+      "sources": [
+        "docs/technical-specification.md",
+        "report.md",
+        "paper/main.tex"
+      ],
+      "files": {
+        "svg": "12-credential-custody.svg",
+        "pdf": "12-credential-custody.pdf",
+        "png": "12-credential-custody.png"
+      }
+    },
+    {
+      "id": "13-coverage-state-table",
+      "title": "Truthful coverage is scoped evidence",
+      "report_section": "8.8 Coverage",
+      "paper_section": "III-C Coverage; VI-C Evidence Fidelity",
+      "caption": "Coverage reports guarantees for a declared scope rather than feature-completion percentages.",
+      "sources": [
+        "docs/technical-specification.md",
+        "report.md",
+        "paper/main.tex"
+      ],
+      "files": {
+        "svg": "13-coverage-state-table.svg",
+        "pdf": "13-coverage-state-table.pdf",
+        "png": "13-coverage-state-table.png"
+      },
+      "editable_table": "13-coverage-state-table.csv"
+    },
+    {
+      "id": "14-bypass-trust-boundaries",
+      "title": "MCP mediation and native/direct bypass paths",
+      "report_section": "4 Scope; 8.8 Coverage",
+      "paper_section": "III-A Threat Model",
+      "caption": "Native and direct paths are outside MCP mediation unless independently constrained.",
+      "sources": [
+        "docs/technical-specification.md",
+        "report.md",
+        "paper/main.tex"
+      ],
+      "files": {
+        "svg": "14-bypass-trust-boundaries.svg",
+        "pdf": "14-bypass-trust-boundaries.pdf",
+        "png": "14-bypass-trust-boundaries.png"
+      }
+    },
+    {
+      "id": "15-discovery-integrity",
+      "title": "Integrity-checked discovery and route quarantine",
+      "report_section": "8.3 Discovery and routing",
+      "paper_section": "IV-A Authenticated Discovery",
+      "caption": "Schema or capability drift latches quarantine; later matching metadata is not automatic restoration.",
+      "sources": [
+        "docs/technical-specification.md",
+        "report.md",
+        "paper/main.tex"
+      ],
+      "files": {
+        "svg": "15-discovery-integrity.svg",
+        "pdf": "15-discovery-integrity.pdf",
+        "png": "15-discovery-integrity.png"
+      }
+    },
+    {
+      "id": "16-protocol-guard-table",
+      "title": "Protocol admission and bounded execution",
+      "report_section": "8.4 Protocol guard",
+      "paper_section": "IV-B Policy and Admission",
+      "caption": "Protocol guards bound replay and resource abuse without granting authorization.",
+      "sources": [
+        "docs/technical-specification.md",
+        "report.md",
+        "paper/main.tex"
+      ],
+      "files": {
+        "svg": "16-protocol-guard-table.svg",
+        "pdf": "16-protocol-guard-table.pdf",
+        "png": "16-protocol-guard-table.png"
+      },
+      "editable_table": "16-protocol-guard-table.csv"
+    },
+    {
+      "id": "17-audit-trajectory",
+      "title": "The complete request-to-outcome audit trajectory",
+      "report_section": "9 PostgreSQL data model",
+      "paper_section": "IV Design; VI-B Authority",
+      "caption": "Linked state distinguishes rejected proposals, approved attempts, remote effects and returned data.",
+      "sources": [
+        "docs/technical-specification.md",
+        "report.md",
+        "paper/main.tex"
+      ],
+      "files": {
+        "svg": "17-audit-trajectory.svg",
+        "pdf": "17-audit-trajectory.pdf",
+        "png": "17-audit-trajectory.png"
+      }
+    },
+    {
+      "id": "18-failure-response-table",
+      "title": "Failure triggers and conservative behavior",
+      "report_section": "13 Testing; 16 Limitations",
+      "paper_section": "VI-B Failure Cases",
+      "caption": "Failure handling preserves authority and uncertainty across request and result boundaries.",
+      "sources": [
+        "docs/technical-specification.md",
+        "report.md",
+        "paper/main.tex"
+      ],
+      "files": {
+        "svg": "18-failure-response-table.svg",
+        "pdf": "18-failure-response-table.pdf",
+        "png": "18-failure-response-table.png"
+      },
+      "editable_table": "18-failure-response-table.csv"
+    },
+    {
+      "id": "19-trust-supervisor-boundaries",
+      "title": "Shadow trust and advisory supervision",
+      "report_section": "8.9 Dynamic trust and supervisor",
+      "paper_section": "V Implementation; VII Limitations",
+      "caption": "Trust stays observational; supervisor output cannot weaken immutable decisions.",
+      "sources": [
+        "docs/technical-specification.md",
+        "report.md",
+        "paper/main.tex"
+      ],
+      "files": {
+        "svg": "19-trust-supervisor-boundaries.svg",
+        "pdf": "19-trust-supervisor-boundaries.pdf",
+        "png": "19-trust-supervisor-boundaries.png"
+      }
+    },
+    {
+      "id": "20-research-evaluation-design",
+      "title": "Planned paired security and utility study",
+      "report_section": "13 Testing; 16 Current limitations",
+      "paper_section": "VII-B Next Experiments",
+      "caption": "Independent semantic labels and paired trajectories are needed beyond local conformance.",
+      "sources": [
+        "docs/research-protocol.md",
+        "research/resolver/README.md"
+      ],
+      "files": {
+        "svg": "20-research-evaluation-design.svg",
+        "pdf": "20-research-evaluation-design.pdf",
+        "png": "20-research-evaluation-design.png"
+      }
+    },
+    {
+      "id": "21-historical-validation-counts",
+      "title": "Historical local verification counts",
+      "report_section": "13.1 Test layers",
+      "paper_section": "VI Local Verification",
+      "caption": "Dated verification counts describe test inventory, not a security effectiveness rate.",
+      "sources": [
+        "paper/evidence-notes.md",
+        "paper/main.tex"
+      ],
+      "files": {
+        "svg": "21-historical-validation-counts.svg",
+        "pdf": "21-historical-validation-counts.pdf",
+        "png": "21-historical-validation-counts.png"
+      },
+      "editable_table": "21-historical-validation-counts.csv"
+    },
+    {
+      "id": "22-retained-mcp-tool-counts",
+      "title": "Retained local MCP discovery observations",
+      "report_section": "14 Release evidence",
+      "paper_section": "VI-C Interoperability",
+      "caption": "Pinned local servers advertise 13 and 26 tools; harmless selected calls succeed and unknown tools are rejected.",
+      "sources": [
+        "artifacts/open-source-mcp-smoke.json"
+      ],
+      "files": {
+        "svg": "22-retained-mcp-tool-counts.svg",
+        "pdf": "22-retained-mcp-tool-counts.pdf",
+        "png": "22-retained-mcp-tool-counts.png"
+      },
+      "editable_table": "22-retained-mcp-tool-counts.csv"
+    },
+    {
+      "id": "23-candidate-corpus-inventory",
+      "title": "Candidate resolver development corpus",
+      "report_section": "8.5 Analyzers; 16 Research limits",
+      "paper_section": "VII-B Next Experiments",
+      "caption": "Candidate corpus composition is an inventory, not independently reviewed resolver accuracy.",
+      "sources": [
+        "research/resolver/corpus-v1.json",
+        "research/resolver/README.md"
+      ],
+      "files": {
+        "svg": "23-candidate-corpus-inventory.svg",
+        "pdf": "23-candidate-corpus-inventory.pdf",
+        "png": "23-candidate-corpus-inventory.png"
+      },
+      "editable_table": "23-candidate-corpus-inventory.csv"
+    },
+    {
+      "id": "24-release-assurance-table",
+      "title": "Local engineering completion and production assurance",
+      "report_section": "14 Release; 15 Status; 16 Limitations",
+      "paper_section": "VI-C; VII Discussion",
+      "caption": "Local implementation completion does not satisfy deferred production assurance.",
+      "sources": [
+        "docs/featurelist.json",
+        "paper/evidence-notes.md",
+        "artifacts/open-source-mcp-smoke.json"
+      ],
+      "files": {
+        "svg": "24-release-assurance-table.svg",
+        "pdf": "24-release-assurance-table.pdf",
+        "png": "24-release-assurance-table.png"
+      },
+      "editable_table": "24-release-assurance-table.csv"
+    }
+  ]
+}

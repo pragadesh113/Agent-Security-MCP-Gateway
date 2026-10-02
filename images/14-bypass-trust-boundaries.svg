@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720" role="img"><title>MCP mediation and native/direct bypass paths</title><rect width="1200" height="720" fill="white"/>
+<text x="38" y="60.41" font-family="Arial,Helvetica,sans-serif" font-size="27" font-weight="700" fill="#203348">MCP mediation and native/direct bypass paths</text>
+<text x="38" y="88.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#637385">Independent OS, network, IAM and downstream controls close the outer boundary.</text>
+<polyline points="38,104 1162,104" fill="none" stroke="#b7c6d2" stroke-width="1.4"/>
+<text x="38" y="694.79" font-family="Arial,Helvetica,sans-serif" font-size="13" font-weight="400" fill="#637385">Agent Security MCP Gateway | Phase 2 | Original repository figure</text>
+<rect x="40" y="200" width="255" height="155" fill="#eef3f7" stroke="#a8bbc9"/>
+<rect x="40" y="200" width="5" height="155" fill="#a24143" stroke="#a24143"/>
+<text x="56" y="228.77" font-family="Arial,Helvetica,sans-serif" font-size="19" font-weight="700" fill="#a24143">Agent runtime</text>
+<text x="56" y="258.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">Untrusted proposals and</text>
+<text x="56" y="279.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">external content</text>
+<rect x="445" y="200" width="270" height="155" fill="#eef3f7" stroke="#a8bbc9"/>
+<rect x="445" y="200" width="5" height="155" fill="#285a86" stroke="#285a86"/>
+<text x="461" y="228.77" font-family="Arial,Helvetica,sans-serif" font-size="19" font-weight="700" fill="#285a86">MCP gateway</text>
+<text x="461" y="258.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">Policy + exact approval + result</text>
+<text x="461" y="279.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">monitor</text>
+<rect x="885" y="200" width="270" height="155" fill="#eef3f7" stroke="#a8bbc9"/>
+<rect x="885" y="200" width="5" height="155" fill="#285a86" stroke="#285a86"/>
+<text x="901" y="228.77" font-family="Arial,Helvetica,sans-serif" font-size="19" font-weight="700" fill="#285a86">Protected resource</text>
+<text x="901" y="258.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">Least-privilege downstream</text>
+<text x="901" y="279.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">authorization</text>
+<polyline points="295,270 445,270" fill="none" stroke="#285a86" stroke-width="1.4"/>
+<polygon points="445,270 435.78939005997114,273.89418342308653 435.78939005997114,266.10581657691347" fill="#285a86"/>
+<polyline points="715,270 885,270" fill="none" stroke="#285a86" stroke-width="1.4"/>
+<polygon points="885,270 875.7893900599712,273.89418342308653 875.7893900599712,266.10581657691347" fill="#285a86"/>
+<polyline points="160,355 160,505 1020,505 1020,355" fill="none" stroke="#a24143" stroke-width="1.4" stroke-dasharray="5 4"/>
+<polygon points="1020,355 1023.8941834230865,364.21060994002886 1016.1058165769135,364.21060994002886" fill="#a24143"/>
+<text x="375" y="477.77" font-family="Arial,Helvetica,sans-serif" font-size="19" font-weight="700" fill="#a24143">Native shell / browser / filesystem / direct network</text>
+<text x="40" y="640.45" font-family="Arial,Helvetica,sans-serif" font-size="15" font-weight="400" fill="#637385">A reachable or unverified bypass prevents an ENFORCED claim. Current production coverage remains UNPROTECTED.</text>
+</svg>

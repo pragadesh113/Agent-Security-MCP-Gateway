@@ -1,0 +1,17 @@
+{
+  "date": "2026-10-01",
+  "figures": 24,
+  "reportEmbeddedImages": 24,
+  "paperFigures": 6,
+  "paperTables": 3,
+  "paperPages": 8,
+  "bibliographyKeys": 6,
+  "sourceHashesCurrent": true,
+  "localScreenInputHashesCurrent": true,
+  "csvSources": 9,
+  "svgAndPngChecks": "pass",
+  "references": "pass",
+  "pdfVisualInspection": "all eight pages inspected",
+  "commercialPlagiarismTest": "not run",
+  "lint": "two pre-existing resolver diagnostics remain"
+}

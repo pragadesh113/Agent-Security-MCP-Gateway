@@ -1,0 +1,219 @@
+# Research plan: strengthen the paper for conference submission
+
+**Objective:** turn the existing prototype into a defensible research contribution through real semantic analysis, comparative experiments, and stronger execution guarantees.
+
+The repository already records the local Phase 2 implementation as complete. This plan adds a **research validation phase**. Conference readiness will depend on the results, including negative results.
+
+**Planning estimate:** 8–12 weeks for one experienced researcher working substantially full-time. Reassess after the initial pilot; model access, implementation gaps, and independent review may extend this.
+
+## 1. Define the precise contribution
+
+**Estimated effort: 3–4 days**
+
+Use this working hypothesis:
+
+> For supported MCP operations, effect-based authorization reduces bypasses through equivalent tool representations while preserving legitimate task completion and exact approval binding.
+
+Break it into three research questions:
+
+| Question | Evidence required |
+|---|---|
+| **RQ1:** Can real resolvers recognize equivalent effects across tools? | Independently labelled operations and measured resolver errors |
+| **RQ2:** Does this improve security without excessive disruption? | Comparative attack and legitimate-task experiments |
+| **RQ3:** Does approval remain correctly bound through changes, concurrency, and crashes? | Explicit state model, fault injection, and observed downstream effects |
+
+### Tasks
+
+- Build a related-work matrix covering canonicalization, policy enforcement, approval binding, result filtering, evaluation, and limitations.
+- Examine the closest systems, including Progent and MCIP, in depth.
+- Identify what existing systems already establish and what this project must demonstrate.
+- Define supported operations, attacker capabilities, assumptions, and excluded behavior.
+- Keep dynamic trust in shadow mode during the principal study.
+
+**Deliverable:** a two-page research protocol and contribution statement.
+
+**Decision gate:** if the proposed novelty is already established elsewhere, revise the research question before investing in large experiments.
+
+## 2. Build and evaluate real semantic resolvers
+
+**Estimated effort: 2–3 weeks**
+
+This addresses the paper’s largest weakness.
+
+### Initial scope
+
+Start with a manageable set:
+
+- File read, write, move, and deletion through multiple MCP tools.
+- Workspace aliases and alternate path representations.
+- A deliberately restricted shell-command grammar reaching the same resources.
+
+Document the grammar precisely. Unsupported shell programs must produce an unresolved result; do not claim arbitrary program understanding.
+
+### Tasks
+
+1. Resolve effects from actual arguments, tool contracts, and relevant resource state.
+2. Handle supported encodings, relative paths, aliases, and platform-specific identity rules.
+3. Test links, junctions, traversal, ambiguous paths, compound commands, and malformed inputs.
+4. Construct ground truth independently of the resolver:
+   - human-reviewed labels;
+   - disposable execution observations where appropriate;
+   - resource changes and destination logs.
+5. Separate development cases from held-out evaluation cases by operation family or transformation family, preventing near-duplicate leakage.
+
+### Measurements
+
+- Correct resource identification.
+- Correct effect classification.
+- Unsafe misclassification.
+- Unsupported/ambiguous classification rate.
+- Legitimate supported-operation coverage.
+- Policy consistency across equivalent representations.
+
+**Deliverable:** versioned resolvers, labelled corpus, and an error analysis.
+
+**Decision gate:** fix unsafe classifications found during development, freeze the implementation, and retain all held-out failures in the final report.
+
+## 3. Strengthen execution-time binding
+
+**Estimated effort: 1–2 weeks; can overlap with dataset preparation**
+
+### Tasks
+
+- Re-resolve supported resources and re-evaluate current policy before consuming approval.
+- Invalidate approval when its relevant semantic or execution bindings change.
+- Use stable resource handles, version checks, or downstream conditional operations where available.
+- Explicitly identify remaining races: rechecking alone does not eliminate time-of-check/time-of-use problems.
+- Specify the approval lifecycle as a state machine.
+
+### Required fault scenarios
+
+- Arguments, route, schema, identity, or policy change after approval.
+- Path or alias points to a different resource.
+- Approval expires while waiting for dispatch.
+- Multiple processes attempt consumption.
+- Crash before consumption, after consumption, during forwarding, and after a downstream effect but before outcome persistence.
+- Database or downstream connection loss.
+
+Measure actual downstream requests and effects alongside database records.
+
+**Deliverable:** state-machine specification, bounded model checking or equivalent systematic exploration, and integration fault tests.
+
+**Acceptance criteria:** no approval reuse or unauthorized substitution in the exercised cases; ambiguous effects remain explicit and are never automatically retried. State the limits of any bounded verification.
+
+## 4. Build the comparative experiment
+
+**Estimated effort: 1–2 weeks**
+
+Use the same tasks, initial resource states, policies, and model configurations across conditions.
+
+| Condition | Purpose |
+|---|---|
+| Native MCP without gateway | Establish attack exposure and task capability |
+| Tool-name and argument policy | Test whether canonical effects add value |
+| Closest reproducible existing defense | Compare with prior work |
+| Full proposed gateway | Measure the complete approach |
+| Gateway without effect canonicalization | Isolate canonicalization’s contribution |
+| Gateway without result governance | Isolate result governance’s contribution |
+
+Keep authorization intent equivalent across defenses. Document differences that prevent a fair comparison. If an existing defense cannot be reproduced, report the limitation and identify any substitute as a reimplementation.
+
+All weaker configurations run only against disposable, isolated resources.
+
+**Deliverable:** experiment runner, pinned configurations, and reproducible condition definitions.
+
+## 5. Run a pilot, then freeze the main study
+
+**Estimated effort: 1 week for pilot; 1–2 weeks for main runs**
+
+### Pilot
+
+Begin with approximately **20 legitimate tasks and 20 attack scenarios** to check instrumentation, feasibility, cost, and variability. These are pilot targets, not sufficient publication evidence by themselves.
+
+Include:
+
+- Cross-tool retries after denial.
+- Alternate resource representations.
+- Poisoned tool descriptions and returned content.
+- Unauthorized data release.
+- Approval replay and substitution.
+- Benign tasks resembling dangerous operations.
+
+### Main study
+
+After the pilot:
+
+- Set sample size from observed variability and the smallest useful effect.
+- Freeze tasks, exclusions, metrics, budgets, and analysis rules.
+- Include multiple agent models if making claims beyond one model.
+- Give adaptive attackers explicit knowledge of the defense and a fixed attack budget.
+- Keep attack development separate from final evaluation.
+- Record complete trajectories and inspect unsafe intermediate effects.
+
+**Deliverable:** immutable experiment manifest, raw observations, and failure classifications.
+
+## 6. Measure security, utility, and cost separately
+
+### Primary metrics
+
+| Metric | Definition |
+|---|---|
+| Attack success | Attacked episodes with an observed prohibited effect / attacked episodes |
+| Legitimate completion | Benign episodes completed within policy / benign episodes |
+| False denial | Independently labelled permitted operations incorrectly denied / permitted operations |
+| Approval burden | Approval requests per task, plus repeated requests |
+| Gateway overhead | Measured processing latency, excluding human waiting time |
+| Resolver failure | Incorrect or unresolved interpretations, reported separately |
+
+Also report result leakage, call amplification, recovery outcomes, and p50/p95 latency.
+
+### Analysis rules
+
+- Report counts and denominators alongside percentages.
+- Account for related variants and repeated trials; do not treat them as independent tasks.
+- Use paired comparisons and uncertainty intervals that respect task grouping.
+- Report security and utility together.
+- Preserve failed and inconclusive runs with explicit reasons.
+- Do not interpret zero observed failures as proof of zero risk.
+
+A scripted approval oracle can isolate system behavior, but cannot establish human judgment quality. Human error or fatigue claims require a separate appropriately reviewed participant study.
+
+## 7. Establish realistic scope and reproducibility
+
+**Estimated effort: 1 week**
+
+- Exercise actual forwarding through at least two distinct MCP server implementations and two client integrations.
+- Demonstrate local isolation using real controls and bypass probes.
+- Keep enforcement claims limited to the configurations actually verified.
+- Package code revision, dependencies, corpus, policies, seeds, commands, and analysis scripts.
+- Ask an independent reviewer to reproduce a representative subset.
+
+**Deliverable:** reproducible research artifact and a claim-to-evidence table.
+
+## 8. Rewrite the paper and make the submission decision
+
+**Estimated effort: 1 week**
+
+Reorganize the manuscript around:
+
+1. The unresolved problem.
+2. The precise contribution.
+3. The supported semantic model.
+4. Execution properties and assumptions.
+5. Comparative results.
+6. Failure analysis and limitations.
+
+### Submission gate
+
+Proceed toward a full-paper submission when:
+
+- Novelty is defensible against the closest work.
+- Real semantic resolution has been independently evaluated.
+- Comparative results establish a useful contribution.
+- Utility and overhead are measured.
+- Execution properties have systematic supporting evidence.
+- Claims match reproducible observations.
+
+If the evidence remains narrow, target a workshop or demonstration paper with narrower claims.
+
+**First action:** write the research protocol and construct the initial resolver corpus. These will reveal whether the central contribution is achievable before substantial experimental spending.

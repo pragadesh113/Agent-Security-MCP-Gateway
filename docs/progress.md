@@ -3,7 +3,99 @@
 **Current phase:** Phase 2 - Production-Oriented MCP Gateway  
 **Overall status:** Phase 2 local non-production deliverable complete; production assurance deferred
 **Current feature:** none; all 21 tracked features are complete under the approved local-only scope
-**Last updated:** 2026-09-20
+**Last updated:** 2026-10-01
+
+### 2026-10-01 - P2-DOC-001 - Originality review and document visuals
+
+- Result: revised report and manuscript prose for concrete project explanations,
+  primary-source attribution, accurate related-work distinctions, and explicit dated
+  evidence. Preserved pre-existing implementation and documentation changes.
+- Originality checks: verified cited primary sources and sampled nine public-web
+  phrase searches across both documents. A generic report opening was rewritten.
+  Reproducible 12-token screening found zero matching windows against either of the
+  two supplied source PDFs in both documents. This is not a proprietary similarity
+  score, plagiarism certificate, universal pass, or automated-authorship verdict.
+- Visuals: `images/` contains 24 original illustrations in PNG/SVG/PDF, nine editable
+  CSV tables/charts, a gallery, captions, source hashes and reproducible generator.
+  All 24 accompany the relevant report sections; three new full-width diagrams
+  supplement the manuscript's existing three figures. Charts retain historical or
+  candidate-inventory labels; no measured effectiveness results were invented.
+- Document validation: the final eight-page IEEEtran PDF compiled with the existing
+  cached Tectonic compiler and all eight rendered pages were visually inspected.
+  Tables, figures, six bibliography entries and references resolve. The built-in
+  editor remains open, but its compiler could not initialize platform directories.
+  Underfull spacing/Fontconfig warnings remain; no overfull boxes remained.
+- Repository validation: build, typecheck, 33 unit files/333 tests, 16 integration
+  files/74 tests, and 21 feature records passed. Initial test startup was blocked by
+  sandbox `spawn EPERM`; approved retries ran. The first integration retry failed
+  on PostgreSQL startup timeout; the next complete invocation passed.
+- Lint limitation: two pre-existing diagnostics remain in the uncommitted
+  `src/evaluation/resolver-corpus-v1.ts` extension (deprecated finite at line 79,
+  numeric template expression at line 110). That source was preserved outside this
+  documentation task. The root validation ladder therefore is not wholly green.
+- Not run: proprietary plagiarism services, authorship detectors, browser/Vault/
+  container/release reruns, resolver experiments, or comparative research trials.
+- Tracking: `P2-DOC-001` completion evidence updated; all 21 implementation feature
+  statuses remain unchanged. Coverage is `UNPROTECTED`; forwarding stays disabled.
+- Handoff: see `docs/document-originality-and-visuals.md`, both originality review
+  notes, `report-assets/originality-local-audit.json`, and `images/manifest.json`.
+  Submit the exact final documents to the institution's authorized similarity tool;
+  inspect substantive matches. Respect the selected venue's page limit and complete
+  author/disclosure details. Independently review resolver labels, create untouched
+  held-out families, and resolve the existing lint diagnostics before claiming a new
+  full repository validation pass. No production approval or research effectiveness
+  is implied by the revised documents.
+
+### 2026-09-27 - P2-DOC-001 - Research protocol deliverable completed
+
+- Scope: completed the protocol and contribution-statement action from section 1 of
+  `docs/addon-md.txt`; the research study and corpus remain unfinished
+- Result: `docs/research-protocol.md` defines RQ1–RQ3, supported-operation boundaries,
+  attacker capabilities and assumptions, independent labelling and family splits,
+  six comparison conditions, metric denominators, paired analysis, execution faults,
+  reproducibility inputs, and pilot/freeze/submission decision gates
+- Prior work: `docs/research-related-work.md` compares primary Progent v3 and MCIP v7
+  papers and links their official artifacts; neither baseline was installed or run,
+  and novelty remains an open research question
+- Implementation check: equivalence tests inject semantic findings; the analyzer
+  registry is a validation boundary; approved-call loading uses stored authority.
+  Fresh filesystem resolution and independent resolver ground truth remain work
+- Validation: build, lint, typecheck, 32 unit files/295 tests, and 15 integration
+  files/66 tests passed. Initial Vitest startup hit sandbox `spawn EPERM`; permitted
+  retries passed with disposable resources. All 21 feature records and 12 local
+  document links validated; scoped diff whitespace checks passed. Independent
+  read-only review checked the protocol and primary-source comparison; its execution
+  trust-boundary clarification was incorporated
+- Not run: browser, container, interoperability, or research experiments; no runtime,
+  browser, deployment, or corpus behavior changed. No empirical improvement claimed
+- Coverage: `UNPROTECTED`; protected forwarding remains disabled; all 21 implementation
+  feature statuses remain complete under the existing local-only scope
+- Next action: create the candidate resolver corpus and pinned tool/grammar scope,
+  assign complete families to development/held-out splits, and obtain independent
+  label review. Do not present candidate labels as ground truth or reuse injected
+  resolver expectations as independent evidence
+
+### 2026-09-27 - P2-DOC-002 - Complete project reading guide added
+
+- Status: `complete`; documentation-only deliverable with no runtime or coverage change
+- Result: added `docs/project-guide.md` and the navigable `docs/project-guide.html`, a
+  beginner-to-research guide covering MCP fundamentals, threat model, architecture,
+  canonical actions, policy tiers, approval and recovery, credentials and result
+  governance, PostgreSQL persistence, coverage, trust, repository layout, operation,
+  validation evidence, paper position, research plan, code-reading route, glossary,
+  and comprehension questions with answers
+- Accuracy: the guide explicitly separates the local Phase 2 completion state from
+  research effectiveness and production assurance; it records `UNPROTECTED` coverage,
+  disabled protected forwarding, fixture-resolved semantic-equivalence evidence, the
+  ordinary versus protected launchers, and the stored-authority revalidation limit
+- Validation: `npm run validate:features` passed for all 21 Phase 2 records; build,
+  lint, typecheck, 295 unit tests, and 66 integration tests passed during preparation;
+  structural guide checks passed; browser visual QA was attempted but blocked by the
+  Windows process policy (`spawn EPERM`) before Chromium could launch
+- Coverage: unchanged at `UNPROTECTED`; protected forwarding remains disabled
+- Next action: keep this guide synchronized when the runtime, feature evidence, or
+  research claims change; rerun browser visual QA when the host permits Chromium
+  launch
 
 ### 2026-09-21 - P2-DOC-001 - Beginner technical report refreshed
 

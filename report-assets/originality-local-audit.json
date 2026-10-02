@@ -1,0 +1,56 @@
+{
+  "schemaVersion": "1.0.0",
+  "method": "EXACT_12_TOKEN_LOCAL_SOURCE_SCREEN",
+  "date": "2026-10-01",
+  "documents": [
+    {
+      "document": "report.md",
+      "sha256": "ef12968b556fc79e0729ee3e5dae8018e2bf91b6f982911f37642007a8e3fc54",
+      "screenedTokens": 5381,
+      "checks": [
+        {
+          "source": "docs/Security of AI Agents.pdf",
+          "sourceSha256": "eec899b84fcc8c3739a8627c0071736423efbf2a588645ead239848bfd354c97",
+          "extractedSourceTokens": 8675,
+          "matchingDistinct12TokenWindows": 0,
+          "sampleMatchedWindows": []
+        },
+        {
+          "source": "docs/Agentic_AI_Security_Threats_Defenses_Evaluation_and_Open_Challenges.pdf",
+          "sourceSha256": "35c2924aabe7f8e1e2627c081c8b31d3cdd885561bcc5c55b54aff7a46bc3ce1",
+          "extractedSourceTokens": 22997,
+          "matchingDistinct12TokenWindows": 0,
+          "sampleMatchedWindows": []
+        }
+      ]
+    },
+    {
+      "document": "paper/main.tex",
+      "sha256": "6e6578648c6decc575106421d1c964dc6a4fe0a785f6d0324c09883524427871",
+      "screenedTokens": 4286,
+      "checks": [
+        {
+          "source": "docs/Security of AI Agents.pdf",
+          "sourceSha256": "eec899b84fcc8c3739a8627c0071736423efbf2a588645ead239848bfd354c97",
+          "extractedSourceTokens": 8675,
+          "matchingDistinct12TokenWindows": 0,
+          "sampleMatchedWindows": []
+        },
+        {
+          "source": "docs/Agentic_AI_Security_Threats_Defenses_Evaluation_and_Open_Challenges.pdf",
+          "sourceSha256": "35c2924aabe7f8e1e2627c081c8b31d3cdd885561bcc5c55b54aff7a46bc3ce1",
+          "extractedSourceTokens": 22997,
+          "matchingDistinct12TokenWindows": 0,
+          "sampleMatchedWindows": []
+        }
+      ]
+    }
+  ],
+  "limits": [
+    "Only two supplied source PDFs are screened; this is not a full database search.",
+    "PDF extraction, tokenization and markup removal can miss matches.",
+    "Paraphrases, translations, ideas, images and unpublished submissions are not detected.",
+    "An overlap requires attribution review; no overlap cannot establish originality.",
+    "No proprietary similarity score, plagiarism-free certificate or AI detector result is produced."
+  ]
+}

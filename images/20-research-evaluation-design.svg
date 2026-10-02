@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720" role="img"><title>Planned paired security and utility study</title><rect width="1200" height="720" fill="white"/>
+<text x="38" y="60.41" font-family="Arial,Helvetica,sans-serif" font-size="27" font-weight="700" fill="#203348">Planned paired security and utility study</text>
+<text x="38" y="88.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#637385">Research protocol; comparative effectiveness has not been established.</text>
+<polyline points="38,104 1162,104" fill="none" stroke="#b7c6d2" stroke-width="1.4"/>
+<text x="38" y="694.79" font-family="Arial,Helvetica,sans-serif" font-size="13" font-weight="400" fill="#637385">Agent Security MCP Gateway | Phase 2 | Original repository figure</text>
+<rect x="40" y="150" width="330" height="155" fill="#eef3f7" stroke="#a8bbc9"/>
+<rect x="40" y="150" width="5" height="155" fill="#285a86" stroke="#285a86"/>
+<text x="56" y="178.77" font-family="Arial,Helvetica,sans-serif" font-size="19" font-weight="700" fill="#285a86">01 Freeze contracts</text>
+<text x="56" y="208.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">Pin tool schemas, grammar, resources,</text>
+<text x="56" y="229.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">versions and platform.</text>
+<rect x="435" y="150" width="330" height="155" fill="#eef3f7" stroke="#a8bbc9"/>
+<rect x="435" y="150" width="5" height="155" fill="#285a86" stroke="#285a86"/>
+<text x="451" y="178.77" font-family="Arial,Helvetica,sans-serif" font-size="19" font-weight="700" fill="#285a86">02 Independent labels</text>
+<text x="451" y="208.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">Review candidate effects without resolver</text>
+<text x="451" y="229.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">predictions; retain disagreements.</text>
+<polyline points="370,227 435,227" fill="none" stroke="#285a86" stroke-width="1.4"/>
+<polygon points="435,227 425.78939005997114,230.8941834230865 425.78939005997114,223.1058165769135" fill="#285a86"/>
+<rect x="830" y="150" width="330" height="155" fill="#eef3f7" stroke="#a8bbc9"/>
+<rect x="830" y="150" width="5" height="155" fill="#285a86" stroke="#285a86"/>
+<text x="846" y="178.77" font-family="Arial,Helvetica,sans-serif" font-size="19" font-weight="700" fill="#285a86">03 Family-level split</text>
+<text x="846" y="208.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">Create new untouched held-out families;</text>
+<text x="846" y="229.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">do not relabel exposed cases.</text>
+<polyline points="765,227 830,227" fill="none" stroke="#285a86" stroke-width="1.4"/>
+<polygon points="830,227 820.7893900599712,230.8941834230865 820.7893900599712,223.1058165769135" fill="#285a86"/>
+<rect x="830" y="382" width="330" height="155" fill="#eef3f7" stroke="#a8bbc9"/>
+<rect x="830" y="382" width="5" height="155" fill="#285a86" stroke="#285a86"/>
+<text x="846" y="410.77" font-family="Arial,Helvetica,sans-serif" font-size="19" font-weight="700" fill="#285a86">04 Paired conditions</text>
+<text x="846" y="440.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">Native MCP, deterministic policy,</text>
+<text x="846" y="461.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">awareness, ablations and relevant</text>
+<text x="846" y="482.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">baselines.</text>
+<polyline points="995,305 995,382" fill="none" stroke="#285a86" stroke-width="1.4"/>
+<polygon points="995,382 991.1058165769135,372.78939005997114 998.8941834230865,372.78939005997114" fill="#285a86"/>
+<rect x="435" y="382" width="330" height="155" fill="#eef3f7" stroke="#a8bbc9"/>
+<rect x="435" y="382" width="5" height="155" fill="#285a86" stroke="#285a86"/>
+<text x="451" y="410.77" font-family="Arial,Helvetica,sans-serif" font-size="19" font-weight="700" fill="#285a86">05 Observe trajectories</text>
+<text x="451" y="440.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">Capture intermediate effects, sink receipts,</text>
+<text x="451" y="461.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">faults and legitimate completion.</text>
+<polyline points="830,459 765,459" fill="none" stroke="#285a86" stroke-width="1.4"/>
+<polygon points="765,459 774.2106099400288,455.10581657691347 774.2106099400288,462.89418342308653" fill="#285a86"/>
+<rect x="40" y="382" width="330" height="155" fill="#eef3f7" stroke="#a8bbc9"/>
+<rect x="40" y="382" width="5" height="155" fill="#285a86" stroke="#285a86"/>
+<text x="56" y="410.77" font-family="Arial,Helvetica,sans-serif" font-size="19" font-weight="700" fill="#285a86">06 Report denominators</text>
+<text x="56" y="440.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">Attack success, utility, false decisions,</text>
+<text x="56" y="461.28" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="400" fill="#203348">latency and approval burden separately.</text>
+<polyline points="435,459 370,459" fill="none" stroke="#285a86" stroke-width="1.4"/>
+<polygon points="370,459 379.21060994002886,455.10581657691347 379.21060994002886,462.89418342308653" fill="#285a86"/>
+<text x="40" y="640.45" font-family="Arial,Helvetica,sans-serif" font-size="15" font-weight="400" fill="#637385">This is a study design, not an experiment result. No fabricated attack-success or latency bars are provided.</text>
+</svg>

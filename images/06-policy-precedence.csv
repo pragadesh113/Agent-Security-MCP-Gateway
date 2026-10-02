@@ -1,0 +1,6 @@
+Priority,Decision,Operational meaning
+1,DENY,Withhold the operation.
+2,REQUIRE_APPROVAL,Obtain one matching exact human authorization.
+3,SANDBOX,Execute only within the required validated sandbox.
+4,ALLOW_WITH_CONSTRAINTS,Enforce all compatible obligations.
+5,ALLOW,Proceed only after all remaining boundary checks.
