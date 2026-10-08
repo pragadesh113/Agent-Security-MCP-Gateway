@@ -21,6 +21,7 @@ infra/data/
 /dashboard/status.json
 /tmp/
 /.report-work/
+/output/pdf/report-add.pdf
 
 # Generated publication output and the closed Phase 1 archive
 /docs/*.pdf

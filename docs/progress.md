@@ -3,7 +3,76 @@
 **Current phase:** Phase 2 - Production-Oriented MCP Gateway  
 **Overall status:** Phase 2 local non-production deliverable complete; production assurance deferred
 **Current feature:** none; all 21 tracked features are complete under the approved local-only scope
-**Last updated:** 2026-10-01
+**Last updated:** 2026-10-08
+
+### 2026-10-08 - P2-DOC-001 - Commit preparation for presentation and report
+
+- Result: prepared the Review 3 presentation, Chapters 4–7 Markdown and root PDF,
+  dashboard screenshot, and export helper for version control. Removed private
+  machine paths from the helper; it now resolves Playwright locally and accepts
+  `REPORT_MARKED_MODULE` and `REPORT_MERMAID_SCRIPT` for external renderer inputs.
+  Ignored only the byte-identical generated `output/pdf/report-add.pdf` copy.
+- Validation: build, typecheck, 333 unit tests, 74 integration tests, and validation
+  of all 21 feature records passed. Sandbox temporary-file permission failures
+  prevented initial test startup; permitted retries passed. Lint failed on the
+  same two existing resolver-corpus diagnostics at lines 79 and 110. Export helper
+  syntax and Git whitespace checks passed; screenshot inspected for publishable
+  local fixture evidence. No runtime source changed.
+- Not run: PDF regeneration, browser approval, smoke, Vault, interoperability,
+  release, stakeholder studies, or research trials. Report evidence remains dated
+  3 October; this checkpoint does not replace its historical observations.
+- Tracking: P2-DOC-001 remains complete under the local-only scope. Coverage remains
+  `UNPROTECTED` and protected production forwarding disabled.
+- Next action: resolve existing lint diagnostics and stale dashboard metadata as
+  separate implementation work; gather independent stakeholder/research evidence
+  before adding effectiveness or feedback claims.
+
+### 2026-10-03 - P2-DOC-001 - Report Chapters 4–7 and prototype evidence
+
+- Result: root `report-add.md` covers only the requested stakeholder survey and
+  requirement analysis, system design and UI plan, prototype development, and
+  testing/interim validation chapters. It includes editable Mermaid diagrams,
+  wireframes, stakeholder/requirement/test tables, a proposed questionnaire, and
+  explicit uncollected-survey and unmeasured-feedback labels.
+- Prototype evidence: captured and visually inspected the running loopback dashboard
+  at `report-assets/chapter-6/dashboard-current.png`; ran the actual local smoke
+  workflow successfully with invalid authentication rejected, MCP lifecycle/discovery
+  exercised, tool execution denied, and zero downstream tool calls. The screenshot
+  shows 21/21 locally complete features. Its retained integration metadata says 66,
+  whereas the fresh suite passed 74; the report discloses this discrepancy and the
+  dashboard's development-gate label does not supersede the lint failure.
+- Validation: build, typecheck, 33 unit files/333 tests, 16 integration files/74 tests,
+  and all 21 feature records passed. Initial sandbox test startup hit `spawn EPERM`;
+  permitted subprocess retries passed. Lint again failed on the two existing
+  `src/evaluation/resolver-corpus-v1.ts` diagnostics at lines 79 and 110. Markdown
+  structure and local references checked; screenshot visually inspected.
+- Not run: new participant surveys/interviews, browser approval suite, Vault,
+  interoperability, container/release workflows, or comparative research trials.
+  Retained September evidence is dated separately. No runtime implementation changed.
+- Tracking: `P2-DOC-001` evidence extended without changing feature statuses.
+  Coverage remains `UNPROTECTED`; protected production forwarding remains disabled.
+- Next action: collect consented stakeholder data before inserting survey charts or
+  feedback claims; correct stale dashboard evidence metadata and resolve existing lint
+  diagnostics as separate implementation work. Research and production assurance
+  remain subject to their existing independent-evidence gates.
+
+### 2026-10-02 - P2-DOC-001 - Review 3 presentation content
+
+- Result: root `ppt.md` provides 14 slide outlines covering only the eight Review 3
+  topics in the supplied review sheet, with a ten-minute speaking plan, presenter
+  notes, existing diagram links, editable tables, and a local demonstration script.
+- Evidence: distinguishes the 2 October current-session 333 unit/74 integration
+  passes from retained September browser/release evidence; discloses both existing
+  lint errors, unreviewed resolver labels, unmeasured research effectiveness, and
+  manuscript/publication status. No new demo or production claim is made.
+- Validation: content/topic coverage and local image links checked. Build,
+  typecheck, unit, integration, and 21-record feature validation passed earlier in
+  this session before the documentation-only addition; lint failed on the two
+  already-recorded resolver-corpus diagnostics. No runtime behavior changed.
+- Coverage: `UNPROTECTED`; protected production forwarding remains disabled.
+- Next action: fill team/guide details, transfer content to PowerPoint, and rehearse
+  the local smoke demonstration. Independently review research labels and resolve
+  lint before claiming a wholly green root validation ladder.
 
 ### 2026-10-01 - P2-DOC-001 - Originality review and document visuals
 
