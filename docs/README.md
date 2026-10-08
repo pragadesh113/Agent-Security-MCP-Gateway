@@ -1,4 +1,5 @@
-# Agent Security MCP Gateway
+# Agent Security MCP Gateway #
+
 
 This repository contains the active Phase 2 implementation of a production-oriented
 security gateway for Model Context Protocol traffic.
